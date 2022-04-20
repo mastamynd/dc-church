@@ -1,0 +1,60 @@
+::selection {
+    background-color: #004aad;
+    color: #ffffff;
+}
+
+table.ellipsized td:not(.escapee) {
+    text-overflow: ellipsis;
+    overflow-x: hidden;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+}
+
+table.ellipsized th {
+    padding-left: 0.6rem !important;
+    padding-right: 0.6rem !important;
+}
+
+table.ellipsized td:hover {
+    text-overflow: unset;
+    overflow-x: unset;
+    overflow-wrap: break-word !important;
+    background-color: inherit;
+    z-index: 12;
+    text-shadow: 0px 0px 20px #fff !important;
+}
+
+table.ellipsized td:hover span {
+    padding-right: 10px;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+table.ellipsized td:hover a {
+    background-color: inherit !important;
+    padding-right: 10px;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.selectize-field.multi .selectize-input input {
+    padding: 5px !important;
+}
+
+.my-checkbox{
+    float: left;
+    display: block;
+}
+
+.break-words{
+    white-space: unset !important;
+    overflow-wrap: break-word !important;
+    word-break: break-all !important;
+}
+
+.table-responsive.custom{
+    overflow-x: auto!important;
+}
+
+.selectize-input { 
+    white-space: nowrap !important;
+    overflow-x: hidden !important;
+}
