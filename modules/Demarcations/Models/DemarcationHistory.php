@@ -16,8 +16,10 @@ class DemarcationHistory extends Model
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
-    protected static function newFactory()
-    {
-        return \Modules\Demarcations\Database\Factories\DemarcationHistory::new();
+    public function parent(){
+        return $this->belongsTo(Demarcation::class, 'parent_id');
+    }
+    public function demarcation(){
+        return $this->belongsTo(Demarcation::class, 'demarcation_id');
     }
 }

@@ -447,4 +447,14 @@ return [
         ],
     ],
 
+    Modules\Church\Models\Church::class => [
+        'columns' => [
+            'id',
+            'name' => ['searchable' => true],
+            'code' => ['searchable' => true],
+            'founded_on' => ['date' => true],
+            'enabled' => ['boolean' => true],
+        ]
+    ]
+    
 ];

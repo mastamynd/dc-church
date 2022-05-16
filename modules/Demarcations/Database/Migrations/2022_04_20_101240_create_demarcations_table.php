@@ -15,8 +15,10 @@ class CreateDemarcationsTable extends Migration
 	{
 		Schema::create('demarcations', function (Blueprint $table) {
 			$table->bigIncrements('id');
+			$table->integer('company_id')->default(1);
 			$table->string('name');
 			$table->string('type');
+			$table->boolean('enabled')->default(1);
 			$table->softDeletes();
 			$table->timestamps();
 		});

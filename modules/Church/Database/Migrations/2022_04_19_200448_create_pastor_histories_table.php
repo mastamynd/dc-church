@@ -21,6 +21,11 @@ class CreatePastorHistoriesTable extends Migration
 			$table->string('rank');
 			$table->softDeletes();
 			$table->timestamps();
+			
+
+			$table->index(['church_id', 'pastor_id'], 'pa_hi_in_indx');
+			$table->index(['position'], 'pa_po_in_indx');
+			$table->index(['rank'], 'pa_ra_in_indx');
 		});
 	}
 

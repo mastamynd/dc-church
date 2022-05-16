@@ -15,6 +15,7 @@ class CreatePastorsTable extends Migration
 	{
 		Schema::create('pastors', function (Blueprint $table) {
 			$table->bigIncrements('id');
+			$table->integer('company_id')->default(1);
 			$table->integer('contact_id');
 			$table->string('picture')->nullable()->default('images/pastor.png');
 			$table->date('date_of_birth')->nullable();
@@ -25,6 +26,8 @@ class CreatePastorsTable extends Migration
 			$table->string('ukumbozi_number')->nullable();
 			$table->boolean('enabled')->default(1);
 			$table->timestamps();
+
+			$table->index(['contact_id'], 'pa_in_indx');
 		});
 	}
 

@@ -26,6 +26,8 @@ class CreateChurchTransactionsTable extends Migration
             $table->timestamps();
 
             $table->index(['church_id', 'transaction_id'], 'ch_tr_inx');
+            $table->index(['captured_by'], 'ca_tr_by_inx');
+            $table->index(['year'], 'ch_tr_ye_by_inx');
         });
     }
 

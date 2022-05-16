@@ -4,6 +4,7 @@ namespace Modules\Demarcations\Models;
 
 use App\Abstracts\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Demarcation extends Model
 {
@@ -11,13 +12,10 @@ class Demarcation extends Model
 
     protected $fillable = [];
 
-    /**
-     * Create a new factory instance for the model.
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
-     */
-    protected static function newFactory()
+    public function history(): HasMany
     {
-        return \Modules\Demarcations\Database\Factories\Demarcation::new();
+        return $this->hasMany(DemarcationHistory::class, 'foreign_key', 'local_key');
     }
+
+    
 }

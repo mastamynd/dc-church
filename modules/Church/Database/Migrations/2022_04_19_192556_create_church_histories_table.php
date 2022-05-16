@@ -21,6 +21,8 @@ class CreateChurchHistoriesTable extends Migration
 			$table->dateTime('end_date');
 			$table->softDeletes();
 			$table->timestamps();
+
+			$table->index(['church_id', 'demarcation_id'], 'ch_hi_ind');
 		});
 	}
 
