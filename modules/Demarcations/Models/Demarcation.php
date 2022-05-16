@@ -14,8 +14,10 @@ class Demarcation extends Model
 
     public function history(): HasMany
     {
-        return $this->hasMany(DemarcationHistory::class, 'foreign_key', 'local_key');
+        // return $this->hasMany(DemarcationHistory::class, 'foreign_key', 'local_key')->withTrashed()->orderBy('created_at', 'desc');
     }
 
-    
+    public function parent(){
+        return $this->belongsTo(DemarcationHistory::class, 'parent_id');
+    }
 }

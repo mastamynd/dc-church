@@ -3,6 +3,7 @@
 namespace Modules\Church\Models;
 
 use App\Abstracts\Model;
+use App\Models\Common\Contact;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pastor extends Model
@@ -16,7 +17,11 @@ class Pastor extends Model
 		return $this->belongsTo(Church::class);
 	}
 
-	public function rank(){
+	public function contact(){
+		return $this->belongsTo(Contact::class);
+	}
+
+	public function history(){
 		return $this->hasOne(PastorHistory::class);
 	}
 

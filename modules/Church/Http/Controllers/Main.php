@@ -142,4 +142,8 @@ class Main extends Controller
     {
         //
     }
+
+    public function fetch_demarcations($search){
+
+    }
 }

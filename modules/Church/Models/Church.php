@@ -12,7 +12,7 @@ class Church extends Model
     protected $fillable = ['name', 'code', 'founded_on', 'photo', 'enabled', 'latitude', 'longitude'];
 
     public function pastors(){
-        return $this->hasMany(PastorHistory::class);
+        return $this->hasMany(PastorHistory::class)->orderBy('rank', 'desc');
     }
 
     public function subregion(){
@@ -21,5 +21,9 @@ class Church extends Model
 
     public function history(){
         return $this->hasMany(ChurchHistory::class)->withTrashed()->orderBy('created_at', 'desc');
+    }
+
+    public function pastor_history(){
+        return $this->hasMany(PastorHistory::class)->withTrashed()->orderBy('created_at', 'desc');
     }
 }
