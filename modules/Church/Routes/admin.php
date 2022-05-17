@@ -25,11 +25,18 @@ Route::admin('church', function () {
 
 
     //Pastors Routes
-    Route::get('pastors', 'Pastor@index')->name('pastors.index');
-    Route::get('pastors/statements', 'Pastor@index')->name('pastors.statements');
-    Route::get('pastor/{id}', 'Pastor@show')->name('pastors.show');
+    Route::get('pastors/index', 'Pastor@indexPastors')->name('pastors.index');
+    Route::get('pastors/create/new', 'Pastor@createPastor')->name('pastors.create');
+    Route::get('pastors/statements', 'Pastor@statements')->name('pastors.statements');
+    Route::post('/pastor/store/new','Pastor@storePastors')->name('pastors.store');
+    Route::get('pastors/show/{id}','Pastor@showPastor')->name('pastors.show');
+    Route::get('pastors/edit/{id}','Pastor@editPastor')->name('pastors.edit');
+    Route::post('/pastor/update','Pastor@updatePastor')->name('pastor.update');
+    Route::post('/pastor/add/history','Pastor@add_pastor_history')->name('pastors.add.history');
+
     Route::get('pastors/filter/{search?}', 'Pastor@get_pastors')->name('fetch_pastors');
     Route::post('pastors/add-to-church/{id}', 'Pastor@add_to_church')->name('add_to_church');
+    Route::get('filter/churches/list/{search?}','Pastor@get_church')->name('get_church');
 
     //Demarcations Routes
     Route::get('demarcations/{type}', 'Demarcation@index')->name('demarcations.index');

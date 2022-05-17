@@ -10,7 +10,7 @@ class Pastor extends Model
 {
 	use HasFactory;
 
-	protected $fillable = [];
+	protected $fillable = ['company_id','contact_id','date_of_birth','gender','id_or_passport','phone','phone2','ukumbozi_number','enabled','picture'];
 
 	public function church()
 	{
@@ -22,6 +22,10 @@ class Pastor extends Model
 	}
 
 	public function history(){
+		return $this->hasOne(PastorHistory::class)->orderBy('created_at', 'desc');
+	}
+
+	public function rank(){
 		return $this->hasOne(PastorHistory::class);
 	}
 

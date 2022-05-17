@@ -4,6 +4,7 @@ return [
 
     'name'              => 'Church',    
     'code'              => 'Church Code',
+    'gender'            => 'Gender',
     'description'       => 'This is my awesome module',
     'title'             => 'Church|Churches',
     'pastor'            => 'Pastor|Pastors',
@@ -22,8 +23,17 @@ return [
     'position'          => 'Position',
     'start'             => 'From',
     'end'               => 'End',
-    'add_pastor_history'       => 'Add Pastor History',
     'add_church_history'       => 'Add Church History',
-    'assign_subregion'         => 'Assign Sub-Region',
-    'change_subregion'         => 'Change Sub-Region',
+    'assign_subregion'  => 'Assign Sub-Region',
+    'change_subregion'  => 'Change Sub-Region',
+    'ukombozi'          => 'Ukombozi No',
+    'no_pastors_message'=> 'Sorry there are currently no pastors in the system. Check out the documentation for more details.',
+    'phone_2'           =>'Phone No 2',
+    'passport'          =>'ID/Passport No',
+    'birth_date'        =>'Date of Birth',
+    'country'           =>'Country',
+    'photo'             =>'Profile Photo',
+    'add_pastor_history'=>'Add Pastor History',
+    'add_pastor_statement'=>'Add Statement',
+    
 ];
