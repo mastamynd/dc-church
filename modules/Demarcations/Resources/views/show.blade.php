@@ -8,10 +8,13 @@
 	<a href="{{ route('demarcations.edit', [$type, $demarcation->id]) }}" class="btn btn-white btn-sm">
 		{{ trans('general.edit') }}
 	</a>
-	<span class="btn btn-warning btn-sm" data-target="#add-subregion-modal" data-toggle="modal">
-		{{ (isset($demarcation->subregion) && isset($demarcation->subregion->demarcation)) ? 
-			trans('church::general.change_subregion') : trans('demarcations::general.add_subregion') }}
-	</span>
+	@if ($type == 'region')
+		<span class="btn btn-warning btn-sm" data-target="#add-subregion-modal" data-toggle="modal">
+			{{ (isset($demarcation->subregion) && isset($demarcation->subregion->demarcation)) ? 
+				trans('church::general.change_subregion') : trans('demarcations::general.add_subregion') }}
+		</span>
+	@endif
+	
 @endcan
 @stack('edit_button_end')
 @stack('add_pastor_button_start')
@@ -76,8 +79,8 @@
 					<div class="font-weight-600">{{ trans_choice('demarcations::general.overseer', 1) }}</div>
 					<div>
 						@if(!empty($demarcation->overseer))
-							<a class="long-texts text-sm {{ $loop->index > 1 ? ' border-top-1' : '' }}" href="{{ route('church.pastors.show', $pastor->pastor->id) }}">
-								<small class="badge bg-dark text-white badge-pill">{{ $demarcation->overseer->pastor->rank }}</small> {{ $demarcation->overseer->pastor->rank }} <span class="text-muted">{{ $demarcation->overseer->pastor->contact->email }}</span>
+							<a class="long-texts text-sm" href="{{ route('church.pastors.show', $demarcation->overseer->pastor_id) }}">
+								<small class="badge bg-dark text-white badge-pill">{{ $demarcation->overseer->rank->rank }}</small> <span class="text-muted">{{ $demarcation->overseer->pastor->contact->name }}</span>
 							</a>
 						@else
 							<span class="badge badge-warning badge-sm">Not Set</span>
@@ -159,7 +162,7 @@
 												</tr>
 											@endforeach
 											@if (empty($church->pastor_history))
-												<tr class="row align-items-center border-top-1 tr-py">
+												<tr class="align-items-center border-top-1 tr-py">
 													<td colspan="5 text-muted">No records found.</td>
 												</tr>
 											@endif
@@ -183,16 +186,16 @@
 										<tbody>
 											
 												@foreach ($demarcation->children as $item)
-													<tr class="row align-items-center border-top-1 tr-py">
-														<td lass="text-muted">{{ $item->demarcation->name }}</td>
-														<td lass="text-muted">{{ $item->demarcation->code }}</td>
-														<td lass="text-muted">{{ $item->demarcation->overseer->rank->position }} {{ $item->demarcation->overseer->pastor->contact->name }}</td>
-														<td lass="text-muted">{{ $item->demarcation->overseer->pastor->church->name }}</td>
+													<tr class="border-top-1 tr-py">
+														<td><a href="{{ route('demarcations.show', [$type == 'region' ? 'subregion' : 'church', $item->demarcation->id]) }}">{{ $item->demarcation->name }}</a></td>
+														<td><a href="{{ route('demarcations.show', [$type == 'region' ? 'subregion' : 'church', $item->demarcation->id]) }}">{{ $item->demarcation->code }}</a></td>
+														<td>{{ isset($item->demarcation->overseer) ? $item->demarcation->overseer->rank->position.' '.$item->demarcation->overseer->pastor->contact->name : 'Not Set' }}</td>
+														<td>{{ $item->demarcation->children->count() }}</td>
 													</tr>
 												@endforeach
 												@if($demarcation->children->count() == 0)
-												<tr class="row align-items-center border-top-1 tr-py">
-													<td colspan="5" class="text-muted">No records found.</td>
+												<tr class="align-items-center border-top-1 tr-py">
+													<td colspan="4" class="text-muted">No records found.</td>
 												</tr>
 												@endif
 												
@@ -215,7 +218,7 @@
 												</tr>
 											</thead>
 											<tbody>
-												<tr class="row align-items-center border-top-1 tr-py">
+												<tr class="align-items-center border-top-1 tr-py">
 													<td colspan="5 text-muted">No records found.</td>
 												</tr>
 										</tbody>

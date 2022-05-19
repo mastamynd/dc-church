@@ -453,7 +453,7 @@ return [
             'name' => ['searchable' => true],
             'code' => ['searchable' => true],
             'founded_on' => ['date' => true],
-            'enabled' => ['boolean' => true],
+            'enabled' => ['boolean' => true]
         ]
     ],
 
