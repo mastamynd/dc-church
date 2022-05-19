@@ -15,11 +15,11 @@ class AddToSideBar
     {
         $event->menu->dropdown(trans_choice('church::general.title', 2), function($sub){
 			$sub->route('church.index', trans_choice('church::general.title', 2), [], []);
-		}, 10, ['icon'=>'fas fa-church'])->order(10);
+		}, 20, ['icon'=>'fas fa-church']);
 
         $event->menu->dropdown(trans_choice('church::general.pastor', 2), function($sub){
 			$sub->route('church.pastors.index', trans_choice('church::general.pastor', 2), [], []);
 			$sub->route('church.pastors.statements', trans_choice('church::general.pastor_statement', 2), [], []);
-		}, 10, ['icon'=>'fas fa-user-tie'])->order(10);
+		}, 20, ['icon'=>'fas fa-user-tie']);
     }
 }

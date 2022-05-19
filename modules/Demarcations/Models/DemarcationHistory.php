@@ -13,7 +13,6 @@ class DemarcationHistory extends Model
 
 	protected $fillable = ['demarcation_id', 'parent_id'];
 
-
 	/**
 	 * Create a new factory instance for the model.
 	 *

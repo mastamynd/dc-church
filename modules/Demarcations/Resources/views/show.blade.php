@@ -244,9 +244,13 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 									<i class="fa fa-user"></i>
 								</span>
 							</div>
-							<select data-url="{{ route('church.fetch_demarcations', $demarcation->id) }}/subregions/{search?}" name="subregion_id" 
+							<select data-url="{{ route('church.fetch_demarcations', $demarcation->id) }}/{search?}" name="subregion_id" 
 								placeholder="{{ trans_choice('church::general.subregion', 1) }}..."
 								class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
+									<option></option>
+									@foreach ($subregions as $item)
+										<option value="{{ $item->id }}">{{ $item->name }}</option>
+									@endforeach
 							</select>
 						</div>
 					</div>

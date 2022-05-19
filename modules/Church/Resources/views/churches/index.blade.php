@@ -55,15 +55,15 @@
 									<a class="long-texts" href="{{ route('church.show', $item->id) }}">{{ $item->code }}</a>
 								</td>
 								<td>
-									@if(isset($item->region) && isset($item->region->demarcation))
-										<a class="long-texts" href="{{ route('church.show', $item->region->demarcation->id) }}">{{ $item->region->demarcation->name }}</a>
+									@if(isset($item->subregion->demarcation->parent) && isset($item->subregion->demarcation->parent->parent))
+										<a class="long-texts" href="{{ route('demarcations.show', [$item->subregion->demarcation->parent->parent->type, $item->subregion->demarcation->parent->parent->id]) }}">{{ $item->subregion->demarcation->parent->parent->name }}</a>
 									@else
 										<span class="badge badge-warning badge-sm">Not Set</span>
 									@endif
 								</td>
 								<td>
 									@if(isset($item->subregion) && isset($item->subregion->demarcation))
-										<a class="long-texts" href="{{ route('church.show', $item->subregion->demarcation->id) }}">{{ $item->subregion->demarcation->name }}</a>
+										<a class="long-texts" href="{{ route('demarcations.show', [$item->subregion->demarcation->type, $item->subregion->demarcation->id]) }}">{{ $item->subregion->demarcation->name }}</a>
 									@else
 										<span class="badge badge-warning badge-sm">Not Set</span>
 									@endif

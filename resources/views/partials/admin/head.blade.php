@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="{{ asset('public/css/akaunting-color.css?v=' . version('short')) }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('public/css/custom.css?v=' . version('short')) }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('public/css/element.css?v=' . version('short')) }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('public/css/override.css?v=' . version('short')) }}" type="text/css">
+    <link rel="stylesheet" href="{{ asset('public/css/override.css') }}" type="text/css">
 
     @stack('css')
 
