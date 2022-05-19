@@ -105,7 +105,8 @@ class Main extends Controller
 	public function show($type, $id)
 	{
 		$demarcation = Demarcation::find($id);
-		return view('demarcations::show', compact('demarcation', 'type'));
+		$subregions = Demarcation::subregion()->orderBy('name', 'asc')->get();
+		return view('demarcations::show', compact('demarcation', 'type', 'subregions'));
 	}
 
 	/**

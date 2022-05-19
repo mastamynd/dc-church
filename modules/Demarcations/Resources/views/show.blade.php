@@ -4,19 +4,19 @@
 
 @section('new_button')
 @stack('edit_button_start')
-@can('update-church-main')
+@can('create-demarcations-main')
 	<a href="{{ route('demarcations.edit', [$type, $demarcation->id]) }}" class="btn btn-white btn-sm">
 		{{ trans('general.edit') }}
 	</a>
-	<span class="btn btn-warning btn-sm" data-target="#assign-subregion-modal" data-toggle="modal">
+	<span class="btn btn-warning btn-sm" data-target="#add-subregion-modal" data-toggle="modal">
 		{{ (isset($demarcation->subregion) && isset($demarcation->subregion->demarcation)) ? 
-			trans('church::general.change_subregion') : trans('church::general.assign_subregion') }}
+			trans('church::general.change_subregion') : trans('demarcations::general.add_subregion') }}
 	</span>
 @endcan
 @stack('edit_button_end')
 @stack('add_pastor_button_start')
-@can('update-church-main')
-	<span class="btn btn-default btn-sm" data-target="#pastor-history-modal" data-toggle="modal">{{ trans('church::general.add_pastor_history') }}</span>
+@can('update-demarcations-main')
+	<span class="btn btn-default btn-sm" data-target="#set-overseer-modal" data-toggle="modal">{{ trans('demarcations::general.set_overseer') }}</span>
 @endcan
 @stack('add_pastor_button_end')
 @endsection
@@ -50,7 +50,7 @@
 
 				@stack('demarcations_code_start')
 				<li class="list-group-item border-0 border-top-1">
-					<div class="font-weight-600">{{ trans('church::general.code') }}</div>
+					<div class="font-weight-600">{{ trans('demarcations::general.code') }}</div>
 					<div><small class="long-texts" title="{{ $demarcation->code }}">{{ $demarcation->code }}</small></div>
 				</li>
 				@stack('demarcations_code_end')
@@ -60,8 +60,8 @@
 					<li class="list-group-item border-0 border-top-1">
 						<div class="font-weight-600">{{ trans_choice('church::general.region', 1) }}</div>
 						<div>
-							@if(isset($demarcation->parent) && isset($demarcation->parent->demarcation))
-								<a class="long-texts" href="{{ route('church.show', $demarcation->region->demarcation->id) }}">{{ $demarcation->region->demarcation->name }}</a>
+							@if(isset($demarcation->parent) && isset($demarcation->parent->parent))
+								<a class="long-texts" href="{{ route('church.show', $demarcation->parent->parent->id) }}">{{ $demarcation->parent->parent->name }}</a>
 							@else
 								<span class="badge badge-warning badge-sm">Not Set</span>
 							@endif
@@ -92,26 +92,36 @@
 				<div class="col-md-12">
 					<div class="nav-wrapper">
 						<ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
-							@stack('customer_church_history_tab_start')
+							@stack('customer_subregion_tab_start')
 							<li class="nav-item">
-								<a class="nav-link mb-sm-3 mb-md-0 active" id="church_history-tab" data-toggle="tab" href="#church_history-content" role="tab" aria-controls="church_history-content" aria-selected="true">
-									{{ trans_choice('church::general.church_history', 2) }}
+								<a class="nav-link mb-sm-3 mb-md-0 active" id="subregion-tab" data-toggle="tab" href="#subregion-content" role="tab" aria-controls="subregion-content" aria-selected="true">
+									{{ trans_choice('demarcations::general.subregion', 2) }}
 								</a>
 							</li>
-							@stack('customer_church_history_tab_end')
-				
-							@stack('customer_pastor_history_tab_start')
+							@stack('customer_subregion_tab_end')
+
+							@if($type == "subregion")
+								@stack('customer_subregion_history_tab_start')
+								<li class="nav-item">
+									<a class="nav-link mb-sm-3 mb-md-0" id="subregion_history-tab" data-toggle="tab" href="#subregion_history-content" role="tab" aria-controls="subregion_history-content" aria-selected="true">
+										{{ trans('demarcations::general.subregion_history') }}
+									</a>
+								</li>
+								@stack('customer_subregion_history_tab_end')		
+							@endif
+							
+							@stack('customer_overseer_history_tab_start')
 							<li class="nav-item">
-								<a class="nav-link mb-sm-3 mb-md-0" id="pastor_history-tab" data-toggle="tab" href="#pastor_history-content" role="tab" aria-controls="pastor_history-content" aria-selected="false">
-									{{ trans_choice('church::general.pastor_history', 2) }}
+								<a class="nav-link mb-sm-3 mb-md-0" id="overseer_history-tab" data-toggle="tab" href="#overseer_history-content" role="tab" aria-controls="overseer_history-content" aria-selected="false">
+									{{ trans('demarcations::general.overseer_history') }}
 								</a>
 							</li>
-							@stack('customer_pastor_history_tab_end')
+							@stack('customer_overseer_history_tab_end')
 				
 							@stack('customer_church_statements_tab_start')
 							<li class="nav-item">
 								<a class="nav-link mb-sm-3 mb-md-0" id="church_statements-tab" data-toggle="tab" href="#church_statements-content" role="tab" aria-controls="church_statements-content" aria-selected="false">
-									{{ trans_choice('church::general.church_statement', 2) }}
+									{{ trans_choice('demarcations::general.statement', 2) }}
 								</a>
 							</li>
 							@stack('customer_church_statements_tab_end')
@@ -119,10 +129,10 @@
 					</div>				
 					<div class="card">
 						<div class="tab-content" id="cutomer-tab-content">
-							@stack('customer_pastor_history_content_start')
-							<div class="tab-pane fade" id="pastor_history-content" role="tabpanel" aria-labelledby="invoices-tab">
+							@stack('customer_overseer_history_content_start')
+							<div class="tab-pane fade" id="overseer_history-content" role="tabpanel" aria-labelledby="overseer_history-tab">
 								<div class="table-responsive custom">
-									<table class="table table-flush table-hover" id="tbl-pastor_history">
+									<table class="table table-flush table-hover" id="tbl-overseer_history">
 										<thead class="thead-light">
 											<tr class="table-head-line">
 												<th class="">{{ trans_choice('church::general.pastor', 1) }}</th>
@@ -133,11 +143,11 @@
 											</tr>
 										</thead>
 										<tbody>
-											@foreach($demarcation->pastors ?? [] as $r)
+											@foreach($demarcation->pastors as $r)
 												<tr>
 													<td>{{ $r->pastor->contact->name }}</td>
-													<td>{{ $r->rank }}</td>
-													<td>{{ $r->position }}</td>
+													<td>{{ $r->rank->rank }}</td>
+													<td>{{ $r->rank->position }}</td>
 													<td>{{ $r->created_at }}</td>
 													<td>
 														@if(trim($r->deleted_at) != "") 
@@ -148,7 +158,7 @@
 													</td>
 												</tr>
 											@endforeach
-											@if (empty($demarcation->pastors))
+											@if (empty($church->pastor_history))
 												<tr class="row align-items-center border-top-1 tr-py">
 													<td colspan="5 text-muted">No records found.</td>
 												</tr>
@@ -157,52 +167,63 @@
 									</table>
 								</div>
 							</div>
-							@stack('customer_pastor_history_content_end')
-							@stack('customer_church_history_content_start')
-							<div class="tab-pane fade show active" id="church_history-content" role="tabpanel" aria-labelledby="church_history-tab">
+							@stack('customer_overseer_history_content_end')
+							@stack('customer_subregion_content_start')
+							<div class="tab-pane fade show active" id="subregion-content" role="tabpanel" aria-labelledby="subregion-tab">
 								<div class="table-responsive custom">
-									<table class="table table-flush table-hover" id="tbl-church_history">
+									<table class="table table-flush table-hover" id="tbl-subregion">
 										<thead class="thead-light">
 											<tr class="table-head-line">
-												<th class="">{{ trans_choice('general.numbers', 1) }}</th>
-												<th class="">{{ trans_choice('church::general.pastor', 1) }}</th>
-												<th class="">{{ trans('invoices.invoice_date') }}</th>
-												<th class="">{{ trans('invoices.due_date') }}</th>
-												<th class="">{{ trans_choice('general.statuses', 1) }}</th>
+												<th class="">{{ trans_choice('general.name', 1) }}</th>
+												<th class="">{{ trans_choice('demarcations::general.code', 1) }}</th>
+												<th class="">{{ trans_choice('demarcations::general.overseer', 1) }}</th>
+												<th class="">{{ trans_choice('demarcations::general.church', 2) }}</th>
 											</tr>
 										</thead>
-				
 										<tbody>
-											<tr class="row align-items-center border-top-1 tr-py">
-												<td colspan="5 text-muted">No records found.</td>
-											</tr>
+											
+												@foreach ($demarcation->children as $item)
+													<tr class="row align-items-center border-top-1 tr-py">
+														<td lass="text-muted">{{ $item->demarcation->name }}</td>
+														<td lass="text-muted">{{ $item->demarcation->code }}</td>
+														<td lass="text-muted">{{ $item->demarcation->overseer->rank->position }} {{ $item->demarcation->overseer->pastor->contact->name }}</td>
+														<td lass="text-muted">{{ $item->demarcation->overseer->pastor->church->name }}</td>
+													</tr>
+												@endforeach
+												@if($demarcation->children->count() == 0)
+												<tr class="row align-items-center border-top-1 tr-py">
+													<td colspan="5" class="text-muted">No records found.</td>
+												</tr>
+												@endif
+												
 										</tbody>
 									</table>
 								</div>
 							</div>
-							@stack('customer_church_history_content_end')
-							@stack('customer_church_statements_content_start')
-							<div class="tab-pane fade" id="church_statements-content" role="tabpanel" aria-labelledby="church_statements-tab">
-								<div class="table-responsive custom">
-									<table class="table table-flush table-hover" id="tbl-church_statements">
-										<thead class="thead-light">
-											<tr class="table-head-line">
-												<th class="">{{ trans_choice('general.numbers', 1) }}</th>
-												<th class="">{{ trans_choice('church::general.pastor', 1) }}</th>
-												<th class="">{{ trans('invoices.invoice_date') }}</th>
-												<th class="">{{ trans('invoices.due_date') }}</th>
-												<th class="">{{ trans_choice('general.statuses', 1) }}</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr class="row align-items-center border-top-1 tr-py">
-												<td colspan="5 text-muted">No records found.</td>
-											</tr>
+							@stack('customer_subregion_content_end')
+							@if($type == "subregion")
+								@stack('customer_subregion_history_content_start')
+								<div class="tab-pane fade show" id="subregion_history-content" role="tabpanel" aria-labelledby="subregion_history-tab">
+									<div class="table-responsive custom">
+										<table class="table table-flush table-hover" id="tbl-subregion_history">
+											<thead class="thead-light">
+												<tr class="table-head-line">
+													<th class="">{{ trans_choice('general.name', 1) }}</th>
+													<th class="">{{ trans_choice('demarcations::general.code', 1) }}</th>
+													<th class="">{{ trans_choice('demarcations::general.overseer', 1) }}</th>
+													<th class="">{{ trans_choice('demarcations::general.church', 2) }}</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr class="row align-items-center border-top-1 tr-py">
+													<td colspan="5 text-muted">No records found.</td>
+												</tr>
 										</tbody>
 									</table>
 								</div>
 							</div>
-							@stack('customer_church_statements_content_end')
+							@stack('customer_subregion_history_content_end')
+							@endif
 						</div>
 					</div>
 				</div>
@@ -227,33 +248,19 @@ crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js"
 integrity="sha512-pF+DNRwavWMukUv/LyzDyDMn8U2uvqYQdJN0Zvilr6DDo/56xPDZdDoyPDYZRSL4aOKO/FGKXTpzDyQJ8je8Qw=="
 crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<div class="modal fade show" id="assign-subregion-modal" role="dialog">
+<div class="modal fade show" id="add-subregion-modal" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<form action="{{route('church.assign_subregion', $demarcation->id)}}" method="post">
+			<form action="{{route('demarcations.store', 'subregion')}}" method="post">
 				@csrf
 				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
-					{{ trans('church::general.assign_subregion') }}
+					{{ trans('demarcations::general.add_subregion') }}
 				</div>
 				<div class="modal-body">
-					<div class="form-group form-group-lg">
-						<label class="control-label">{{ trans_choice('church::general.subregion', 1) }}</label>
-						<div class="input-group input-group-merge ">
-							<div class="input-group-prepend">
-								<span class="input-group-text">
-									<i class="fa fa-user"></i>
-								</span>
-							</div>
-							<select data-url="{{ route('church.fetch_demarcations', $demarcation->id) }}/{search?}" name="subregion_id" 
-								placeholder="{{ trans_choice('church::general.subregion', 1) }}..."
-								class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
-									<option></option>
-									@foreach ($subregions as $item)
-										<option value="{{ $item->id }}">{{ $item->name }}</option>
-									@endforeach
-							</select>
-						</div>
-					</div>
+					{{ Form::textGroup('name', trans('general.name'), 'font', ['required'=>'required' ]) }}
+
+					<input type="hidden" name="region_id" value="{{ $demarcation->id }}" />
+					<input type="hidden" name="type" value="Sub Region" />
 				</div>
 				<div class="modal-footer border-top" style="background-color: #f8f9fe;">
 					<span class="btn btn-white" data-dismiss="modal">Close</span>
@@ -263,13 +270,13 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		</div>
 	</div>
 </div>
-<div class="modal fade show" id="pastor-history-modal" role="dialog">
+<div class="modal fade show" id="set-overseer-modal" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<form action="{{route('church.add_to_church', $demarcation->id)}}" method="post">
+			<form action="{{route('demarcations.set-overseer', $demarcation->id)}}" method="post">
 				@csrf
 				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
-					{{ trans('church::general.add_pastor_history') }}
+					{{ trans('demarcations::general.set_overseer') }}
 				</div>
 				<div class="modal-body">
 					<div class="form-group form-group-lg">
@@ -283,24 +290,6 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 							<select data-url="{{ route('church.fetch_pastors') }}/" name="pastor_id" 
 								placeholder="{{ trans_choice('church::general.pastor', 1) }}..."
 								class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
-							</select>
-						</div>
-					</div>
-					@php($rank = ['Senior', 'Assistant'])
-					<div class="form-group form-group-lg">
-						<label class="control-label">{{ trans_choice('church::general.rank', 1) }}</label>
-						<div class="input-group input-group-merge ">
-							<div class="input-group-prepend">
-								<span class="input-group-text">
-									<i class="fa fa-user"></i>
-								</span>
-							</div>
-							<select name="rank" placeholder="Select {{ trans_choice('church::general.rank', 1) }}..."
-								class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
-								<option>Select Rank...</option>
-								@foreach ($rank as $r)
-									<option value="{{ $r }}">{{ $r }}</option>
-								@endforeach
 							</select>
 						</div>
 					</div>
