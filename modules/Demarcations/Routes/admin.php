@@ -17,4 +17,5 @@ Route::admin('demarcations', function () {
     Route::post('{type}/create', 'Main@store')->name('store');
     Route::post('{type}/{id}', 'Main@update')->name('update');
     Route::post('export', 'Main@export')->name('export');
+    Route::post('set-overseer/{id}', 'Main@set_overseer')->name('set-overseer');
 });

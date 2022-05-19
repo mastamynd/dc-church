@@ -21,9 +21,19 @@ class Demarcation extends Model
         return $this->hasMany(DemarcationHistory::class, 'demarcation_id')->withTrashed()->orderBy('created_at', 'desc');
     }
 
+    public function children(): HasMany{
+        if($this->type == "Region"){
+            return $this->hasMany(DemarcationHistory::class, 'parent_id')->orderBy('created_at', 'desc');
+        }
+        else{
+            return $this->hasMany(ChurchHistory::class, 'demarcation_id')->orderBy('created_at', 'desc');
+        }
+    }
+
     public function scopeRegion($query){
         return $query->where('type', 'Region');
     }
+    
 
     public function scopeSubregion($query){
         return $query->where('type', 'Sub Region');
@@ -53,10 +63,10 @@ class Demarcation extends Model
 	}
 
     public function overseer(){
-        return $this->hasOne(PastorHistory::class, 'demarcation_id');
+        return $this->hasOne(DemarcationOverseer::class);
     }
 
     public function pastors(){
-        return $this->hasMany(PastorHistory::class, 'demarcation_id')->withTrashed()->orderBy('created', 'asc');
+        return $this->hasMany(DemarcationOverseer::class)->withTrashed()->orderBy('created_at', 'asc');
     }
 }

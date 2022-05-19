@@ -18,7 +18,7 @@
 
 		<div class="card-body">
 			<div class="row">
-				{{ Form::textGroup('name', trans('general.name'), 'demarcations', ['required'=>'required' ]) }}
+				{{ Form::textGroup('name', trans('general.name'), 'font', ['required'=>'required' ]) }}
 
 				{{ Form::textGroup('code', trans('demarcations::general.code'), 'file', ['autocomplete' => 'off', 'readonly'=>true], $possible_next_code) }}
 
