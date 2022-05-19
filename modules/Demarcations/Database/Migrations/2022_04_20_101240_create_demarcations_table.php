@@ -17,6 +17,7 @@ class CreateDemarcationsTable extends Migration
 			$table->bigIncrements('id');
 			$table->integer('company_id')->default(1);
 			$table->string('name');
+			$table->string('code');
 			$table->string('type');
 			$table->boolean('enabled')->default(1);
 			$table->softDeletes();

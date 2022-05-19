@@ -9,5 +9,12 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::admin('demarcations', function () {
-    Route::get('/', 'Main@index');
+    Route::get('region', 'Main@region_index')->name('region.index');
+    Route::get('subregion', 'Main@subregion_index')->name('subregion.index');
+    Route::get('{type}/create', 'Main@create')->name('create');
+    Route::get('{type}/{id}', 'Main@show')->name('show');
+    Route::get('{type}/{id}/edit', 'Main@edit')->name('edit');
+    Route::post('{type}/create', 'Main@store')->name('store');
+    Route::post('{type}/{id}', 'Main@update')->name('update');
+    Route::post('export', 'Main@export')->name('export');
 });

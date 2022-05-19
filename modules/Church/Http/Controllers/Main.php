@@ -6,6 +6,7 @@ use App\Abstracts\Http\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\Church\Models\Church;
+use Modules\Demarcations\Models\Demarcation;
 
 class Main extends Controller
 {
@@ -86,7 +87,16 @@ class Main extends Controller
     public function show($id)
     {
         $church = Church::find($id);
-        return $this->response('church::churches.show', compact('church'));
+
+        // return json_encode($church->subregion);
+
+        $subRegion = Demarcation::join('church_histories', 'church_histories.demarcation_id', 'demarcations.id')
+            ->where('church_histories.church_id', $id)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
+        $region = Demarcation::join('demarcation_histories', 'demarcation_histories.parent_id', 'demarcations.id')
+            ->where('demarcation_histories.demarcation_id', $subRegion->id ?? 0)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
+    
+        $subregions = Demarcation::subregion()->orderBy('name', 'asc')->get();
+        return $this->response('church::churches.show', compact('church', 'subregions', 'subRegion', 'region'));
     }
 
     /**
@@ -141,5 +151,9 @@ class Main extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function fetch_demarcations($search){
+
     }
 }
