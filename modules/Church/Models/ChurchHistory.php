@@ -10,13 +10,13 @@ class ChurchHistory extends Model
 {
     use HasFactory;
 
-    protected $fillable = [];
+    protected $fillable = ['church_id', 'demarcation_id'];
 
     public function demarcation(){
-        return $this->belongsTo(Demarcation::class);
+        return $this->hasOne(Demarcation::class, 'id', 'demarcation_id');
     }
 
     public function church(){
-        return $this->belongsTo(Church::class);
+        return $this->hasOne(Church::class);
     }
 }

@@ -17,8 +17,6 @@ class CreateChurchHistoriesTable extends Migration
 			$table->bigIncrements('id');
 			$table->integer('church_id');
 			$table->integer('demarcation_id');
-			$table->dateTime('start_date');
-			$table->dateTime('end_date');
 			$table->softDeletes();
 			$table->timestamps();
 

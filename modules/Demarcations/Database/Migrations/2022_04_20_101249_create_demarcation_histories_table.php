@@ -17,10 +17,12 @@ class CreateDemarcationHistoriesTable extends Migration
             $table->bigIncrements('id');
             $table->integer('demarcation_id');
             $table->integer('parent_id');
-            $table->date('start_date');
-            $table->date('end_date');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index(['parent_id'], 'dhi_pa_inx');
+            $table->index(['demarcation_id'], 'dhi_de_inx');
+            $table->index(['parent_id', 'demarcation_id'], 'dhi_pa_de_inx');
         });
     }
 

@@ -67,8 +67,8 @@
 				<li class="list-group-item border-0 border-top-1">
 					<div class="font-weight-600">{{ trans_choice('church::general.region', 1) }}</div>
 					<div>
-						@if(isset($church->region) && isset($church->region->demarcation))
-							<a class="long-texts" href="{{ route('church.show', $church->region->demarcation->id) }}">{{ $church->region->demarcation->name }}</a>
+						@if(isset($region) && isset($region->name))
+							<a class="long-texts" href="{{ route('demarcations.show', [$region->type, $region->id]) }}">{{ $region->name }}</a>
 						@else
 							<span class="badge badge-warning badge-sm">Not Set</span>
 						@endif
@@ -80,10 +80,12 @@
 				<li class="list-group-item border-0 border-top-1">
 					<div class="font-weight-600">{{ trans_choice('church::general.subregion', 1) }}</div>
 					<div>
-						@if(isset($church->subregion) && isset($church->subregion->demarcation))
-							<a class="long-texts" href="{{ route('church.show', $church->subregion->demarcation->id) }}">{{ $church->subregion->demarcation->name }}</a>
+						@if(isset($subRegion) && isset($subRegion->id))
+							<a class="long-texts" href="{{ route('demarcations.show', [$subRegion->type, $subRegion->id]) }}">
+								{{ $subRegion->name }}
+							</a>
 						@else
-							<small class="badge badge-warning badge-sm badge-pill">Not Set</small>
+							<span class="badge badge-warning badge-sm">Not Set</span>
 						@endif
 					</div>
 				</li>
@@ -263,9 +265,12 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 									<i class="fa fa-user"></i>
 								</span>
 							</div>
-							<select data-url="{{ route('church.fetch_demarcations', $church->id) }}/subregions/{search?}" name="subregion_id" 
+							<select data-url="{{ route('church.fetch_demarcations', $church->id) }}/" name="subregion_id" 
 								placeholder="{{ trans_choice('church::general.subregion', 1) }}..."
 								class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
+								@foreach ($subregions as $sub)
+									<option value="{{ $sub->id }}">{{ $sub->name }}</option>
+								@endforeach
 							</select>
 						</div>
 					</div>
@@ -281,7 +286,7 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <div class="modal fade show" id="pastor-history-modal" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<form action="{{route('church.add_to_church', $church->id)}}" method="post">
+			<form action="{{ route('church.add_to_church', $church->id) }}" method="post">
 				@csrf
 				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
 					{{ trans('church::general.add_pastor_history') }}

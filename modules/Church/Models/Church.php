@@ -16,7 +16,7 @@ class Church extends Model
     }
 
     public function subregion(){
-        return $this->belongsTo(ChurchHistory::class);
+        return $this->hasOne(ChurchHistory::class);
     }
 
     public function history(){

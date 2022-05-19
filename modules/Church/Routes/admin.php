@@ -18,8 +18,8 @@ Route::admin('church', function () {
     Route::post('church/create', 'Main@store')->name('store');
     Route::post('church/{id}', 'Main@update')->name('update');
     Route::get('church/export', 'Main@export')->name('export');
-    Route::get('church/assign-subregion/{id}', 'Demarcation@assign')->name('assign_subregion');
-    Route::get('church/fetch-demarcations/{id}', 'Demarcation@fetch_demarcations')->name('fetch_demarcations');
+    Route::post('church/assign-subregion/{id}', 'Demarcation@assign')->name('assign_subregion');
+    Route::get('church/fetch-demarcations/{id}/{search?}', 'Demarcation@fetch_demarcations')->name('fetch_demarcations');
     
     
 

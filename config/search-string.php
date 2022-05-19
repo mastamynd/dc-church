@@ -455,6 +455,15 @@ return [
             'founded_on' => ['date' => true],
             'enabled' => ['boolean' => true],
         ]
+    ],
+
+    Modules\Church\Models\Demarcation::class => [
+        'columns' => [
+            'id',
+            'name' => ['searchable' => true],
+            'code' => ['searchable' => true],
+            'enabled' => ['boolean' => true],
+        ]
     ]
     
 ];

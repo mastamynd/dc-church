@@ -1,29 +1,27 @@
 @extends('layouts.admin')
 
-@section('title', trans_choice('church::general.title', 2))
+@section('title', trans_choice(($type == "region" ? 'demarcations::general.region' : 'demarcations::general.subregion'), 2))
 
 @section('new_button')
-	@can('create-church-main')
-		<a href="{{ route('church.create') }}" class="btn btn-success btn-sm">{{ trans('general.add_new') }}</a>
+	@can('create-demarcations-main')
+		<a href="{{ route('demarcations.create', $type) }}" class="btn btn-success btn-sm">{{ trans('general.add_new') }}</a>
 	@endcan
-	<a href="{{ route('church.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a>
+	<a href="{{ route('demarcations.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a>
 @endsection
 
 @section('content')
-	@if ($churches->count() || request()->get('search', false))
+	@if ($demarcations->count() || request()->get('search', false))
 		<div class="card">
 			<div class="card-header border-bottom-0" :class="[{'bg-gradient-primary': bulk_action.show}]">
 				{!! Form::open([
 					'method' => 'GET',
-					'route' => 'church.index',
+					'route' => $type == 'region' ? 'demarcations.region.index' : 'demarcations.subregion.index',
 					'role' => 'form',
 					'class' => 'mb-0'
 				]) !!}
 					<div class="align-items-center" v-if="!bulk_action.show">
-						<x-search-string model="Modules\Church\Models\Church" />
+						<x-search-string model="Modules\Church\Models\Demarcation" />
 					</div>
-
-					{{ Form::bulkActionRowGroup('church::general.name', $bulk_actions, ['group' => 'church', 'type' => 'churches']) }}
 				{!! Form::close() !!}
 			</div>
 
@@ -32,48 +30,36 @@
 					<thead class="thead-light">
 						<tr class="table-head-line">
 							<th>{{ Form::bulkActionAllGroup() }}</th>
-							<th>@sortablelink('name', trans('church::general.name'))</th>
-							<th>@sortablelink('code', trans('church::general.code'))</th>
-							<th>@sortablelink('region', trans_choice('church::general.region', 1))</th>
-							<th>@sortablelink('subregion', trans_choice('church::general.subregion', 1))</th>
-							<th>@sortablelink('pastor', trans_choice('church::general.pastor', 1))</th>
+							<th>@sortablelink('name', trans('demarcations::general.name'))</th>
+							<th>@sortablelink('code', trans('demarcations::general.code'))</th>
+							{{-- @if ($type == "subregion")
+								<th>@sortablelink('code', trans_choice('demarcations::general.region', 1))</th>
+							@endif --}}
+							<th class="text-right">@sortablelink('subregion', trans_choice(($type == "region" ? 'demarcations::general.subregion' : 'demarcations::general.church'), 2))</th>
 							<th>@sortablelink('enabled', trans('general.enabled'))</th>
 							<th>{{ trans('general.actions') }}</th>
 						</tr>
 					</thead>
 
 					<tbody>
-						@foreach($churches as $item)
+						@foreach($demarcations as $item)
 							<tr class="align-items-center border-top-1">
 								<td>
 									{{ Form::bulkActionGroup($item->id, $item->name) }}
 								</td>
 								<td>
-									<a class="long-texts" href="{{ route('church.show', $item->id) }}">{{ $item->name }}</a>
+									<a class="long-texts" href="{{ route('demarcations.show', [$type, $item->id]) }}">{{ $item->name }}</a>
 								</td>
 								<td>
-									<a class="long-texts" href="{{ route('church.show', $item->id) }}">{{ $item->code }}</a>
+									<a class="long-texts" href="{{ route('demarcations.show', [$type, $item->id]) }}">{{ $item->code }}</a>
 								</td>
-								<td>
-									@if(isset($item->region) && isset($item->region->demarcation))
-										<a class="long-texts" href="{{ route('church.show', $item->region->demarcation->id) }}">{{ $item->region->demarcation->name }}</a>
-									@else
-										<span class="badge badge-warning badge-sm">Not Set</span>
-									@endif
-								</td>
-								<td>
-									@if(isset($item->subregion) && isset($item->subregion->demarcation))
-										<a class="long-texts" href="{{ route('church.show', $item->subregion->demarcation->id) }}">{{ $item->subregion->demarcation->name }}</a>
-									@else
-										<span class="badge badge-warning badge-sm">Not Set</span>
-									@endif
-								</td>
-								<td class="long-texts">
-									<el-tooltip content="{{ !empty($item->phone) ? $item->phone : trans('general.na') }}"
-										effect="dark"
-										placement="top">
-										<span>{{ !empty($item->email) ? $item->email : trans('general.na') }}</span>
-									</el-tooltip>
+								{{-- @if ($type == "subregion")
+									<td>
+										<a href="{{ route('demarcations.show', [$item->parent->parent_id, $item->parent->parent_id]) }}">{{ $item->parent_id }}</a>
+									</td>
+								@endif --}}
+								<td class="text-right">
+									{{ number_format($type == "region" ? $item->demarcation_count : $item->churches_count) }}
 								</td>
 								<td class="">
 									@if (user()->can('update-church-main'))
@@ -86,19 +72,18 @@
 										@endif
 									@endif
 								</td>
-
 								<td class="text-center">
 									<div class="dropdown">
 										<a class="btn btn-neutral btn-sm text-light items-align-center py-2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 											<i class="fa fa-ellipsis-h text-muted"></i>
 										</a>
 										<div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-											<a class="dropdown-item" href="{{ route('church.show', $item->id) }}">
+											<a class="dropdown-item" href="{{ route('demarcations.show', [$type, $item->id]) }}">
 												{{ trans('general.show') }}
 											</a>
 
-											@can('update-church-main')
-												<a class="dropdown-item" href="{{ route('church.edit', $item->id) }}">
+											@can('update-demarcation-main')
+												<a class="dropdown-item" href="{{ route('demarcations.edit', [$type, $item->id]) }}">
 													{{ trans('general.edit') }}
 												</a>
 											@endcan
@@ -110,15 +95,15 @@
 					</tbody>
 				</table>
 			</div>
-
 			<div class="card-footer table-action">
 				<div class="row">
-					@include('partials.admin.pagination', ['items' => $churches])
+					@include('partials.admin.pagination', ['items' => $demarcations])
 				</div>
 			</div>
 		</div>
 	@else
-		<x-empty-page group="sales" page="churches" routeCreate="{{ route('church.create') }}" textEmptyPage="{{ trans('church::general.empty_page') }}" />
+		@php($demID = ['region'=>1, 'subregion'=>2])
+		<x-empty-page group="demarcations" page="demarcations" routeCreate="{{ route('demarcations.create', $type) }}" textEmptyPage="{{ trans_choice('demarcations::general.empty_page', 1) }}" />
 	@endif
 @endsection
 

@@ -135,6 +135,7 @@ class Pastor extends Controller
 
         return json_decode($pastors->get());
     }
+    
     public function get_church(Request $request, $search = '')
     {
 
