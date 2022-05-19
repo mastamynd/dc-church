@@ -22,6 +22,7 @@
 					<div class="align-items-center" v-if="!bulk_action.show">
 						<x-search-string model="Modules\Church\Models\Demarcation" />
 					</div>
+					{{-- {{ Form::bulkActionRowGroup('demarcations::general.name', $bulk_actions, ['group' => $type, 'type' => 'demarcations']) }} --}}
 				{!! Form::close() !!}
 			</div>
 
@@ -30,7 +31,7 @@
 					<thead class="thead-light">
 						<tr class="table-head-line">
 							<th>{{ Form::bulkActionAllGroup() }}</th>
-							<th>@sortablelink('name', trans('demarcations::general.name'))</th>
+							<th>@sortablelink('name', trans('general.name'))</th>
 							<th>@sortablelink('code', trans('demarcations::general.code'))</th>
 							{{-- @if ($type == "subregion")
 								<th>@sortablelink('code', trans_choice('demarcations::general.region', 1))</th>

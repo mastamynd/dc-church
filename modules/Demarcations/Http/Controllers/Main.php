@@ -19,13 +19,13 @@ class Main extends Controller
 	public function region_index()
 	{
 		$type = 'region';
-		$demarcations = Demarcation::region()->collect();
+		$demarcations = Demarcation::where('type', 'Region')->collect();
 		return $this->response('demarcations::index', compact('demarcations', 'type'));
 	}
 
 	public function subregion_index(){
 		$type = 'subregion';
-		$demarcations = Demarcation::subregion()->collect();
+		$demarcations = Demarcation::where('type', 'Sub Region')->collect();
 
 		// return response()->json($demarcations, 200);
 
@@ -143,7 +143,7 @@ class Main extends Controller
 			]);
 		}
 
-		return $demarcation->type == "Sub Region" ? redirect()->route('demarcations.index', 'subregion') : redirect()->route('demarcations.index');
+		return $demarcation->type == "Sub Region" ? redirect()->route('demarcations.subregion.index') : redirect()->route('demarcations.region.index');
 	}
 
 	/**
