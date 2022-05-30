@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'status'            => 'Status',
+    'church'            => 'Church',
     'tithe'             => 'Tithe',
     'post'              => 'Update Post Payment',
     'name'              => 'Payment Reception',
@@ -13,5 +15,6 @@ return [
     'receive_tithe'     => 'Receive Money',
     'received_tithes'   => 'Tithe Received',
     'tithes_received'   => 'Tithes Received',
-    'tithes_received_msg' => 'There are no tithes currently on the system.'
+    'tithes_received_msg' => 'There are no tithes currently on the system.',
+    'approve_tithe'       => 'Approve Tithe'
 ];
