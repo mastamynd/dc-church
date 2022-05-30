@@ -57,7 +57,23 @@ class Reports extends Controller
             $categories[$class->getCategory()][] = $report;
         }
 
-        return $this->response('common.reports.index', compact('categories', 'totals', 'icons'));
+        $national = [
+            "icon"=>"fas fa-solid fa-money-bill",
+            "name"=>"National Transaction Summary",
+            "description"=>"National Transaction Summary"
+        ];
+        $regional = [
+            "icon"=>"fas fa-solid fa-money-bill",
+            "name"=>"Regional Transaction Summary",
+            "description"=>"Region & Sub Region Transaction Summary"
+        ];
+        $report_ = [];
+        array_push($report_,$regional);
+        array_push($report_,$national);
+        // return response()->json($report_);
+        // $categories['Church'][] = $report_;
+
+        return $this->response('common.reports.index', compact('categories', 'totals', 'icons','report_'));
     }
 
     /**

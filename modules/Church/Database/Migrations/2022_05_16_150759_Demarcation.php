@@ -13,6 +13,7 @@ class Demarcation extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('demarcations');
         Schema::create('demarcations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('name');
@@ -32,6 +33,6 @@ class Demarcation extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('demarcations');
     }
 }

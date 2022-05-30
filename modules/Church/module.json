@@ -10,7 +10,9 @@
     "aliases": {},
     "files": [],
     "requires": [],
-    "reports": [],
+    "reports": [
+        "Modules\\Church\\Reports"
+    ],
     "widgets": [],
     "settings": [],
     "extra-modules": {}

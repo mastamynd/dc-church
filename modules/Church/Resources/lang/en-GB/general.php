@@ -35,5 +35,20 @@ return [
     'photo'             =>'Profile Photo',
     'add_pastor_history'=>'Add Pastor History',
     'add_pastor_statement'=>'Add Statement',
+
+    'summary'           =>'Summary',
+    'jan'               =>'Jan',
+    'feb'               =>'Feb',
+    'mar'               =>'Mar',
+    'apr'               =>'Apr',
+    'may'               =>'May',
+    'jun'               =>'Jun',
+    'jul'               =>'Jul',
+    'aug'               =>'Aug',
+    'sep'               =>'Sep',
+    'oct'               =>'Oct',
+    'nov'               =>'Nov',
+    'dec'               =>'Dec',
+    'total'             =>'Total'
     
 ];
