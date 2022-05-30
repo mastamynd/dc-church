@@ -40,4 +40,7 @@ Route::admin('church', function () {
 
     //Demarcations Routes
     Route::get('demarcations/{type}', 'Demarcation@index')->name('demarcations.index');
+
+    Route::get('settings/edit', 'Settings@edit')->name('settings.edit');
+    Route::post('settings/update', 'Settings@update')->name('settings.update');
 });

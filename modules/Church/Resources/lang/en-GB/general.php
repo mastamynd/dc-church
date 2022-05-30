@@ -5,6 +5,8 @@ return [
     'name'              => 'Church',    
     'code'              => 'Church Code',
     'gender'            => 'Gender',
+    'settings_name'     => 'Church & Demarcations Settings',
+    'settings_description'=> 'Settings for the church and demarcations.',
     'description'       => 'This is my awesome module',
     'title'             => 'Church|Churches',
     'pastor'            => 'Pastor|Pastors',
@@ -35,5 +37,10 @@ return [
     'photo'             =>'Profile Photo',
     'add_pastor_history'=>'Add Pastor History',
     'add_pastor_statement'=>'Add Statement',
-    
+    'church_code_prefix' => 'Church Code Prefix',
+    'last_church_code_number' => 'Starting Church Index',
+    'region_code_number' => 'Region Start Number',
+    'region_prefix' => 'Region Code Prefix',
+    'subregion_prefix' => 'Subregion Code Prefix',
+    'subregion_code_number' => 'Subregion Start Number'
 ];

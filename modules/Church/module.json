@@ -12,6 +12,17 @@
     "requires": [],
     "reports": [],
     "widgets": [],
-    "settings": [],
+    "settings": [
+        {
+            "type": "textGroup",
+            "name": "church_code_prefix",
+            "title": "church::general.church_code_prefix",
+            "icon": "fa fa-user",
+            "attributes": {
+                "required": "required"
+            },
+            "rules": "required|string"
+        }
+    ],
     "extra-modules": {}
 }

@@ -141,8 +141,7 @@ class Pastor extends Controller
 
         $db_prefix = DB::getTablePrefix();
 
-        $pastors = ModelsPastor::join('contacts', 'contacts.id', 'pastors.contact_id')->select("pastors.id", "name");
-        $churches = Church::query();
+        $churches = Church::selectRaw('id, name, code, CONCAT(code, " - ", name) as codename');
 
         if (trim($search) != '') {
             $churches = $churches->where(function ($orW) use ($search) {

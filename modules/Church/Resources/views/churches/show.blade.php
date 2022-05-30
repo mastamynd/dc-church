@@ -63,6 +63,13 @@
 				</li>
 				@stack('church_code_end')
 
+				@stack('church_email_start')
+				<li class="list-group-item border-0 border-top-1">
+					<div class="font-weight-600">{{ trans('general.email') }}</div>
+					<div><small class="long-texts" title="{{ $church->email }}">{{ $church->email }}</small></div>
+				</li>
+				@stack('church_email_end')
+
 				@stack('church_region_start')
 				<li class="list-group-item border-0 border-top-1">
 					<div class="font-weight-600">{{ trans_choice('church::general.region', 1) }}</div>
@@ -97,7 +104,7 @@
 						@if(!empty($church->pastors))
 							@foreach ($church->pastors as $pastor)
 								<a class="long-texts text-sm {{ $loop->index > 1 ? ' border-top-1' : '' }}" href="{{ route('church.pastors.show', $pastor->pastor->id) }}">
-									<small class="badge bg-dark text-white badge-pill">{{ $pastor->rank }}</small> {{ $pastor->pastor->contact->name }} <span class="text-muted">{{ $pastor->pastor->contact->email }}</span>
+									<small class="badge bg-dark text-white badge-pill">{{ $pastor->rank }}</small> <small class="badge bg-light text-dark badge-pill">{{ $pastor->position }}</small> <small class="text-muted">{{ $pastor->pastor->contact->name }}</small>
 								</a>
 							@endforeach
 						@else

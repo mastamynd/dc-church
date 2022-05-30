@@ -9,7 +9,7 @@ class Church extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'founded_on', 'photo', 'enabled', 'latitude', 'longitude'];
+    protected $fillable = ['name', 'code', 'email', 'founded_on', 'photo', 'enabled', 'latitude', 'longitude'];
 
     public function pastors(){
         return $this->hasMany(PastorHistory::class)->orderBy('rank', 'desc');
