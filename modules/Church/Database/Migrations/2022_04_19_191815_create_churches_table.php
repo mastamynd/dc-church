@@ -18,7 +18,8 @@ class CreateChurchesTable extends Migration
 			$table->integer('company_id')->default(1);
 			$table->string('name');
 			$table->string('code');
-			$table->date('founded_on');
+			$table->string('email')->nullable();
+			$table->date('founded_on')->nullable();
 			$table->string('photo')->nullable()->default('images/church.png');
 			$table->boolean('latitude')->nullable();
 			$table->boolean('longitude')->nullable();

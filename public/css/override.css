@@ -57,10 +57,11 @@ table.ellipsized td:hover a {
 .selectize-input { 
 	white-space: nowrap !important;
 	overflow-x: hidden !important;
+	border-left: none !important;
 }
 
 .selectize-control.form-control{
-	min-width: 175px;
+	min-width: 100px;
 }
 
 .comments-holder .italic{
