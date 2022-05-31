@@ -20,6 +20,8 @@
 					<div class="row">
 						{{ Form::textGroup('name', trans('general.name'), 'church', ['required'=>'required'], $church->name) }}
 
+						{{ Form::textGroup('email', trans('general.email'), 'at', ['type'=>'email', 'autocomplete' => 'off'], $church->email) }}
+
 						{{ Form::textGroup('code', trans('church::general.code'), 'file', ['autocomplete' => 'off', 'readonly'=>true], $church->code) }}
 
 						<div class="form-group col-md-6">

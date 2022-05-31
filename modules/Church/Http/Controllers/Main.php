@@ -44,13 +44,12 @@ class Main extends Controller
         $churchPrefix = setting('church_code_prefix');
 
         if(empty($churchPrefix)){
-            $churchPrefix = 'DCI';
+            $churchPrefix = '3VC';
             setting(['church_code_prefix' => $churchPrefix])->save();
         }
 
         if(empty($churchAutoInc)){
             $churchAutoInc = 1;
-            setting(['last_church_code_number' => $churchAutoInc])->save();
         }
 
         $request->merge(['code' => $churchPrefix.str_pad($churchAutoInc,3,"0",STR_PAD_LEFT)]);
@@ -67,6 +66,10 @@ class Main extends Controller
 
         $request->merge(['photo' => $img_path]);
         $request->merge(['enabled' => 1]);
+
+        if(!$request->has('email') || trim($request->email == "")){
+            $request->merge(['email' => time().'@deliverancechurch.international']);
+        }
 
         $church = new Church();
         $church->create($request->all());

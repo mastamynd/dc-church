@@ -1,6 +1,6 @@
 @stack('pagination_start')
     @if ($items->firstItem())
-        @php($limits = ['10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100'])
+        @php($limits = ['10'=>'10', '25'=>'25', '50'=>'50', '100'=>'100', '250'=>'250', '500'=>'500'])
         <div class="col-xs-12 col-sm-5 d-flex align-items-center">
             {!! Form::select('limit', $limits, request('limit', setting('default.list_limit', '25')), ['class' => 'form-control form-control-sm d-inline-block w-auto d-none d-md-block', '@change' => 'onChangePaginationLimit($event)']) !!}
             <span class="table-text d-none d-lg-block ml-2">
