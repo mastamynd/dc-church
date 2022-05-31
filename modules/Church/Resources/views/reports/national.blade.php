@@ -9,7 +9,7 @@
 
 @section('new_button')
    
-    <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a>
+    <!-- <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a> -->
     <a href="{{ route('church.regionalPaymentDivisionSummary',['year'=>$takeyear]) }}" class="btn btn-white btn-sm">{{ trans_choice('church::general.regional_report',1) }}</a>
 @endsection
 
