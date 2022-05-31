@@ -4,7 +4,7 @@
 
 @section('new_button')
 	@can('update-payment-reception-main')
-		<span data-href="{{ route('payment-reception.post-payment') }}" class="btn btn-success btn-sm" data-target="#post-payment-modal" data-toggle="modal">
+		<span class="btn btn-success btn-sm" data-target="#post-payment-modal" data-toggle="modal">
 			{{ trans('payment-reception::general.post') }}
 		</span>
 	@endcan
@@ -90,7 +90,7 @@
 										<i class="fas fa-font"></i>
 									</span>
 								</div>
-								<input type="text" name="payer_name" value="{{ $paymentReception->payer_name ?? '' }}" class="form-control" placeholder="Enter {{ trans_choice('general.name', 1) }}..." />
+								<input type="text" name="payer_name" value="{{ $paymentReception->payer_name ?? ( user()->name ?? '' ) }}" class="form-control" placeholder="Enter {{ trans_choice('general.name', 1) }}..." />
 							</div>
 						</div>
 					</div>
@@ -103,7 +103,7 @@
 										<i class="fas fa-at"></i>
 									</span>
 								</div>
-								<input type="email" name="payer_email" value="{{ $paymentReception->payer_email ?? '' }}" class="form-control" placeholder="Enter {{ trans_choice('general.email', 1) }}..." />
+								<input type="email" name="payer_email" value="{{ $paymentReception->payer_email ?? ( user()->email ?? '' ) }}" class="form-control" placeholder="Enter {{ trans_choice('general.email', 1) }}..." />
 							</div>
 						</div>
 					</div>
@@ -116,7 +116,7 @@
 										<i class="fas fa-phone"></i>
 									</span>
 								</div>
-								<input type="text" name="payer_phone" value="{{ $paymentReception->payer_phone ?? '' }}" class="form-control" placeholder="Enter {{ trans_choice('general.phone', 1) }}..." />
+								<input type="text" name="payer_phone" value="{{ $paymentReception->payer_phone ?? ( user()->phone ?? '' ) }}" class="form-control" placeholder="Enter {{ trans_choice('general.phone', 1) }}..." />
 							</div>
 						</div>
 					</div>
@@ -143,7 +143,7 @@
 								<th colspan="1"></th>
 							</tr>
 						</thead>
-						<tbody id="payment-item-row" data-items="{{ json_encode($paymentReception->items) }}"></tbody>
+						<tbody id="payment-item-row" data-items="{{ json_encode($paymentReception->items ?? []) }}"></tbody>
 					</table>
 				</div>
 			</div>
@@ -211,7 +211,7 @@
 								</div>
 								<select class="form-control selectize-field" name="data[${idd}][month]" placeholder="{{ trans('general.month') }}">
 									@foreach($months['long'] as $id=>$mn)
-										<option value="{{ $months['short'][$id] }}" ${ '{{ $months['short'][$id] }}' ==  selectedMonth ? 'selected' : '' } >{{ $mn }}</option>
+										<option value="{{ strtolower($mn) }}" ${ '{{ $mn }}' ==  selectedMonth ? 'selected' : '' } >{{ $mn }}</option>
 									@endforeach
 								</select>
 							</div>
@@ -269,6 +269,10 @@
 
 			$trr.on('click', '.remove-td', function(){
 				$trr.remove();
+			});
+
+			$trr.find('select').each(function(){
+				$(this).selectize();
 			});
 
 			return $trr; 
@@ -347,7 +351,27 @@
 				});
 			}
 		});
-		post-payment-modal
 	</script>
+	<div class="modal fade show" id="post-payment-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form action="{{ route('payment-reception.post-payment', $paymentReception->id ?? 'create') }}"  method="post">
+					@csrf
+					<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+						{{ trans('payment-reception::general.approve_tithe') }}
+					</div>
+					<div class="modal-body">
+						<div class="alert alert-info">
+							<i class="fas fa-info-circle float-left fa-2x mr-2 mb-2"></i> Are you sure that you want to approve this tithe?
+						</div>
+					</div>
+					<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+						<span class="btn btn-white" data-dismiss="modal">Close</span>
+						<button type="submit" class="btn btn-success">YES, APPROVE</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 	{{-- <script src="{{ asset('public/js/sales/customers.js?v=' . version('short')) }}"></script> --}}
 @endpush

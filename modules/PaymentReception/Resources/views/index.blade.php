@@ -24,21 +24,38 @@
 				{!! Form::close() !!}
 			</div>
 
-			<div class="table-responsive">
+			<div class="table-responsive custom">
 				<table class="table table-flush table-hover">
 					<thead class="thead-light">
-						<tr class="row table-head-line">
-							<th class="col-sm-2 col-md-1 col-lg-1 col-xl-1 d-none d-sm-block">{{ Form::bulkActionAllGroup() }}</th>
-							<th class="col-xs-4 col-sm-3 col-md-4 col-lg-3 col-xl-3">@sortablelink('name', trans('general.name'), ['filter' => 'active, visible'], ['class' => 'col-aka', 'rel' => 'nofollow'])</th>
-							<th class="col-md-3 col-lg-3 col-xl-3 d-none d-md-block">@sortablelink('email', trans('general.email'))</th>
-							<th class="col-lg-2 col-xl-2 d-none d-lg-block text-right">@sortablelink('unpaid', trans('general.unpaid'))</th>
-							<th class="col-xs-4 col-sm-2 col-md-2 col-lg-2 col-xl-2 text-center">@sortablelink('enabled', trans('general.enabled'))</th>
-							<th class="col-xs-4 col-sm-2 col-md-2 col-lg-1 col-xl-1 text-center">{{ trans('general.actions') }}</th>
+						<tr class="table-head-line">
+							<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
+							<th>@sortablelink('church.name', trans('payment-reception::general.church'))</th>
+							<th>@sortablelink('church.code', trans('church::general.code'))</th>
+							<th>@sortablelink('payment_mode', trans('payment-reception::general.payment_mode'))</th>
+							<th>@sortablelink('payer_name', trans('payment-reception::general.payment_by'))</th>
+							<th>@sortablelink('amount', trans('general.amount'))</th>
+							<th>@sortablelink('created_at', trans('general.date'))</th>
+							<th>@sortablelink('status', trans('general.status'))</th>
 						</tr>
 					</thead>
+					<tbody>
+						@foreach ($payments as $item)
+							<tr class="align-items-center border-top-1">
+								<td>
+									{{ Form::bulkActionGroup($item->id, $item->name) }}
+								</td>
+								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->name }}</a></td>
+								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->code }}</a></td>
+								<td>{{ $item->payment_mode }}</td>
+								<td>{{ $item->payer_name }}</td>
+								<td>@money($item->total, 'KES')</td>
+								<td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s') }}</td>
+								<td>{{ $item->status }}</td>
+							</tr>
+						@endforeach
+					</tbody>
 				</table>
 			</div>
-
 			<div class="card-footer table-action">
 				<div class="row">
 					@include('partials.admin.pagination', ['items' => $payments])
