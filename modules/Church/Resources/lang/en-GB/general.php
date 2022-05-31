@@ -52,6 +52,11 @@ return [
     'nov'               =>'Nov',
     'dec'               =>'Dec',
     'total'             =>'Total',
+    'national_report'   =>'Payment Division Report For',
+    'select_year'       =>'Select Year',
+    'regional_report'   =>'Regional Report|Regional Payment Division Report For',
+    'sub_regional_report' =>'Sub Regional Report Summaries',
+    
     
     'church_code_prefix' => 'Church Code Prefix',
     'last_church_code_number' => 'Starting Church Index',

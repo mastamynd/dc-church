@@ -91,14 +91,14 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col">
-                        <a href="">
+                        <a href="{{ route('church.paymentDivisionSummaryIndex') }}">
                             <h5 class="card-title text-uppercase text-muted mb-0">{{ $report['name'] }}</h5>
                         </a>
 
                     </div>
 
                     <div class="col-auto">
-                        <a href="">
+                        <a href="{{ route('church.paymentDivisionSummaryIndex') }}">
                             <div class="icon icon-shape bg-orange text-white rounded-circle shadow">
                                 <i class="{{ $report['icon'] }}"></i>
                             </div>

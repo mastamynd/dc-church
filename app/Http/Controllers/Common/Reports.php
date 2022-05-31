@@ -59,16 +59,11 @@ class Reports extends Controller
 
         $national = [
             "icon"=>"fas fa-solid fa-money-bill",
-            "name"=>"National Transaction Summary",
-            "description"=>"National Transaction Summary"
+            "name"=>"Payment Division Summary",
+            "description"=>"Payment Division Summary"
         ];
-        $regional = [
-            "icon"=>"fas fa-solid fa-money-bill",
-            "name"=>"Regional Transaction Summary",
-            "description"=>"Region & Sub Region Transaction Summary"
-        ];
+        
         $report_ = [];
-        array_push($report_,$regional);
         array_push($report_,$national);
         // return response()->json($report_);
         // $categories['Church'][] = $report_;

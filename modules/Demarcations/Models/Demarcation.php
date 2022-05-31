@@ -12,7 +12,7 @@ class Demarcation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'type'];
+    protected $fillable = ['name', 'code', 'type','enabled'];
 
 	protected $appends = ['churches_count', 'demarcation_count'];
 
