@@ -164,6 +164,8 @@ class Main extends Controller
 	}
 
 	public function export(){
+		$data = Demarcation::with('overseer.pastor', 'subregions', 'subregions.demarcation', 'subregions.demarcation.overseer.pastor', 'subregions.demarcation.children.church', 'subregions.demarcation.children.church.senior_pastor')->get();
 
+		return response()->json($data, 200);
 	}
 }

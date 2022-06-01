@@ -16,7 +16,7 @@ class PastorHistory extends Model
         return $this->belongsTo(Church::class, 'church_id');
     }
 
-    public function rank(){
+    public function ranked(){
         return $this->belongsTo(Church::class, 'church_id');
     }
 }

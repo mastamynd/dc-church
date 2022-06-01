@@ -12,7 +12,7 @@ class Demarcation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'type'];
+    protected $fillable = ['name', 'code', 'type','enabled'];
 
 	protected $appends = ['churches_count', 'demarcation_count'];
 
@@ -28,6 +28,10 @@ class Demarcation extends Model
         else{
             return $this->hasMany(ChurchHistory::class, 'demarcation_id')->orderBy('created_at', 'desc');
         }
+    }
+
+    public function subregions(){
+        return $this->hasMany(DemarcationHistory::class, 'parent_id')->orderBy('created_at', 'desc');
     }
 
     public function scopeRegion($query){

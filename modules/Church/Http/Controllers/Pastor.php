@@ -165,8 +165,8 @@ class Pastor extends Controller
         PastorHistory::create([
             'pastor_id' => $request->pastor_id,
             'church_id' => $request->church_id,
-            'position' => $request->has('position') ? $request->position : $previousHistory->position,
-            'rank' => $request->has('rank') ? $request->rank : $previousHistory->rank
+            'position' => $request->has('position') ? $request->position : $previousHistory->position ?? null,
+            'rank' => $request->has('rank') ? $request->rank : $previousHistory->rank ?? null
         ]);
 
         flash('Pastor History changed')->success();
@@ -183,8 +183,8 @@ class Pastor extends Controller
 		PastorHistory::create([
 			'pastor_id' => $request->pastor_id,
 			'church_id' => $id,
-			'position' => $request->has('position') ? $request->position : $previousHistory->position,
-			'rank' => $request->has('rank') ? $request->rank : $previousHistory->rank
+			'position' => $request->has('position') ? $request->position : $previousHistory->position ?? null,
+			'rank' => $request->has('rank') ? $request->rank : $previousHistory->rank ?? null
 		]);
 
 		flash('Add Pastor to Church')->success();

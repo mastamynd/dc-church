@@ -111,6 +111,8 @@ class Main extends Controller
 		$invoice_items = setting('church.payment_divisions');
 		$invoice_items = json_decode($invoice_items, true);
 
+		// return response()->json($ITEMS, 200);
+
 		foreach($ITEMS as $itm){
 			$CNNxtID = setting('invoice.number_next');
 			$DocNo = 'INV-'.str_pad($CNNxtID,5,"0",STR_PAD_LEFT);

@@ -20,6 +20,7 @@ return [
         'expense'           => 'Expense Summary',
         'income_expense'    => 'Income vs Expense',
         'tax'               => 'Tax Summary',
+        'church'            => 'National Transaction Summary'
     ],
 
     'charts' => [

@@ -43,4 +43,9 @@ Route::admin('church', function () {
 
     Route::get('settings/edit', 'Settings@edit')->name('settings.edit');
     Route::post('settings/update', 'Settings@update')->name('settings.update');
+
+    // Report Routes
+    Route::get('report/regionalSummaryIndex','Reports\RegionalSummary@paymentDivisionSummaryIndex')->name('paymentDivisionSummaryIndex');
+    Route::get('report/regional/PaymentDivisionSummary/{year}','Reports\RegionalSummary@regionalPaymentDivisionSummary')->name('regionalPaymentDivisionSummary');
+    Route::get('report/subRegionPaymentDivisionSummary/{year?}','Reports\RegionalSummary@subRegionPaymentDivisionSummary')->name('subRegionPaymentDivisionSummary');
 });

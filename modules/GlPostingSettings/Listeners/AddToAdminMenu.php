@@ -16,6 +16,16 @@ class AddToAdminMenu
     {
         $event->menu->whereTitle('Banking', function($sub){
             $sub->route('gl-posting-settings.index', trans('gl-posting-settings::general.name'), []);
+            $sub->dropdown('Settings', function ($sub) {
+                $sub->url('settings/account', 'Account');
+                $sub->url('settings/password', 'Password');
+                $sub->url('settings/design', 'Design');
+                $sub->dropdown('Settings', function ($sub) {
+                    $sub->url('settings/account', 'Account');
+                    $sub->url('settings/password', 'Password');
+                    $sub->url('settings/design', 'Design');
+                });
+            });
         }, 40);
 
         $event->menu->whereTitle('Banking', function($sub){
