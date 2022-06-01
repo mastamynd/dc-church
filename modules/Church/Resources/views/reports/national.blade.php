@@ -11,6 +11,9 @@
    
     <!-- <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a> -->
     <a href="{{ route('church.regionalPaymentDivisionSummary',['year'=>$takeyear]) }}" class="btn btn-white btn-sm">{{ trans_choice('church::general.regional_report',1) }}</a>
+    <a href="{{ route('church.subRegionPaymentDivisionSummary',['year'=>$takeyear]) }}" class="btn btn-white btn-sm">{{ trans('church::general.national_report_summary') }}</a>
+
+    
 @endsection
 
 @section('content')

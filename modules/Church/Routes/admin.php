@@ -47,4 +47,5 @@ Route::admin('church', function () {
     // Report Routes
     Route::get('report/regionalSummaryIndex','Reports\RegionalSummary@paymentDivisionSummaryIndex')->name('paymentDivisionSummaryIndex');
     Route::get('report/regional/PaymentDivisionSummary/{year}','Reports\RegionalSummary@regionalPaymentDivisionSummary')->name('regionalPaymentDivisionSummary');
+    Route::get('report/subRegionPaymentDivisionSummary/{year?}','Reports\RegionalSummary@subRegionPaymentDivisionSummary')->name('subRegionPaymentDivisionSummary');
 });

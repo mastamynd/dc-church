@@ -14,3 +14,5 @@ yarn-error.log
 /storage
 /storage/logs/*
 storage/logs/laravel.log
+composer.lock
+composer.json

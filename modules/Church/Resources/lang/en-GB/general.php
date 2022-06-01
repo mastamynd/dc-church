@@ -53,9 +53,12 @@ return [
     'dec'               =>'Dec',
     'total'             =>'Total',
     'national_report'   =>'Payment Division Report For',
+    'national_report_summary' => "Payment Division Summary",
     'select_year'       =>'Select Year',
     'regional_report'   =>'Regional Report|Regional Payment Division Report For',
     'sub_regional_report' =>'Sub Regional Report Summaries',
+    'overseer'         =>'Overseer',
+    
     
     
     'church_code_prefix' => 'Church Code Prefix',
