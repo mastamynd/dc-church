@@ -14,7 +14,7 @@ class Pastor extends Model
 
 	public function church()
 	{
-		return $this->belongsTo(Church::class);
+		return $this->belongsTo(PastorHistory::class, 'pastor_id');
 	}
 
 	public function contact(){

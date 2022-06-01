@@ -116,7 +116,7 @@
 										<tr>
 											<td>{{ $r->rank }}</td>
 											<td>{{ $r->position }}</td>
-											<td>{{ $r->church->name }}</td>
+											<td>{{ $r->church->name ?? '-' }}</td>
 											<td>{{ $r->created_at }}</td>
 											<td>
 												@if(trim($r->deleted_at) != "")

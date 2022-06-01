@@ -30,6 +30,10 @@ class Demarcation extends Model
         }
     }
 
+    public function subregions(){
+        return $this->hasMany(DemarcationHistory::class, 'parent_id')->orderBy('created_at', 'desc');
+    }
+
     public function scopeRegion($query){
         return $query->where('type', 'Region');
     }

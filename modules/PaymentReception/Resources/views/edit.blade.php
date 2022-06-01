@@ -211,7 +211,7 @@
 								</div>
 								<select class="form-control selectize-field" name="data[${idd}][month]" placeholder="{{ trans('general.month') }}">
 									@foreach($months['long'] as $id=>$mn)
-										<option value="{{ strtolower($mn) }}" ${ '{{ $mn }}' ==  selectedMonth ? 'selected' : '' } >{{ $mn }}</option>
+										<option value="{{ strtolower($mn) }}" ${ '{{ strtolower($mn) }}' ==  selectedMonth.toLowerCase() ? 'selected' : '' } >{{ $mn }}</option>
 									@endforeach
 								</select>
 							</div>
