@@ -1,1 +1,0 @@
-{{ Form::selectGroupGroup($name, $text, 'university', $values, $selected, $attributes, $col) }}

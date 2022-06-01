@@ -13,6 +13,7 @@ class CreateDemarcationsTable extends Migration
 	 */
 	public function up()
 	{
+		Schema::dropIfExists('demarcations');
 		Schema::create('demarcations', function (Blueprint $table) {
 			$table->bigIncrements('id');
 			$table->integer('company_id')->default(1);
