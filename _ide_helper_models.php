@@ -2818,8 +2818,9 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $company_id
  * @property string $name
+ * @property string|null $email
  * @property string $code
- * @property string $founded_on
+ * @property string|null $founded_on
  * @property string|null $photo
  * @property int|null $latitude
  * @property int|null $longitude
@@ -2832,6 +2833,8 @@ namespace Modules\Church\Models{
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $pastor_history
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $pastors
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PaymentDivision[] $payment_division
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $senior_pastor
  * @property-read \Modules\Church\Models\ChurchHistory|null $subregion
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Church all($columns = [])
@@ -3010,9 +3013,10 @@ namespace Modules\Church\Models{
  * @property string|null $phone2
  * @property string|null $ukumbozi_number
  * @property bool $enabled
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Modules\Church\Models\Church|null $church
+ * @property-read \Modules\Church\Models\PastorHistory|null $church
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Common\Contact|null $contact
  * @property-read \Modules\Church\Models\PastorHistory|null $history
@@ -3069,8 +3073,8 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $pastor_id
  * @property int $church_id
- * @property string $position
- * @property \Modules\Church\Models\Church|null $rank
+ * @property string|null $position
+ * @property string|null $rank
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -3078,6 +3082,7 @@ namespace Modules\Church\Models{
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Modules\Church\Models\Pastor|null $pastor
+ * @property-read \Modules\Church\Models\Church|null $ranked
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PastorHistory all($columns = [])
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
@@ -3121,13 +3126,113 @@ namespace Modules\Church\Models{
 	class PastorHistory extends \Eloquent {}
 }
 
+namespace Modules\Church\Models{
+/**
+ * Modules\Church\Models\PaymentDivision
+ *
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision newQuery()
+ * @method static \Illuminate\Database\Query\Builder|PaymentDivision onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|PaymentDivision withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|PaymentDivision withoutTrashed()
+ */
+	class PaymentDivision extends \Eloquent {}
+}
+
+namespace Modules\Church\Models{
+/**
+ * Modules\Church\Models\PaymentDivisionView
+ *
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView newQuery()
+ * @method static \Illuminate\Database\Query\Builder|PaymentDivisionView onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivisionView truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|PaymentDivisionView withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|PaymentDivisionView withoutTrashed()
+ */
+	class PaymentDivisionView extends \Eloquent {}
+}
+
 namespace Modules\Demarcations\Models{
 /**
  * Modules\Demarcations\Models\Demarcation
  *
  * @property int $id
- * @property int $name
- * @property int $type
+ * @property int $company_id
+ * @property string $name
+ * @property string $code
+ * @property string $type
  * @property bool $enabled
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -3141,6 +3246,7 @@ namespace Modules\Demarcations\Models{
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Modules\Demarcations\Models\DemarcationHistory|null $parent
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Demarcations\Models\DemarcationOverseer[] $pastors
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Demarcations\Models\DemarcationHistory[] $subregions
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Demarcation all($columns = [])
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
@@ -4242,5 +4348,130 @@ namespace Modules\GlPostingSettings\Models{
  * @method static \Illuminate\Database\Query\Builder|ViewDeAccountsWithClas withoutTrashed()
  */
 	class ViewDeAccountsWithClas extends \Eloquent {}
+}
+
+namespace Modules\PaymentReception\Models{
+/**
+ * Modules\PaymentReception\Models\PaymentReception
+ *
+ * @property int $id
+ * @property int $church_id
+ * @property string $payment_mode
+ * @property string|null $reference
+ * @property string|null $phone_number
+ * @property string|null $payer_name
+ * @property string|null $payer_phone
+ * @property string|null $payer_email
+ * @property int|null $created_by
+ * @property string|null $status
+ * @property int|null $posted_by
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Modules\Church\Models\Church|null $church
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read mixed $total
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\PaymentReception\Models\PaymentReceptionItems[] $items
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception newQuery()
+ * @method static \Illuminate\Database\Query\Builder|PaymentReception onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReception truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|PaymentReception withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|PaymentReception withoutTrashed()
+ */
+	class PaymentReception extends \Eloquent {}
+}
+
+namespace Modules\PaymentReception\Models{
+/**
+ * Modules\PaymentReception\Models\PaymentReceptionItems
+ *
+ * @property int $id
+ * @property int $payment_reception_id
+ * @property int $year
+ * @property string $month
+ * @property int $week
+ * @property float $amount
+ * @property float $topup
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems newQuery()
+ * @method static \Illuminate\Database\Query\Builder|PaymentReceptionItems onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|PaymentReceptionItems withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|PaymentReceptionItems withoutTrashed()
+ */
+	class PaymentReceptionItems extends \Eloquent {}
 }
 
