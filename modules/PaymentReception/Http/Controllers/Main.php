@@ -78,9 +78,11 @@ class Main extends Controller
 		foreach($rows as $k=>$row){
 			$row = (array) $row;
 			$row['payment_reception_id'] = $payment->id;
+			$pR = PaymentReceptionItems::find($k);
 
-			if(intval($id) > 0){
-				$pR = PaymentReceptionItems::find($k);
+			// return json_encode($row);
+
+			if(isset($pR->id)){
 				$pR->update($row);
 			}
 			else{
