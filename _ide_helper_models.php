@@ -2818,9 +2818,8 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $company_id
  * @property string $name
- * @property string|null $email
  * @property string $code
- * @property string|null $founded_on
+ * @property string $founded_on
  * @property string|null $photo
  * @property int|null $latitude
  * @property int|null $longitude
@@ -3007,15 +3006,15 @@ namespace Modules\Church\Models{
  * @property int $contact_id
  * @property string|null $picture
  * @property string|null $date_of_birth
- * @property string $gender
+ * @property string|null $gender
  * @property string|null $id_or_passport
  * @property string|null $phone
  * @property string|null $phone2
  * @property string|null $ukumbozi_number
  * @property bool $enabled
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Modules\Church\Models\PastorHistory|null $church
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Common\Contact|null $contact
@@ -3073,8 +3072,8 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $pastor_id
  * @property int $church_id
- * @property string|null $position
- * @property string|null $rank
+ * @property string $position
+ * @property string $rank
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -3130,6 +3129,35 @@ namespace Modules\Church\Models{
 /**
  * Modules\Church\Models\PaymentDivision
  *
+ * @property int $id
+ * @property int|null $church_id
+ * @property int|null $regional_id
+ * @property int|null $sub_regional_id
+ * @property float $january
+ * @property float $february
+ * @property float $march
+ * @property float $april
+ * @property float $may
+ * @property float $june
+ * @property float $july
+ * @property float $august
+ * @property float $september
+ * @property float $october
+ * @property float $november
+ * @property float $december
+ * @property int|null $contact_id
+ * @property int|null $transaction_id
+ * @property string|null $type
+ * @property float $amount
+ * @property int|null $invoice_id
+ * @property int|null $invoice_item_id
+ * @property int|null $bill_id
+ * @property int|null $bill_item_id
+ * @property string|null $payment_date
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $year
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Auth\User|null $owner
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
