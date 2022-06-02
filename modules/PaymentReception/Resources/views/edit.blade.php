@@ -4,9 +4,11 @@
 
 @section('new_button')
 	@can('update-payment-reception-main')
-		<span class="btn btn-success btn-sm" data-target="#post-payment-modal" data-toggle="modal">
-			{{ trans('payment-reception::general.post') }}
-		</span>
+		@if(isset($paymentReception->status) && $paymentReception->status != "Completed")
+			<span class="btn btn-success btn-sm" data-target="#post-payment-modal" data-toggle="modal">
+				{{ trans('payment-reception::general.post') }}
+			</span>
+		@endif
 	@endcan
 @endsection
 

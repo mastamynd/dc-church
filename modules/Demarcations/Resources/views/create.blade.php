@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', trans('general.title.new', ['type' => trans_choice(($type == "region" ? 'demarcations::general.region' : 'demarcations::general.subregion'), 1)]))
+@section('title', trans('general.title.new', ['type' => trans_choice(($type == "Sub Region" ? 'demarcations::general.subregion' : 'demarcations::general.region'), 1)]))
 
 @section('content')
 	<div class="card">
 		{!! Form::open([
-			'route' => ['demarcations.store', [$type,'create']],
+			'route' => ['demarcations.store', [$type == "Sub Region" ? 'subregion' : 'region','create']],
 			'id' => 'demarcations',
 			'@submit.prevent' => 'onSubmit',
 			'@keydown' => 'form.errors.clear($event.target.name)',
@@ -22,18 +22,17 @@
 
 				{{ Form::textGroup('code', trans('demarcations::general.code'), 'file', ['autocomplete' => 'off', 'readonly'=>true], $possible_next_code) }}
 
-				@if ($type == "subregion")
+				@if ($type == "Sub Region")
 				<div class="form-group form-group-lg col-md-6">
 					<label class="control-label">{{ trans_choice('demarcations::general.region', 1) }}</label>
-					<div class="input-group input-group-merge ">
+					<div class="input-group input-group-merge w-100">
 						<div class="input-group-prepend">
 							<span class="input-group-text">
 								<i class="fa fa-user"></i>
 							</span>
 						</div>
 						<select name="region_id" placeholder="Select {{ trans_choice('demarcations::general.region', 1) }}..."
-							class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
-							<option>Select {{ trans_choice('demarcations::general.region', 1) }}...</option>
+							class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id" required="true">
 							@foreach ($regions as $r)
 								<option value="{{ $r->id }}">{{ $r->name }}</option>
 							@endforeach
@@ -46,11 +45,11 @@
 
 		<div class="card-footer">
 			<div class="row save-buttons">
-				{{ Form::saveButtons($type == 'region' ? 'demarcations.region.index' : 'demarcations.subregion.index') }}
+				{{ Form::saveButtons($type != 'Sub Region' ? 'demarcations.region.index' : 'demarcations.subregion.index') }}
 			</div>
 		</div>
 
-		{{ Form::hidden('type', $type == 'region' ? 'Region' : 'Sub Region' ) }}
+		{{ Form::hidden('type', $type != "Sub Region"  ? 'Region' : 'Sub Region') }}
 
 		{!! Form::close() !!}
 	</div>
