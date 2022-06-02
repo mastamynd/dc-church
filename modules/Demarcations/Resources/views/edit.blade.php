@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', trans('general.title.new', ['type' => trans_choice(($type == "region" ? 'demarcations::general.region' : 'demarcations::general.subregion'), 1)]))
+@section('title', trans('general.title.edit', ['type' => trans_choice(($type == "Sub Region" ? 'demarcations::general.subregion' : 'demarcations::general.region'), 1)]))
 
 @section('content')
 	<div class="card">
 		{!! Form::open([
-			'route' => ['demarcations.update', [$type,'create']],
+			'route' => ['demarcations.update', [$type == "subregion" ? 'subregion' : 'region', $demarcation->id]],
 			'id' => 'demarcations',
 			'@submit.prevent' => 'onSubmit',
 			'@keydown' => 'form.errors.clear($event.target.name)',
@@ -15,14 +15,13 @@
 			'class' => 'form-loading-button needs-validation',
 			'novalidate' => 'true'
 		]) !!}
-
 		<div class="card-body">
 			<div class="row">
-				{{ Form::textGroup('name', trans('general.name'), 'demarcations', ['required'=>'required' ]) }}
+				{{ Form::textGroup('name', trans('general.name'), 'demarcations', ['required'=>'required' ], $demarcation->name) }}
 
-				{{ Form::textGroup('code', trans('demarcations::general.code'), 'file', ['autocomplete' => 'off', 'readonly'=>true], $possible_next_code) }}
+				{{ Form::textGroup('code', trans('demarcations::general.code'), 'file', ['autocomplete' => 'off', 'readonly'=>true], $demarcation->code) }}
 
-				@if ($type == "subregion")
+				@if ($type == "Sub Region")
 					<div class="form-group form-group-lg">
 						<label class="control-label">{{ trans_choice('demarcations::general.region', 1) }}</label>
 						<div class="input-group input-group-merge ">
@@ -32,25 +31,26 @@
 								</span>
 							</div>
 							<select name="region_id" placeholder="Select {{ trans_choice('demarcations::general.region', 1) }}..."
-								class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
-								<option>Select {{ trans_choice('demarcations::general.region', 1) }}...</option>
+								class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id" required="true">
 								@foreach ($regions as $r)
-									<option value="{{ $r->id }}">{{ $r->name }}</option>
+									<option value="{{ $r->id }}" {{ $r->id == ($demarcation->parent ? $demarcation->parent->parent_id : 0) }}>{{ $r->name }}</option>
 								@endforeach
 							</select>
 						</div>
 					</div>
+				@else
+					<input type="hidden" name="region_id" value="0" />
 				@endif
 			</div>
 		</div>
 
 		<div class="card-footer">
 			<div class="row save-buttons">
-				{{ Form::saveButtons('demarcations.index') }}
+				{{ Form::saveButtons($type != "Sub Region" ? 'demarcations.region.index' : 'demarcations.subregion.index') }}
 			</div>
 		</div>
 
-		{{ Form::hidden('type', $type == 'region' ? 'Region' : 'Sub Region') }}
+		{{ Form::hidden('type', $type != "Sub Region"  ? 'Region' : 'Sub Region') }}
 
 		{!! Form::close() !!}
 	</div>

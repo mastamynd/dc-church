@@ -33,21 +33,11 @@ class Main extends Controller
 	}
 
 	public function getNextDemarcationCode($type, $increment=false){
-		$demAutoIncStr = $type == "region" ? 'region_code_number' : 'sub_region_code_number';
+		$demAutoIncStr = $type == "region" ? 'region_code_number' : 'subregion_code_number';
+		$demPrefixStr = $type == "region" ? 'region_prefix' : 'subregion_prefix';
+
+		$demPrefix = setting('church.'.$demPrefixStr);
 		$demarcationAutoInc = setting($demAutoIncStr);
-
-		$demPrefixStr = $type == "region" ? 'DR' : 'DRS';
-		$demPrefix = setting($demPrefixStr);
-
-		if(empty($demPrefix)){
-			$demPrefix = $type == "region" ? 'DR' : 'DRS';
-			setting([$demPrefixStr => $demPrefix])->save();
-		}
-
-		if(empty($demarcationAutoInc)){
-			$demarcationAutoInc = 1;
-			setting([$demAutoIncStr => $demarcationAutoInc])->save();
-		}
 
 		$possible_next_code = $demPrefix.$demarcationAutoInc;
 
@@ -66,6 +56,8 @@ class Main extends Controller
 	public function create($type = 'region')
 	{
 		$possible_next_code = $this->getNextDemarcationCode($type);
+
+		// return $possible_next_code;
 
 		$regions = Demarcation::region()->orderBy('name', 'asc')->get();
 		return view('demarcations::create', compact('type', 'regions', 'possible_next_code'));
@@ -117,10 +109,14 @@ class Main extends Controller
 	 */
 	public function edit($type, $id)
 	{
+		$possible_next_code = $this->getNextDemarcationCode($type);
 		$regions = Demarcation::region()->orderBy('name', 'asc')->get();
 		$demarcation = Demarcation::find($id);
 		$type = $demarcation->type;
-		return view('demarcations::edit', compact('demarcation', 'regions', 'type'));
+
+		// return response()->json($demarcation, 200);
+
+		return view('demarcations::edit', compact('demarcation', 'regions', 'type','possible_next_code'));
 	}
 
 	/**
@@ -135,8 +131,11 @@ class Main extends Controller
 		$demarcation = Demarcation::find($id);
 		$demarcation->update($request->all());
 
-		if($demarcation->type == "Sub Region" && ($demarcation->parent->parent_id != $request->region_id)){
+		// return response()->json($demarcation, 200);
+
+		if($demarcation->type == "Sub Region" && (!isset($demarcation->parent) ? 0 : $demarcation->parent->parent_id != $request->region_id)){
 			DemarcationHistory::where('demarcation_id', $demarcation->id)->delete();
+
 			DemarcationHistory::create([
 				'demarcation_id' => $demarcation->id,
 				'parent_id' => $request->region_id
