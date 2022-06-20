@@ -39,18 +39,9 @@ class Main extends Controller
      */
     public function store(Request $request)
     {
-        $churchAutoInc = setting('last_church_code_number');
+        $churchAutoInc = setting('church.last_church_code_number');
 
-        $churchPrefix = setting('church_code_prefix');
-
-        if(empty($churchPrefix)){
-            $churchPrefix = '3VC';
-            setting(['church_code_prefix' => $churchPrefix])->save();
-        }
-
-        if(empty($churchAutoInc)){
-            $churchAutoInc = 1;
-        }
+        $churchPrefix = setting('church.church_code_prefix');
 
         $request->merge(['code' => $churchPrefix.str_pad($churchAutoInc,3,"0",STR_PAD_LEFT)]);
 
@@ -74,7 +65,7 @@ class Main extends Controller
         $church = new Church();
         $church->create($request->all());
 
-        setting(['last_church_code_number' => $churchAutoInc+1])->save();
+        setting(['church.last_church_code_number' => $churchAutoInc+1])->save();
 
         flash('Church was added successfully!')->success();
 

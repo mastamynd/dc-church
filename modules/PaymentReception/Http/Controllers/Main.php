@@ -3,6 +3,7 @@
 namespace Modules\PaymentReception\Http\Controllers;
 
 use App\Abstracts\Http\Controller;
+use App\Models\Common\Contact;
 use App\Models\Common\Item;
 use App\Models\Document\Document;
 use App\Models\Document\DocumentItem;
@@ -108,6 +109,7 @@ class Main extends Controller
 		$ITEMS = $payment->items;
 		$invoice_items = setting('church.payment_divisions');
 		$invoice_items = json_decode($invoice_items, true);
+		$theCONTACT = Contact::customer()->where('email', 'payment-reception@deliverancechurch.international')->first();
 
 		// return response()->json($ITEMS, 200);
 
@@ -119,13 +121,13 @@ class Main extends Controller
 			$sub_total = 0;
 
 			$newData = [
-				'contact_id' => 0,
+				'contact_id' => $theCONTACT->id,
 				'company_id' => company_id(),
 				'currency_code' => 'KES',
 				'currency_rate' => 112,
 				'contact_country' => 'KE',
 				'contact_name' => 'System Portal',
-				'contact_email' => 'info@deliverancechurch.international',
+				'contact_email' => $theCONTACT->email,
 				'parent_id' => $payment->id,
 				'status' => 'draft',
 				'type' => 'invoice',
@@ -231,7 +233,8 @@ class Main extends Controller
 							'amount' => $price,
 							'invoice_id' => $CN->id,
 							'invoice_item_id' => $newDocItem->id,
-							'year' => $itm->year
+							'year' => $itm->year,
+							'month' => $itm->month
 						]);
 
 						$paymentDivision[$itm->month] = $price;
@@ -282,7 +285,8 @@ class Main extends Controller
 						'amount' => $distributedAmount,
 						'invoice_id' => $CN->id,
 						'invoice_item_id' => $newDocItem->id,
-						'year' => $itm->year
+						'year' => $itm->year,
+						'month' => $itm->month
 					]);
 
 					$paymentDivision[$itm->month] = $distributedAmount;
