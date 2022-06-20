@@ -102,7 +102,7 @@
                                     <i class="fas fa-solid fa-id-card"></i>
                                 </span>
                             </div>
-                            <input type="text" class="form-control" value="{{$pastor->id_or_passport}}" name="id_or_passport" placeholder="Enter {{trans('church::general.passport')}}...">
+                            <input type="text" class="form-control" value="{{$pastor->id_or_passport}}" required name="id_or_passport" placeholder="Enter {{trans('church::general.passport')}}...">
                         </div>
                     </div>
                 </div>
@@ -116,7 +116,7 @@
                                     <i class="fas fa-solid fa-list-ol"></i>
                                 </span>
                             </div>
-                            <input type="text" class="form-control" value="{{$pastor->ukumbozi_number}}" name="ukumbozi_number" required placeholder="Enter {{trans('general.ukombozi')}}...">
+                            <input type="text" class="form-control" value="{{$pastor->ukumbozi_number}}" name="ukumbozi_number" placeholder="Enter {{trans('general.ukombozi')}}...">
                         </div>
                     </div>
                 </div>
