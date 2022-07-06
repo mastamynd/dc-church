@@ -16,7 +16,6 @@
 				trans('church::general.change_subregion') : trans('demarcations::general.add_subregion') }}
 		</span>
 	@endif
-	
 @endcan
 @stack('edit_button_end')
 @stack('add_pastor_button_start')
@@ -188,28 +187,50 @@
 							</li>
 							@stack('payments_made_end')
 						</ul>
-					</div>				
+					</div>		
+					<div class="row-fluid mb-2 d-none" id="make-payments-holder" style="margin-right: 0px !important; padding-right: 0px!important">
+						<div class="col-md-4"></div>
+						<div class="col-md-4"></div>
+						<div class="col-md-4" style="margin-right: 0px !important; padding-right: 0px!important">
+							<span class="btn btn-danger btn-sm" data-toggle="modal" data-target="#mark-bill-paid-modal">{{ 'Pay Pending Payments' }}</span>
+						</div>
+					</div>		
 					<div class="card">
 						<div class="tab-content" id="cutomer-tab-content">
 							@stack('demarcation_payment_made_start')
 							<div class="tab-pane fade" id="payments-content" role="tabpanel" aria-labelledby="payments-content-tab">
 								<div class="table-responsive custom">
-									<table class="table table-flush table-hover" id="tbl-overseer_history">
+									<table class="table table-flush table-hover" id="tbl-make-payment-bill">
 										<thead class="thead-light">
 											<tr class="table-head-line">
+												<th><input type="checkbox" class="toggle-mark-bill-paid" /></th>
+												<th>Type</th>
 												<th class="">{{ trans_choice('demarcations::general.cheque', 1) }}</th>
 												<th class="">{{ trans('general.amount') }}</th>
+												<th>Status</th>
 												<th class="">{{ trans('general.month') }}</th>
 												<th class="">{{ trans('general.year') }}</th>
 											</tr>
 										</thead>
 										<tbody>
-											@foreach($demarcation->paid_rows() as $pd)
+											@foreach($demarcation->bills as $bill)
+												@php($status = $bill->status == 'paid' ? 'PAID' : 'UNPAID')
 												<tr>
-													<td>{{ $pd->bill->reference }}</td>
-													<td>@money($pd->amount, setting('default.currency'), true) }}</td>
-													<td>{{ $pd->month }}</td>
-													<td>{{ $pd->year }}</td>
+													<td style="vertical-align: middle">
+														@if($status == "UNPAID")
+															<div class="">
+																<input value="{{ $bill->id }}" data-bill="{{ $bill }}" type="checkbox" class="mark-bill-paid" />
+															</div>
+														@else
+														<input data-value="null" type="checkbox" class="custom-control-input" disabled>
+														@endif
+													</td>
+													<td>{{ $bill->contact_name }}</td>
+													<td>{{ trim($bill->reference) == '' ? '-' : $bill->reference }}</td>
+													<td>@money($bill->amount, setting('default.currency'), true)</td>
+													<td><small class="badge badge-pill text-white bg-{{ $status == 'PAID' ? 'green' : 'red' }}">{{ $status }}</small></td>
+													<td>{{ \Carbon\Carbon::parse($bill->created_at)->format('F') }}</td>
+													<td>{{ \Carbon\Carbon::parse($bill->created_at)->format('Y') }}</td>
 												</tr>
 											@endforeach
 										</tbody>
@@ -219,12 +240,15 @@
 							@stack('demarcation_payment_made_end')
 							@stack('demarcation_payment_made_start')
 							<div class="tab-pane fade" id="make-payments-content" role="tabpanel" aria-labelledby="make-payments-content-tab">
-								<div class="table-responsive custom">
+								<form class="table-responsive custom" method="POST" action="{{ route('demarcations.make-payments', $demarcation->id) }}">
+									@csrf
+									@php($AMOUNTTOPAY=0)
 									{{-- Start of Accordion --}}
 									<div class="accordion">
 										<div class="card" style="margin-bottom: 5px !important">
 											<div id="accordion-histories-header" data-toggle="collapse" data-target="#accordion-histories-body" aria-expanded="true" aria-controls="accordion-histories-body" class="card-header">
 												<h4 class="mb-0">
+													<small class="badge bg-light badge-pill text-small">{{ $demarcation->type }}</small>
 													{{ $demarcation->name }}
 													<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($demarcation->amounts('received') - $demarcation->amounts('paid'), setting('default.currency'), true)</div>
 												</h4>
@@ -242,14 +266,20 @@
 															</tr>
 														</thead> 
 														<tbody>
+															@php($HTOTAL = 0)
 															@foreach($demarcation->pending_payments('region') as $pd)
+																@php($AMOUNTTOPAY+=$pd->amount ?? 0)
+																@php($HTOTAL+=$pd->amount ?? 0)
 																<tr class="align-items-center border-top-1 tr-py">
 																	<td>
-																		{{ Form::bulkActionGroup($pd->month.'-'.$pd->year, $pd->month, true) }}
+																		<div class="custom-control custom-checkbox">
+																			<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-dem-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->pd_ids }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->pd_ids }}" name="items[region][{{ $loop->iteration }}]">
+																			<label class="custom-control-label" for="bulk-action-1648024450"></label>
+																		</div>
 																	</td>
 																	<td>{{ $pd->name }}</td>
 																	<td>@money($pd->amount, setting('default.currency'), true)</td>
-																	<td>{{ $pd->month }}</td>
+																	<td>{{ ucfirst($pd->month) }}</td>
 																	<td>{{ $pd->year }}</td>
 																</tr>
 															@endforeach
@@ -259,48 +289,133 @@
 											</div>
 										</div>
 									</div>
-									{{-- End of Accordion --}}
-									@foreach ($demarcation->children as $item)
-										<div class="accordion">
-											<div class="card" style="margin-bottom: 5px !important">
-												<div id="accordion-histories-header-{{ $loop->iteration }}" data-toggle="collapse" data-target="#accordion-histories-body-{{ $loop->iteration }}" aria-expanded="false" aria-controls="accordion-histories-body-{{ $loop->iteration }}" class="card-header collapsed">
-													<h4 class="mb-0" style="width: 100%">
-														{{ $item->demarcation->name }}
-														<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($item->demarcation->amounts('received') - $item->demarcation->amounts('paid'), setting('default.currency'), true)</div>
-													</h4>
-												</div> 
-												<div id="accordion-histories-body-{{ $loop->iteration }}" aria-labelledby="accordion-histories-header-{{ $loop->iteration }}" class="hide collapse" style="">
-													<div class="table-responsive">
-														<table class="table table-flush table-hover">
-															<thead class="thead-light">
-																<tr class="table-head-line">
-																	<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
-																	<th class="">{{ trans_choice('church::general.title', 1) }}</th>
-																	<th class="">{{ trans('general.amount') }}</th>
-																	<th class="">{{ trans('general.month') }}</th>
-																	<th class="">{{ trans('general.year') }}</th>
-																</tr>
-															</thead> 
-															<tbody>
-																@foreach($item->demarcation->pending_payments('sub_region') as $pd)
-																	<tr class="align-items-center border-top-1 tr-py">
-																		<td>
-																			{{ Form::bulkActionGroup($pd->month.'-'.$pd->year, $pd->month, $true) }}
-																		</td>
-																		<td>{{ $pd->name }}</td>
-																		<td>@money($pd->amount, setting('default.currency'), true) }}</td>
-																		<td>{{ $pd->month }}</td>
-																		<td>{{ $pd->year }}</td>
+									@if (!$isSubRegion)
+										{{-- End of Accordion --}}
+										@foreach ($demarcation->children as $item)
+											<div class="accordion">
+												<div class="card" style="margin-bottom: 5px !important">
+													<div id="accordion-histories-header-{{ $loop->iteration }}" data-toggle="collapse" data-target="#accordion-histories-body-{{ $loop->iteration }}" aria-expanded="false" aria-controls="accordion-histories-body-{{ $loop->iteration }}" class="card-header collapsed">
+														<h4 class="mb-0" style="width: 100%">
+															<small class="badge bg-light badge-pill text-small">{{ $item->demarcation->type }}</small>
+															{{ $item->demarcation->name }}
+															<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($item->demarcation->amounts('received') - $item->demarcation->amounts('paid'), setting('default.currency'), true)</div>
+														</h4>
+													</div> 
+													<div id="accordion-histories-body-{{ $loop->iteration }}" aria-labelledby="accordion-histories-header-{{ $loop->iteration }}" class="hide collapse" style="">
+														<div class="table-responsive">
+															<table class="table table-flush table-hover">
+																<thead class="thead-light">
+																	<tr class="table-head-line">
+																		<th colspan="1%">{{ Form::bulkActionAllGroup(['id'=>'maize']) }}</th>
+																		<th class="">{{ trans_choice('church::general.title', 1) }}</th>
+																		<th class="">{{ trans('general.amount') }}</th>
+																		<th class="">{{ trans('general.month') }}</th>
+																		<th class="">{{ trans('general.year') }}</th>
 																	</tr>
-																@endforeach
-															</tbody>
-														</table>
+																</thead> 
+																<tbody>
+																	@php($HTOTAL = 0)
+																	@foreach($item->demarcation->pending_payments('sub_region') as $pd)
+																		@php($AMOUNTTOPAY+=$pd->amount ?? 0)
+																		@php($HTOTAL+=$pd->amount ?? 0)
+																		<tr class="align-items-center border-top-1 tr-py">
+																			<td>
+																				<div class="custom-control custom-checkbox">
+																					<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-sub_dem-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->pd_ids }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->pd_ids }}" name="items[sub_region][{{ $item->demarcation->id }}]">
+																					<label class="custom-control-label" for="bulk-action-sub_dem-{{ $loop->iteration }}"></label>
+																				</div>
+																			</td>
+																			<td>{{ $pd->name }}</td>
+																			<td>@money($pd->amount, setting('default.currency'), true)</td>
+																			<td>{{ ucfirst($pd->month) }}</td>
+																			<td>{{ $pd->year }}</td>
+																		</tr>
+																	@endforeach
+																</tbody>
+															</table>
+														</div>
 													</div>
 												</div>
 											</div>
+										@endforeach
+									@endif
+									@if (!$isSubRegion)
+										<br>
+										<div style="width: 100%; height: 11px; border-bottom: 1px solid #ddd; text-align: center">
+											<span style="font-size: 13px; background-color: #ffffff; padding: 0 10px;">
+												Other Payments <!--Padding is optional-->
+											</span>
 										</div>
-									@endforeach
-								</div>
+										<br><br>
+										@foreach ($invoice_items as $rowD)
+											@if (!in_array($rowD['code'], ['dc_secretariate', 'region', 'sub_region']))
+												<div class="accordion">
+													<div class="card" style="margin-bottom: 5px !important">
+														<div id="accordion-other-payments-header-{{ $loop->iteration }}" data-toggle="collapse" data-target="#accordion-other-payments-body-{{ $loop->iteration }}" aria-expanded="false" aria-controls="accordion-other-payments-body-{{ $loop->iteration }}" class="card-header collapsed">
+															<h4 class="mb-0" style="width: 100%">
+																{{ ucwords(implode(' ', (explode('_', $rowD['code'])))) }}
+																<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($demarcation->other_pending_payments($rowD['code'])->amount ?? 0, setting('default.currency'), true)</div>
+															</h4>
+														</div> 
+														<div id="accordion-other-payments-body-{{ $loop->iteration }}" aria-labelledby="accordion-other-payments-header-{{ $loop->iteration }}" class="hide collapse" style="">
+															<div class="table-responsive">
+																<table class="table table-flush table-hover">
+																	<thead class="thead-light">
+																		<tr class="table-head-line">
+																			<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
+																			@if ($rowD['code'] == 'pastors_fund')
+																				<th class="">{{ trans_choice('church::general.pastor', 1) }}</th>																					
+																			@endif
+																			<th class="">{{ trans_choice('church::general.title', 1) }}</th>
+																			<th class="">{{ trans('general.amount') }}</th>
+																			<th class="">{{ trans('general.month') }}</th>
+																			<th class="">{{ trans('general.year') }}</th>
+																		</tr>
+																	</thead> 
+																	<tbody>
+																		@php($HTOTAL = 0)
+																		@foreach(($rowD['code'] == 'pastors_fund' ? $demarcation->pastors_fund('pending') : $demarcation->pending_payments($rowD['code'])) as $pd)
+																			@php($AMOUNTTOPAY+=$pd->amount ?? 0)
+																			@php($HTOTAL+=$pd->amount ?? 0)
+																			<tr class="align-items-center border-top-1 tr-py">
+																				<td>
+																					<div class="custom-control custom-checkbox">
+																						<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-{{ $rowD['code'] }}-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->pd_ids }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->pd_ids }}" name="items[{{$rowD['code']}}][{{ $rowD['code'] != 'pastors_fund' ? $demarcation->id : $pd->pastor_id }}]">
+																						<label class="custom-control-label" for="bulk-action-{{ $rowD['code'] }}-{{ $loop->iteration }}"></label>
+																					</div>
+																				</td>
+																				@if ($rowD['code'] == 'pastors_fund')
+																					<td>{{ $pd->pastor }}</td>
+																				@endif
+																				<td>{{ $pd->name }}</td>
+																				<td>@money($pd->amount, setting('default.currency'), true)</td>
+																				<td>{{ ucfirst($pd->month) }}</td>
+																				<td>{{ $pd->year }}</td>
+																			</tr>
+																		@endforeach
+																	</tbody>
+																	<tfoot>
+																		<tr>
+																			<th colspan="3" class="text-right"> TOTAL</th>
+																			<th colspan="3">@money($HTOTAL, setting('default.currency'), true)</th>
+																		</tr>
+																	</tfoot>
+																</table>
+															</div>
+														</div>
+													</div>
+												</div>
+											@endif
+										@endforeach	
+									@endif
+									<div class="row" style="margin: 0px !important">
+										<div class="col-md-4"></div>
+										<div class="col-md-4"></div>
+										<div class="col-md-4 p-2">
+											<button class="btn btn-block btn-danger">MAKE PAYMENT <span class="badge badge-pill bg-red amount-to-pay">@money($AMOUNTTOPAY, setting('default.currency'), true)</span></button>
+										</div>
+									</div>
+								</form>
 							</div>
 							@stack('demarcation_payment_made_end')
 							@stack('customer_overseer_history_content_start')
@@ -357,8 +472,20 @@
 										<tbody>
 												@foreach ($demarcation->children as $item)
 													<tr class="border-top-1 tr-py">
-														<td><a href="{{ route(!$isSubRegion ? 'demarcations.show' : 'church.show', [!$isSubRegion ? 'subregion' : 'church', !$isSubRegion ? $item->demarcation_id : $item->church_id]) }}">{{ !$isSubRegion ? $item->demarcation->name : $item->church->name }}</a></td>
-														<td><a href="{{ route(!$isSubRegion ? 'demarcations.show' : 'church.show', [!$isSubRegion ? 'subregion' : 'church', !$isSubRegion ? $item->demarcation->id : $item->church_id]) }}">{{ !$isSubRegion ? $item->demarcation->code : $item->church->code}}</a></td>
+														<td>
+															@if (!$isSubRegion)
+																<a href="{{ route('demarcations.show', ['subregion', $item->demarcation_id]) }}">{{ $item->demarcation->name }}</a>
+															@else
+																<a href="{{ route('church.show', [$item->church_id]) }}">{{ $item->demarcation->name }}</a>																	
+															@endif
+														</td>
+														<td>
+															@if (!$isSubRegion)
+																<a href="{{ route('demarcations.show', ['subregion', $item->demarcation_id]) }}">{{ $item->demarcation->code }}</a>
+															@else
+																<a href="{{ route('church.show', [$item->church_id]) }}">{{ $item->demarcation->code }}</a>																	
+															@endif
+														</td>
 														@if(!$isSubRegion)
 															<td>{{ isset($item->demarcation->overseer) ? $item->demarcation->overseer->rank->position.' '.$item->demarcation->overseer->pastor->contact->name : 'Not Set' }}</td>
 														@else
@@ -488,6 +615,36 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		</div>
 	</div>
 </div>
+<div class="modal fade show" id="mark-bill-paid-modal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="{{route('demarcations.mark-bill-paid')}}" method="post">
+				@csrf
+				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+					{{ 'PAY PENDING PAYMENTS' }}
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+							<label class="form-label">Cheque Number</label>
+							<input type="text" required class="form-control" required name="cheque_number" placeholder="Cheque Number..." />
+						</div>
+						<div class="form-group">
+							<label class="form-label">Date Paid</label>
+							<input type="date" required class="form-control" name="date_paid" placeholder="Date Paid..." />
+						</div>
+					<div class="alert alert-danger">
+						Are you sure you want to mark these payments as paid?
+					</div>
+					<div class="row" id="bills-holder"></div>
+				</div>
+				<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+					<span class="btn btn-white" data-dismiss="modal">Close</span>
+					<button type="submit" class="btn btn-success">Add</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 <script type="text/javascript">
 	var selectizerNow = function(tis){
 		var $url = $(tis).data('url');
@@ -539,12 +696,90 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		}
 	}
 
+	function numberWithCommas(x) {
+			return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+
 	$(function(){
 		$(this).find('.selectize-field').each(function() {
 			if ($(this)[0].selectize) {
 				$(this)[0].selectize.destroy();
 			}
 			selectizerNow(this);
+		});
+
+		$('#mark-bill-paid-modal').on('shown.bs.modal', function(){
+			var checkbx = $('.mark-bill-paid:checked');
+			var billIDS = [];
+			checkbx.each(function(){
+				var $BILL = $(this).data('bill');
+				var $col = $(`<div class="col-md-6 p-1" style="display: flex; padding-left: 0px">
+					<small><input checked="true" type="checkbox" value="${ $BILL.id }" name="bills[${ $BILL.id }]"> &nbsp;&nbsp; ${ $BILL.contact_name } (<small>KSH${ numberWithCommas($BILL.amount.toFixed(2)) }</small>)</small>
+				</div>`);
+				$('#bills-holder').append($col);
+			});
+		});
+
+		$('.toggle-mark-bill-paid').on('change', function(){
+			var isChecked = $(this).is(':checked');
+			var parentTable = $(this).parents('table');
+			parentTable.find('.mark-bill-paid').each(function(){
+				if(isChecked){
+					$(this).prop('checked', true);
+					$(this).attr('checked', true);
+				}
+				else{
+					$(this).prop('checked', false);
+					$(this).attr('checked', false);
+
+					$(this).removeProp('checked');
+					$(this).removeAttr('checked');
+				}
+				$(this).trigger('change')
+			});
+		});
+
+		$('.mark-bill-paid').on('change', function(){
+			var length = $('.mark-bill-paid:checked').length;
+			$('#make-payments-holder').removeClass('d-none');
+			if(length > 0){
+				$('#make-payments-holder').slideDown(300);
+			}
+			else{
+				$('#make-payments-holder').slideUp(300);
+			}
+		});
+
+		var checkChecked = function(){
+			var TOPAY = 0;
+			$('.amount-to-pay-cbx').each(function(){
+				var AMOUNT = $(this).data('value');
+				if($(this).is(':checked')){
+					TOPAY+=AMOUNT;
+				}
+				$('.amount-to-pay').text('KSH'+numberWithCommas(TOPAY.toFixed(2)));
+			});
+		}
+
+		$('.table-head-line').find('[type="checkbox"]').on('change', function(){
+			var table = $(this).parents('table');
+			var vbody = table.find('tbody');
+			var isChecked = $(this).is(':checked');
+			var TOPAY = 0;
+			vbody.find('.amount-to-pay-cbx').each(function(){
+				if(isChecked){
+					$(this).prop('checked', true);
+					$(this).attr('checked', true);
+				}
+				else{
+					$(this).prop('checked', false);
+					$(this).attr('checked', false);
+
+					$(this).removeProp('checked');
+					$(this).removeAttr('checked');
+				}
+			});
+			checkChecked();
 		});
 	});
 </script>

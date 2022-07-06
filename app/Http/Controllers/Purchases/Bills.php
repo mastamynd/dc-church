@@ -15,7 +15,9 @@ use App\Jobs\Document\UpdateDocument;
 use App\Models\Document\Document;
 use App\Models\Setting\Currency;
 use App\Traits\Documents;
+use Carbon\Carbon;
 use File;
+use Modules\Church\Models\PaymentDivision;
 
 class Bills extends Controller
 {
@@ -294,9 +296,9 @@ class Bills extends Controller
     {
         try {
             $this->dispatch(new CreateBankingDocumentTransaction($bill, ['type' => 'expense']));
-
             $message = trans('documents.messages.marked_paid', ['type' => trans_choice('general.bills', 1)]);
 
+            flash('Testing Document Divisions')->success();
             flash($message)->success();
         } catch(\Exception $e) {
             $message = $e->getMessage();

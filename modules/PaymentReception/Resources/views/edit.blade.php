@@ -92,7 +92,7 @@
 										<i class="fas fa-font"></i>
 									</span>
 								</div>
-								<input type="text" name="payer_name" value="{{ $paymentReception->payer_name ?? ( user()->name ?? '' ) }}" class="form-control" placeholder="Enter {{ trans_choice('general.name', 1) }}..." />
+								<input type="text" name="payer_name" value="{{ $paymentReception->payer_name ?? ( user()->name ) }}" class="form-control" placeholder="Enter {{ trans_choice('general.name', 1) }}..." />
 							</div>
 						</div>
 					</div>
@@ -152,9 +152,11 @@
 		</div>
 		<div class="card">
 			<div class="card-footer">
+				@if(!isset($paymentReception->status) || (isset($paymentReception->status) && $paymentReception->status != "Completed"))
 				<div class="row save-buttons">
 					{{ Form::saveButtons('church.index') }}
 				</div>
+				@endif
 			</div>
 		</div>
 	{!! Form::close() !!}
@@ -260,9 +262,11 @@
 						</div>
 					</td>
 					<td colspan="1 pt-2">
+						@if(isset($paymentReception->status) && $paymentReception->status != "Completed")
 						<span class="btn btn-sm text-danger btn-transparent remove-td">
 							<i class="fas fa-trash"></i>
 						</span>
+						@endif
 					</td>
 				</tr>
 			`);

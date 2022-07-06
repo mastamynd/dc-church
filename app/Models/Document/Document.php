@@ -3,6 +3,7 @@
 namespace App\Models\Document;
 
 use App\Abstracts\Model;
+use App\Events\Document\PaymentReceived;
 use App\Models\Common\Media as MediaModel;
 use App\Models\Setting\Tax;
 use App\Scopes\Document as Scope;
@@ -57,6 +58,8 @@ class Document extends Model
         'parent_id',
         'created_from',
         'created_by',
+        'regional_id', 
+        'sub_regional_id'
     ];
 
     /**
@@ -432,5 +435,9 @@ class Document extends Model
     protected static function newFactory(): Factory
     {
         return DocumentFactory::new();
+    }
+
+    public function church(){
+        return $this->belongsTo(PaymentReceived::class);
     }
 }

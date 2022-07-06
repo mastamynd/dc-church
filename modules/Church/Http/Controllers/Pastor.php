@@ -5,6 +5,7 @@ namespace Modules\Church\Http\Controllers;
 use App\Abstracts\Http\Controller;
 use App\Models\Auth\User;
 use App\Models\Common\Contact;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\Church\Http\Requests\CreatePastorRequest;
@@ -14,6 +15,8 @@ use Modules\Church\Models\PastorHistory;
 use Illuminate\Support\Facades\DB;
 use Modules\Church\Http\Requests\UpdatePastorRequest;
 use Modules\Church\Models\Church;
+use Modules\Church\Models\PaymentDivision;
+use Modules\Church\Models\PaymentDivisionView;
 
 class Pastor extends Controller
 {
@@ -220,5 +223,41 @@ class Pastor extends Controller
         $request->merge(['picture' => $img_path]);
         $pastor = ModelsPastor::find($request->pastor_id)->update($request->all());
         return redirect()->route('church.pastors.index');
+    }
+
+    public function statements(Request $request, $year=false, $month=false){
+        $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
+        $year = $year ? $year : $year = Carbon::now()->format('Y');
+
+        $startYear = PaymentDivisionView::min('year');
+        $endYear = date('Y');
+
+        $selectStr = ['region_name as name'];
+
+        $years = [];
+
+        for($y = $startYear; $y <= $endYear; $y++){
+            $years[$y] = $y;
+        }
+
+        if($month == false){
+            $statements = PaymentDivisionView::where('year', $year);
+            foreach($months as $m){
+                $selectStr[] = 'SUM('.$m.') as '.$m;
+            }
+            $statements = $statements->selectRaw(implode(',', $selectStr))->where('type', 'pastors_fund')->groupBy('region_name')->get();
+        }
+        else{
+            $db_prefix = DB::getTablePrefix();
+            // return $month.' ---- '.$year;
+            $statements = PaymentDivision::join('pastors as p', 'p.id', 'payment_divisions.contact_id')->join('contacts as c', 'c.id', 'p.contact_id')->join('churches as ch', 'ch.id', 'payment_divisions.church_id')
+                ->selectRaw($db_prefix.'ch.name as church, '.$db_prefix.'c.name as pastor, '.$db_prefix.'p.id_or_passport, '.$db_prefix.'p.phone, '.$db_prefix.'p.ukumbozi_number as ukombozi_number, '.$db_prefix.'payment_divisions.amount')
+                ->where('payment_divisions.type', 'pastors_fund')->where('payment_divisions.month', $month)->where('payment_divisions.year', $year)->collect();
+
+            // return json_encode($statements);
+        }
+
+        return $this->response('church::pastors.report.statement-month', compact('statements', 'months', 'startYear', 'endYear', 'years', 'year', 'month'));
     }
 }

@@ -2,6 +2,7 @@
 
 return [
     'make_payment'      => 'Make Payment',
+    'payments_made'     => 'Payments Made',
     'payment'           => 'Payment|Payments',
     'name'              => 'Demarcations',
     'paid'              => 'Paid',
