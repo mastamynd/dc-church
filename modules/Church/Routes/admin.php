@@ -48,4 +48,10 @@ Route::admin('church', function () {
     Route::get('report/regionalSummaryIndex','Reports\RegionalSummary@paymentDivisionSummaryIndex')->name('paymentDivisionSummaryIndex');
     Route::get('report/regional/PaymentDivisionSummary/{year}','Reports\RegionalSummary@regionalPaymentDivisionSummary')->name('regionalPaymentDivisionSummary');
     Route::get('report/subRegionPaymentDivisionSummary/{year?}','Reports\RegionalSummary@subRegionPaymentDivisionSummary')->name('subRegionPaymentDivisionSummary');
+
+    Route::get('report/yearly/returns/record/{year?}','Reports\YearReturnRecords@reportIndex')->name('yearly-returns-records');
+
+    Route::get('report/comparison-table/{year?}','Reports\ComparisonTables@reportindex')->name('comparison-table-report');
+
+    Route::get('report/national-analysis/{year?}','Reports\NationalAnalysis@reportindex')->name('national-analysis-report');
 });
