@@ -94,7 +94,7 @@
                 </div>
                 <div class="col-md-6 col-sm-6">
                     <div class="form-group">
-                        <label for="" class="control-label">{{trans('church::general.passport')}}</label>
+                        <label for="" class="control-label">{{trans('church::general.passport')}} <small class="text-danger">*</small></label>
                         <div class="input-group input-group-merge">
 
                             <div class="input-group-prepend">
@@ -108,7 +108,7 @@
                 </div>
                 <div class="col-md-6 col-sm-6">
                     <div class="form-group">
-                        <label for="" class="control-label">{{trans('church::general.ukombozi')}} <small class="text-danger">*</small></label>
+                        <label for="" class="control-label">{{trans('church::general.ukombozi')}}</label>
                         <div class="input-group input-group-merge">
 
                             <div class="input-group-prepend">

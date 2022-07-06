@@ -1,11 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', trans('general.title.new', ['type' => trans_choice(($type == "Sub Region" ? 'demarcations::general.subregion' : 'demarcations::general.region'), 1)]))
+@php($isSubRegion = in_array($type, ["Sub Region", "Sub-Region", 'subregion']))
+
+@section('title', trans('general.title.new', ['type' => trans_choice(($isSubRegion ? 'demarcations::general.subregion' : 'demarcations::general.region'), 1)]))
 
 @section('content')
 	<div class="card">
 		{!! Form::open([
-			'route' => ['demarcations.store', [$type == "Sub Region" ? 'subregion' : 'region','create']],
+			'route' => ['demarcations.store', [$isSubRegion ? 'subregion' : 'region','create']],
 			'id' => 'demarcations',
 			'@submit.prevent' => 'onSubmit',
 			'@keydown' => 'form.errors.clear($event.target.name)',
@@ -22,7 +24,7 @@
 
 				{{ Form::textGroup('code', trans('demarcations::general.code'), 'file', ['autocomplete' => 'off', 'readonly'=>true], $possible_next_code) }}
 
-				@if ($type == "Sub Region")
+				@if ($isSubRegion)
 				<div class="form-group form-group-lg col-md-6">
 					<label class="control-label">{{ trans_choice('demarcations::general.region', 1) }}</label>
 					<div class="input-group input-group-merge w-100">
@@ -45,11 +47,11 @@
 
 		<div class="card-footer">
 			<div class="row save-buttons">
-				{{ Form::saveButtons($type != 'Sub Region' ? 'demarcations.region.index' : 'demarcations.subregion.index') }}
+				{{ Form::saveButtons(!$isSubRegion ? 'demarcations.region.index' : 'demarcations.subregion.index') }}
 			</div>
 		</div>
 
-		{{ Form::hidden('type', $type != "Sub Region"  ? 'Region' : 'Sub Region') }}
+		{{ Form::hidden('type', !$isSubRegion  ? 'Region' : 'Sub Region') }}
 
 		{!! Form::close() !!}
 	</div>

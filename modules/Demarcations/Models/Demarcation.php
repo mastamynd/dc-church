@@ -5,8 +5,10 @@ namespace Modules\Demarcations\Models;
 use App\Abstracts\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Modules\Church\Models\ChurchHistory;
 use Modules\Church\Models\PastorHistory;
+use Modules\Church\Models\PaymentDivision;
 
 class Demarcation extends Model
 {
@@ -28,6 +30,88 @@ class Demarcation extends Model
         else{
             return $this->hasMany(ChurchHistory::class, 'demarcation_id')->orderBy('created_at', 'desc');
         }
+    }
+
+    public function amounts($type, $other=false){
+        if($type == "paid"){
+            $amounts = $other == false ? $this->paid_rows() : $this->pastors_fund($type);
+        }
+        else{
+            $amounts = $other == false ? $this->received_amount_rows() : $this->pastors_fund($type);
+        }
+
+        $TOTAL = 0;
+
+        foreach($amounts as $amnt){
+            $TOTAL += $amnt->amount;
+        }
+
+        return $TOTAL;
+    }
+
+    public function pastors_fund($type="paid"){
+        $db_prefix = DB::getTablePrefix();
+        $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year');
+        if($this->type == "Region"){
+            $paid = $paid->where('regional_id', $this->id)->where('type', 'region');
+        }
+        else{
+            $paid = $paid->where('sub_regional_id', $this->id)->where('type', 'sub_region');
+        }
+
+        $paid = $type == "paid" ? $paid->whereNotNull('payment_date') : $paid;
+
+        $paid = $paid->where('type', 'pastors_fund')->groupBy('month', 'year')->get();
+
+        return $paid;
+    }
+
+    public function pending_payments($type="pastors_fund"){
+        $db_prefix = DB::getTablePrefix();
+        $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year');
+        if($this->type == "Region"){
+            $paid = $paid->where('regional_id', $this->id)->where('type', 'region');
+        }
+        else{
+            $paid = $paid->where('sub_regional_id', $this->id)->where('type', 'sub_region');
+        }
+
+        $paid = $type == "pastors_fund" ? $paid->where('type', 'pastors_fund') : $paid;
+
+        $paid = $paid->whereNotIn('type', ['contribution_to_hq'])->groupBy('month', 'year')->get();
+
+        return $paid;
+    }
+
+    public function paid_rows(){
+        $db_prefix = DB::getTablePrefix();
+        $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('payment_date')->whereNotNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year');
+        if($this->type == "Region"){
+            $paid = $paid->where('regional_id', $this->id)->where('type', 'region');
+        }
+        else{
+            $paid = $paid->where('sub_regional_id', $this->id)->where('type', 'sub_region');
+        }
+
+        $paid = $paid->whereNotIn('type', ['pastors_fund', 'contribution_to_hq'])->groupBy('month', 'year')->get();
+
+        return $paid;
+    }
+
+    public function received_amount_rows(){
+        $db_prefix = DB::getTablePrefix();
+        $received = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year');
+        if($this->type == "Region"){
+            $received = $received->where('regional_id', $this->id)->where('type', 'region');
+        }
+        else{
+            $received = $received->where('sub_regional_id', $this->id)->where('type', 'sub_region');
+        }
+
+
+        $received = $received->whereNotIn('type', ['pastors_fund', 'contribution_to_hq'])->groupBy('month', 'year')->get();
+
+        return $received;
     }
 
     public function subregions(){

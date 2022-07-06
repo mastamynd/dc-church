@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@php($isSubRegion = in_array($type, ["Sub Region", "Sub-Region", 'subregion']))
+
 @section('title', $demarcation->name)
 
 @section('new_button')
@@ -8,7 +10,7 @@
 	<a href="{{ route('demarcations.edit', [$type, $demarcation->id]) }}" class="btn btn-white btn-sm">
 		{{ trans('general.edit') }}
 	</a>
-	@if ($type == 'region')
+	@if (!$isSubRegion)
 		<span class="btn btn-warning btn-sm" data-target="#add-subregion-modal" data-toggle="modal">
 			{{ (isset($demarcation->subregion) && isset($demarcation->subregion->demarcation)) ? 
 				trans('church::general.change_subregion') : trans('demarcations::general.add_subregion') }}
@@ -58,13 +60,13 @@
 				</li>
 				@stack('demarcations_code_end')
 
-				@if($type == "subregion")
+				@if($isSubRegion)
 					@stack('demarcations_region_start')
 					<li class="list-group-item border-0 border-top-1">
 						<div class="font-weight-600">{{ trans_choice('church::general.region', 1) }}</div>
 						<div>
 							@if(isset($demarcation->parent) && isset($demarcation->parent->parent))
-								<a class="long-texts" href="{{ route('church.show', $demarcation->parent->parent->id) }}">{{ $demarcation->parent->parent->name }}</a>
+								<a class="long-texts" href="{{ route('demarcations.show', [$demarcation->parent->parent->type, $demarcation->parent->parent->id]) }}">{{ $demarcation->parent->parent->name }}</a>
 							@else
 								<span class="badge badge-warning badge-sm">Not Set</span>
 							@endif
@@ -91,6 +93,55 @@
 			</ul>
 		</div>
 		<div class="col-xl-9">
+			<div class="row mb--3">
+				@stack('customer_paid_card_start')
+				<div class="col-md-4">
+					<div class="card bg-gradient-success border-0">
+						<div class="card-body">
+							<div class="row">
+								<div class="col">
+									<h5 class="text-uppercase text-muted mb-0 text-white">{{ trans('demarcations::general.received') }}</h5>
+									<div class="dropdown-divider"></div>
+									<span class="h2 font-weight-bold mb-0 text-white">@money($demarcation->amounts('received'), setting('default.currency'), true)</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@stack('customer_paid_card_end')
+			
+				@stack('customer_open_card_start')
+				<div class="col-md-4">
+					<div class="card bg-gradient-warning border-0">
+						<div class="card-body">
+							<div class="row">
+								<div class="col">
+									<h5 class="text-uppercase text-muted mb-0 text-white">{{ trans('demarcations::general.paid') }}</h5>
+									<div class="dropdown-divider"></div>
+									<span class="h2 font-weight-bold mb-0 text-white">@money($demarcation->amounts('paid'), setting('default.currency'), true)</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@stack('customer_open_card_end')
+
+				@stack('customer_overdue_card_start')
+				<div class="col-md-4">
+					<div class="card bg-gradient-danger border-0">
+						<div class="card-body">
+							<div class="row">
+								<div class="col">
+									<h5 class="text-uppercase text-muted mb-0 text-white">{{ trans('demarcations::general.unpaid') }}</h5>
+									<div class="dropdown-divider"></div>
+									<span class="h2 font-weight-bold mb-0 text-white">@money($demarcation->amounts('received')-$demarcation->amounts('paid'), setting('default.currency'), true)</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@stack('customer_overdue_card_end')
+			</div>
 			<div class="row">
 				<div class="col-md-12">
 					<div class="nav-wrapper">
@@ -98,16 +149,16 @@
 							@stack('customer_subregion_tab_start')
 							<li class="nav-item">
 								<a class="nav-link mb-sm-3 mb-md-0 active" id="subregion-tab" data-toggle="tab" href="#subregion-content" role="tab" aria-controls="subregion-content" aria-selected="true">
-									{{ trans_choice('demarcations::general.subregion', 2) }}
+									{{ $isSubRegion ? trans_choice('church::general.title', 2) : trans_choice('demarcations::general.subregion', 2) }}
 								</a>
 							</li>
 							@stack('customer_subregion_tab_end')
 
-							@if($type == "subregion")
+							@if($isSubRegion)
 								@stack('customer_subregion_history_tab_start')
 								<li class="nav-item">
 									<a class="nav-link mb-sm-3 mb-md-0" id="subregion_history-tab" data-toggle="tab" href="#subregion_history-content" role="tab" aria-controls="subregion_history-content" aria-selected="true">
-										{{ trans('demarcations::general.subregion_history') }}
+										{{ $isSubRegion ? trans('demarcations::general.subregion_history') : trans('demarcations::general.region_history') }}
 									</a>
 								</li>
 								@stack('customer_subregion_history_tab_end')		
@@ -121,17 +172,137 @@
 							</li>
 							@stack('customer_overseer_history_tab_end')
 				
-							@stack('customer_church_statements_tab_start')
+							@stack('demarcation_payment_start')
 							<li class="nav-item">
-								<a class="nav-link mb-sm-3 mb-md-0" id="church_statements-tab" data-toggle="tab" href="#church_statements-content" role="tab" aria-controls="church_statements-content" aria-selected="false">
-									{{ trans_choice('demarcations::general.statement', 2) }}
+								<a class="nav-link mb-sm-3 mb-md-0" id="payments-tab" data-toggle="tab" href="#payments-content" role="tab" aria-controls="payments-made-content" aria-selected="false">
+									{{ trans_choice('demarcations::general.payment', 2) }}
 								</a>
 							</li>
-							@stack('customer_church_statements_tab_end')
+							@stack('demarcation_payment_end')
+				
+							@stack('payments_made_start')
+							<li class="nav-item">
+								<a class="nav-link mb-sm-3 mb-md-0" id="make-payments-tab" data-toggle="tab" href="#make-payments-content" role="tab" aria-controls="payments-made-content" aria-selected="false">
+									{{ trans('demarcations::general.make_payment') }}
+								</a>
+							</li>
+							@stack('payments_made_end')
 						</ul>
 					</div>				
 					<div class="card">
 						<div class="tab-content" id="cutomer-tab-content">
+							@stack('demarcation_payment_made_start')
+							<div class="tab-pane fade" id="payments-content" role="tabpanel" aria-labelledby="payments-content-tab">
+								<div class="table-responsive custom">
+									<table class="table table-flush table-hover" id="tbl-overseer_history">
+										<thead class="thead-light">
+											<tr class="table-head-line">
+												<th class="">{{ trans_choice('demarcations::general.cheque', 1) }}</th>
+												<th class="">{{ trans('general.amount') }}</th>
+												<th class="">{{ trans('general.month') }}</th>
+												<th class="">{{ trans('general.year') }}</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach($demarcation->paid_rows() as $pd)
+												<tr>
+													<td>{{ $pd->bill->reference }}</td>
+													<td>@money($pd->amount, setting('default.currency'), true) }}</td>
+													<td>{{ $pd->month }}</td>
+													<td>{{ $pd->year }}</td>
+												</tr>
+											@endforeach
+										</tbody>
+									</table>
+								</div>
+							</div>
+							@stack('demarcation_payment_made_end')
+							@stack('demarcation_payment_made_start')
+							<div class="tab-pane fade" id="make-payments-content" role="tabpanel" aria-labelledby="make-payments-content-tab">
+								<div class="table-responsive custom">
+									{{-- Start of Accordion --}}
+									<div class="accordion">
+										<div class="card" style="margin-bottom: 5px !important">
+											<div id="accordion-histories-header" data-toggle="collapse" data-target="#accordion-histories-body" aria-expanded="true" aria-controls="accordion-histories-body" class="card-header">
+												<h4 class="mb-0">
+													{{ $demarcation->name }}
+													<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($demarcation->amounts('received') - $demarcation->amounts('paid'), setting('default.currency'), true)</div>
+												</h4>
+											</div> 
+											<div id="accordion-histories-body" aria-labelledby="accordion-histories-header" class="hide collapse show" style="">
+												<div class="table-responsive">
+													<table class="table table-flush table-hover">
+														<thead class="thead-light">
+															<tr class="table-head-line">
+																<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
+																<th class="">{{ trans_choice('church::general.title', 1) }}</th>
+																<th class="">{{ trans('general.amount') }}</th>
+																<th class="">{{ trans('general.month') }}</th>
+																<th class="">{{ trans('general.year') }}</th>
+															</tr>
+														</thead> 
+														<tbody>
+															@foreach($demarcation->pending_payments('region') as $pd)
+																<tr class="align-items-center border-top-1 tr-py">
+																	<td>
+																		{{ Form::bulkActionGroup($pd->month.'-'.$pd->year, $pd->month, true) }}
+																	</td>
+																	<td>{{ $pd->name }}</td>
+																	<td>@money($pd->amount, setting('default.currency'), true)</td>
+																	<td>{{ $pd->month }}</td>
+																	<td>{{ $pd->year }}</td>
+																</tr>
+															@endforeach
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+									{{-- End of Accordion --}}
+									@foreach ($demarcation->children as $item)
+										<div class="accordion">
+											<div class="card" style="margin-bottom: 5px !important">
+												<div id="accordion-histories-header-{{ $loop->iteration }}" data-toggle="collapse" data-target="#accordion-histories-body-{{ $loop->iteration }}" aria-expanded="false" aria-controls="accordion-histories-body-{{ $loop->iteration }}" class="card-header collapsed">
+													<h4 class="mb-0" style="width: 100%">
+														{{ $item->demarcation->name }}
+														<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($item->demarcation->amounts('received') - $item->demarcation->amounts('paid'), setting('default.currency'), true)</div>
+													</h4>
+												</div> 
+												<div id="accordion-histories-body-{{ $loop->iteration }}" aria-labelledby="accordion-histories-header-{{ $loop->iteration }}" class="hide collapse" style="">
+													<div class="table-responsive">
+														<table class="table table-flush table-hover">
+															<thead class="thead-light">
+																<tr class="table-head-line">
+																	<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
+																	<th class="">{{ trans_choice('church::general.title', 1) }}</th>
+																	<th class="">{{ trans('general.amount') }}</th>
+																	<th class="">{{ trans('general.month') }}</th>
+																	<th class="">{{ trans('general.year') }}</th>
+																</tr>
+															</thead> 
+															<tbody>
+																@foreach($item->demarcation->pending_payments('sub_region') as $pd)
+																	<tr class="align-items-center border-top-1 tr-py">
+																		<td>
+																			{{ Form::bulkActionGroup($pd->month.'-'.$pd->year, $pd->month, $true) }}
+																		</td>
+																		<td>{{ $pd->name }}</td>
+																		<td>@money($pd->amount, setting('default.currency'), true) }}</td>
+																		<td>{{ $pd->month }}</td>
+																		<td>{{ $pd->year }}</td>
+																	</tr>
+																@endforeach
+															</tbody>
+														</table>
+													</div>
+												</div>
+											</div>
+										</div>
+									@endforeach
+								</div>
+							</div>
+							@stack('demarcation_payment_made_end')
 							@stack('customer_overseer_history_content_start')
 							<div class="tab-pane fade" id="overseer_history-content" role="tabpanel" aria-labelledby="overseer_history-tab">
 								<div class="table-responsive custom">
@@ -179,18 +350,21 @@
 											<tr class="table-head-line">
 												<th class="">{{ trans_choice('general.name', 1) }}</th>
 												<th class="">{{ trans_choice('demarcations::general.code', 1) }}</th>
-												<th class="">{{ trans_choice('demarcations::general.overseer', 1) }}</th>
-												<th class="">{{ trans_choice('demarcations::general.church', 2) }}</th>
+												<th class="">{{ !$isSubRegion ? trans_choice('demarcations::general.overseer', 1) : trans('church::general.senior') }}</th>
+												<th class="">{{ !$isSubRegion ? trans_choice('demarcations::general.church', 2) : trans_choice('church::general.pastor', 2) }}</th>
 											</tr>
 										</thead>
 										<tbody>
-											
 												@foreach ($demarcation->children as $item)
 													<tr class="border-top-1 tr-py">
-														<td><a href="{{ route('demarcations.show', [$type == 'region' ? 'subregion' : 'church', $item->demarcation->id]) }}">{{ $item->demarcation->name }}</a></td>
-														<td><a href="{{ route('demarcations.show', [$type == 'region' ? 'subregion' : 'church', $item->demarcation->id]) }}">{{ $item->demarcation->code }}</a></td>
-														<td>{{ isset($item->demarcation->overseer) ? $item->demarcation->overseer->rank->position.' '.$item->demarcation->overseer->pastor->contact->name : 'Not Set' }}</td>
-														<td>{{ $item->demarcation->children->count() }}</td>
+														<td><a href="{{ route(!$isSubRegion ? 'demarcations.show' : 'church.show', [!$isSubRegion ? 'subregion' : 'church', !$isSubRegion ? $item->demarcation_id : $item->church_id]) }}">{{ !$isSubRegion ? $item->demarcation->name : $item->church->name }}</a></td>
+														<td><a href="{{ route(!$isSubRegion ? 'demarcations.show' : 'church.show', [!$isSubRegion ? 'subregion' : 'church', !$isSubRegion ? $item->demarcation->id : $item->church_id]) }}">{{ !$isSubRegion ? $item->demarcation->code : $item->church->code}}</a></td>
+														@if(!$isSubRegion)
+															<td>{{ isset($item->demarcation->overseer) ? $item->demarcation->overseer->rank->position.' '.$item->demarcation->overseer->pastor->contact->name : 'Not Set' }}</td>
+														@else
+															<td>{{ isset($item->church->senior_pastor->rank) ? $item->church->senior_pastor->rank->position.' '.$item->church->senior_pastor->pastor->contact->name : 'Not Set' }}</td>
+														@endif
+														<td>{{ !$isSubRegion ? $item->demarcation->children->count() : $item->church->pastors->count() }}</td>
 													</tr>
 												@endforeach
 												@if($demarcation->children->count() == 0)
@@ -204,7 +378,7 @@
 								</div>
 							</div>
 							@stack('customer_subregion_content_end')
-							@if($type == "subregion")
+							@if($isSubRegion)
 								@stack('customer_subregion_history_content_start')
 								<div class="tab-pane fade show" id="subregion_history-content" role="tabpanel" aria-labelledby="subregion_history-tab">
 									<div class="table-responsive custom">
@@ -260,8 +434,17 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 					{{ trans('demarcations::general.add_subregion') }}
 				</div>
 				<div class="modal-body">
-					{{ Form::textGroup('name', trans('general.name'), 'font', ['required'=>'required' ]) }}
-
+					<div class="form-group form-group-lg">
+						<label class="control-label">{{ trans('general.name') }}</label>
+						<div class="input-group input-group-merge ">
+							<div class="input-group-prepend">
+								<span class="input-group-text">
+									<i class="fa fa-font"></i>
+								</span>
+							</div>
+							<input type="text" class="form-control" name="name" placeholder="{{ trans('general.name') }}..." />
+						</div>
+					</div>
 					<input type="hidden" name="region_id" value="{{ $demarcation->id }}" />
 					<input type="hidden" name="type" value="Sub Region" />
 				</div>

@@ -1,10 +1,10 @@
 <?php
 
 return [
-
     'name'              => 'Church',    
     'code'              => 'Church Code',
     'gender'            => 'Gender',
+    'senior'            => 'Senior',
     'settings_name'     => 'Church & Demarcations Settings',
     'settings_description'=> 'Settings for the church and demarcations.',
     'description'       => 'This is my awesome module',
