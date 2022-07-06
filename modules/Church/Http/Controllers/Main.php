@@ -84,9 +84,9 @@ class Main extends Controller
 
         // return json_encode($church->subregion);
 
-        $subRegion = Demarcation::join('church_histories', 'church_histories.demarcation_id', 'demarcations.id')
+        $subRegion = Demarcation::join('church_histories', 'church_histories.demarcation_id', 'demarcations.id')->whereNull('church_histories.deleted_at')
             ->where('church_histories.church_id', $id)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
-        $region = Demarcation::join('demarcation_histories', 'demarcation_histories.parent_id', 'demarcations.id')
+        $region = Demarcation::join('demarcation_histories', 'demarcation_histories.parent_id', 'demarcations.id')->whereNull('demarcation_histories.deleted_at')
             ->where('demarcation_histories.demarcation_id', $subRegion->id ?? 0)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
     
         $subregions = Demarcation::subregion()->orderBy('name', 'asc')->get();

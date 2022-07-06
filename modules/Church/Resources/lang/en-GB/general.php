@@ -57,10 +57,7 @@ return [
     'select_year'       =>'Select Year',
     'regional_report'   =>'Regional Report|Regional Payment Division Report For',
     'sub_regional_report' =>'Sub Regional Report Summaries',
-    'overseer'         =>'Overseer',
-    
-    
-    
+    'overseer'         =>'Overseer',    
     'church_code_prefix' => 'Church Code Prefix',
     'last_church_code_number' => 'Starting Church Index',
     'region_code_number' => 'Region Start Number',

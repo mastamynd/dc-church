@@ -98,7 +98,7 @@ class Form extends Provider
         Facade::component('radioGroup', 'partials.form.radio_group', [
             'name', 'text', 'value' => null, 'enable' => trans('general.yes'), 'disable' => trans('general.no'), 'attributes' => [], 'col' => 'col-md-6',
         ]);
-
+        
         Facade::component('checkboxGroup', 'partials.form.checkbox_group', [
             'name', 'text', 'items' => [], 'value' => 'name', 'id' => 'id', 'selected'=>[], 'attributes' => ['required' => 'required'], 'col' => 'col-md-12',
         ]);

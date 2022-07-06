@@ -309,9 +309,8 @@ class Main extends Controller
 					'created_from' => 'core::ui',
 					'created_by' => auth()->user()->id,
 				];
-				
+				DocumentTotal::create($totalArr);
 			}
-			DocumentTotal::create($totalArr);
 
 			$NAmntOBJ = Document::find($CN->id);
 			$NAmntOBJ->update(['amount' => $sub_total]);

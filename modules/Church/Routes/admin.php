@@ -27,7 +27,7 @@ Route::admin('church', function () {
     //Pastors Routes
     Route::get('pastors/index', 'Pastor@indexPastors')->name('pastors.index');
     Route::get('pastors/create/new', 'Pastor@createPastor')->name('pastors.create');
-    Route::get('pastors/statements', 'Pastor@statements')->name('pastors.statements');
+    Route::get('pastors/statements/{year?}/{month?}', 'Pastor@statements')->name('pastors.statements');
     Route::post('/pastor/store/new','Pastor@storePastors')->name('pastors.store');
     Route::get('pastors/show/{id}','Pastor@showPastor')->name('pastors.show');
     Route::get('pastors/edit/{id}','Pastor@editPastor')->name('pastors.edit');

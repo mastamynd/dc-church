@@ -3,11 +3,22 @@
 namespace Modules\Demarcations\Http\Controllers;
 
 use App\Abstracts\Http\Controller;
+use App\Models\Common\Contact;
+use App\Models\Common\Item;
+use App\Models\Document\Document;
+use App\Models\Document\DocumentItem;
+use App\Models\Document\DocumentTotal;
+use Carbon\Carbon;
 use Modules\Demarcations\Models\Demarcation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Modules\Church\Models\PaymentDivision;
+use Modules\Church\Models\PaymentDivisionView;
 use Modules\Demarcations\Models\DemarcationHistory;
 use Modules\Demarcations\Models\DemarcationOverseer;
+use App\Http\Requests\Banking\Transaction as TransRequest;
+use Illuminate\Support\Facades\DB;
+use Modules\Church\Models\Church;
 
 class Main extends Controller
 {
@@ -97,8 +108,14 @@ class Main extends Controller
 	public function show($type, $id)
 	{
 		$demarcation = Demarcation::find($id);
+
+		// return response()->json($demarcation->pastors_fund('paid'), 200);
+
 		$subregions = Demarcation::subregion()->orderBy('name', 'asc')->get();
-		return view('demarcations::show', compact('demarcation', 'type', 'subregions'));
+
+		$invoice_items = setting('church.payment_divisions');
+		$invoice_items = json_decode($invoice_items, true);
+		return view('demarcations::show', compact('demarcation', 'type', 'subregions', 'invoice_items'));
 	}
 
 	/**
@@ -166,5 +183,229 @@ class Main extends Controller
 		$data = Demarcation::with('overseer.pastor', 'subregions', 'subregions.demarcation', 'subregions.demarcation.overseer.pastor', 'subregions.demarcation.children.church', 'subregions.demarcation.children.church.senior_pastor')->get();
 
 		return response()->json($data, 200);
+	}
+
+	public function make_payments(Request $request, $region){
+		// return response()->json($request->all(), 200);
+
+		$items = $request->items;
+		$theCONTACT = Contact::vendor()->where('email', 'payment-maker@deliverancechurch.international')->first();
+		$itemName = Demarcation::find($region);
+
+		$time = time();
+
+		$BILLZ = [];
+
+		$DATAS = [];
+
+		foreach($items as $type=>$data){
+			$CNNxtID = setting('bill.number_next');
+			$DocNo = 'BILL-'.str_pad($CNNxtID,5,"0",STR_PAD_LEFT);
+			$newData = [
+				'contact_id' => $theCONTACT->id,
+				'company_id' => company_id(),
+				'currency_code' => 'KES',
+				'currency_rate' => 1,
+				'order_number' => $time,
+				'contact_country' => 'KE',
+				'contact_name' => ($type == 'sub_region' ? $itemName->name : $itemName->name).' - '.ucwords((implode(' ', (explode('_', $type))))),
+				'contact_email' => $theCONTACT->email,
+				'parent_id' => 0,
+				'status' => 'received',
+				'type' => 'bill',
+				'document_number' => $DocNo,
+				'created_by' => auth()->user()->id,
+				'created_at' => Carbon::now(),
+				'issued_at' => Carbon::now(),
+				'due_at' => Carbon::now(),
+				'updated_at' => Carbon::now(),
+				'regional_id' => $region,
+				'sub_regional_id' => $type == 'sub_region' ? $itemName->id : 0,
+				'amount' => 0
+			];
+
+			$BILLITEMS = [];
+
+			$BILLL = Document::create($newData);
+			$CNNxtID += 1;
+			setting(['bill.number_next'=> $CNNxtID])->save();
+
+			$BILLZ[$type] = $BILLL;
+
+			foreach($data as $dt=>$dd){
+				$dds = explode(',', $dd);
+				if(!isset($DATAS[$type])){
+					$DATAS[$type] = [];
+				}
+
+				if($type == 'sub_region'){
+					$itemName = Demarcation::find($dt);
+				}
+				$distributionItem = Item::where('name', $itemName->name.' Payment Line')->first();
+				if(!isset($distributionItem->id)){
+					$distributionItem = Item::create([
+						'company_id' => company_id(),
+						'name' => $itemName->name.' Payment Line',
+						'sku' => $itemName->name.' Payment Line',
+						'description' => $itemName->name.' Payment Line',
+						'quantity' => 1,
+						'sale_price' => 0,
+						'purchase_price' => 0,
+						'created_from' => 'core::ui', 
+						'created_by' => user()->id
+					]);
+				}
+
+				if(!isset($BILLITEMS[$distributionItem->name])){
+					$BILLITEMS[$distributionItem->name] = ['name'=>$distributionItem->name, 'id'=>$distributionItem->id, 'total'=>0, 'description'=>[]];
+				}
+	
+				$BILL = $BILLZ[$type];
+
+				foreach($dds as $d=>$c){
+					$c = intval($c);
+					$div = PaymentDivision::find($c);
+					$church = Church::find($div->church_id);
+					$div->bill_id = $BILL->id;
+					$div->save();
+					$BILLITEMS[$distributionItem->name]['total'] += floatval($div->amount);
+				};
+			}
+
+			$PESA = 0;
+
+			foreach($BILLITEMS as $itt){
+				$itemArrayData = [
+					'company_id' => company_id(),
+					'item_id' => $itt['id'],
+					'name' => $itt['name'],
+					'description' => implode(', ', $itt['description']),
+					'type' => 'bill',
+					'quantity' => 1,
+					'price' => $itt['total'],		
+					'total' => $itt['total'],	
+					'document_id' => $BILL->id,
+					'updated_at' => Carbon::now(),
+					'created_by' => auth()->user()->id,
+					'created_at' => Carbon::now()
+				];
+				$newDocItem = DocumentItem::create($itemArrayData);
+
+				$PESA+=$itt['total'];
+			}
+
+
+			$totals = ['sub_total', 'total'];
+
+			foreach($totals as $in=>$tt){
+				$totalArr = [
+					'company_id' => company_id(), 
+					'type' => 'bill', 
+					'document_id' => $BILL->id, 
+					'code' => $tt, 
+					'name' => 'bills.'.$tt, 
+					'amount' => $PESA, 
+					'sort_order' => $in+1,
+					'created_from' => 'core::ui',
+					'created_by' => auth()->user()->id,
+				];
+				DocumentTotal::create($totalArr);
+			}
+
+			if(isset($BILLZ[$type])){
+				$BILL = $BILLZ[$type];
+				$BILL->amount = $PESA;
+				$BILL->save();
+			}
+		}
+
+		// return response()->json($BILLITEMS) ;
+
+		flash('Payments Prepared')->success();
+		return redirect()->back();
+	}
+
+	public function mark_paid(Request $request){
+		$paymentModes = [
+			"Cash"=>"offline-payments.cash.1",
+			"Bank Transfer"=>"offline-payments.bank_transfer.2",
+			"M-PESA" => "offline-payments.m_pesa.3",
+			"Cheque" => "offline-payments.cheque.4"
+		];
+
+
+		foreach($request->bills as $id){
+
+			$bill = Document::find($id);
+
+			if(!isset($bill->id)){
+				continue;
+			}
+
+			$div = PaymentDivision::where('bill_id', $bill->id)->first();
+
+
+			if(!isset($div->id)){
+				flash("Missing Payment Division")->error();
+				continue;
+			}
+
+			$div->payment_date = Carbon::now();
+			$div->save();
+
+
+			$bill->order_number = $request->cheque;
+			$bill->due_at = $request->date_paid;
+			$bill->save();
+
+			$div = PaymentDivision::where('bill_id', $bill->id)->first();
+			$div->payment_date = Carbon::now();
+
+			$div->save();
+
+			$payable_amnts = [
+				'company_id' => company_id(),
+				'type' => 'expense',
+				'account_id' => 1,
+				'paid_at' => $bill->due_at,
+				'amount'=> abs($bill->amount_due),
+				'currency_code' => 'KES',
+				'currency_rate' => 1,
+				'document_id'=> null,
+				'contact_id' => $bill->contact_id,
+				'description' => $bill->description,
+				'category_id' => 4,
+				'payment_method' => $paymentModes["Cheque"],
+				'reference' => $bill->order_number,
+				'parent_id' => 0,
+				'created_from' => 'core::ui',
+				'created_by'=> \Auth::user()->id,
+				'do_not_fire_event' => true
+			];
+
+			$myRequest = new TransRequest($payable_amnts);
+
+			$billC = new \App\Http\Controllers\Modals\DocumentTransactions();
+			$test = $billC->store($bill, $myRequest);
+		}
+
+		flash('Payments Made Successfully')->success();
+
+		return redirect()->back();
+	}
+
+	public function payments_made(){
+		$dbprefix = DB::getTablePrefix();
+		$payments = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')
+		->leftJoin('payments_division as pd', function($join){
+			$join->on('pd.month', 'payment_divisions.month');
+			$join->on('pd.year', 'payment_divisions.year');
+			$join->on('pd.church_id', 'payment_divisions.church_id');
+			$join->on('pd.regional_id', 'payment_divisions.regional_id');
+			$join->on('pd.type', 'payment_divisions.type');
+		})->selectRaw('c.name, SUM('.$dbprefix.'payment_divisions.amount) as amount, SUM('.$dbprefix.'pd.paid) as amount, payment_divisions.month, payment_divisions.year, payment_divisions.payment_date')
+		->whereNotNull('pd.payment_date')->collect();
+
+		return $this->response('demarcations::demarcations.reports.payments-made', compact('payments'));
 	}
 }
