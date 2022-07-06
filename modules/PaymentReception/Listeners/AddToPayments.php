@@ -17,19 +17,19 @@ class AddToPaymants
 		$user = user();
 
 		if (!$user->can([
-			'create-payment-reception-main',
-			'read-payment-reception-main',
+			'read-common-reports',
 		])) {
 				return;
 		}
 
-		$event->menu->dropdown(trans('bills.payments'), function($sub) use($user){
+		$event->menu->whereTitle(trans('bills.payments'), function($sub) use($user){
 			if($user->can('read-common-reports')){
 				$sub->route('demarcations.payments_made', trans('demarcations::general.payments_made'), [], 10, []);
 			}
-		}, 21, [
+		}, 21,[
 			'title' => trans('demarcations::general.payments_made'),
-			'icon'  =>'fas fa-hand-holding-usd'
+			'icon'  =>'fa fa-money-bill'
 		]);
+	
 	}
 }

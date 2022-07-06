@@ -124,7 +124,7 @@ class Main extends Controller
 				'contact_id' => $theCONTACT->id,
 				'company_id' => company_id(),
 				'currency_code' => 'KES',
-				'currency_rate' => 112,
+				'currency_rate' => 1,
 				'contact_country' => 'KE',
 				'contact_name' => 'System Portal',
 				'contact_email' => $theCONTACT->email,
