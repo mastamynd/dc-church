@@ -48,7 +48,7 @@
 								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->code }}</a></td>
 								<td>{{ $item->payment_mode }}</td>
 								<td>{{ $item->payer_name }}</td>
-								<td>@money($item->total, 'KES')</td>
+								<td>@money($item->total, setting('default.currency'), true)</td>
 								<td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s') }}</td>
 								<td>{{ $item->status }}</td>
 							</tr>

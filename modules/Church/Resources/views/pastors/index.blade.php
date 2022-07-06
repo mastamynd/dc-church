@@ -32,7 +32,7 @@
 			<thead class="thead-light">
 				<tr class="table-head-line">
 					<th class="">{{ Form::bulkActionAllGroup() }}</th>
-					<th class="">{{trans('church::general.name')}}</th>
+					<th class="">{{trans_choice('church::general.pastor', 1)}}</th>
 					<th class="">{{trans('church::general.ukombozi')}}</th>
 					<th class="">{{trans('general.enabled')}}</th>
 					<th class="">{{trans('general.phone')}}</th>

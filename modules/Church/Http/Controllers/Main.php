@@ -39,18 +39,9 @@ class Main extends Controller
      */
     public function store(Request $request)
     {
-        $churchAutoInc = setting('last_church_code_number');
+        $churchAutoInc = setting('church.last_church_code_number');
 
-        $churchPrefix = setting('church_code_prefix');
-
-        if(empty($churchPrefix)){
-            $churchPrefix = '3VC';
-            setting(['church_code_prefix' => $churchPrefix])->save();
-        }
-
-        if(empty($churchAutoInc)){
-            $churchAutoInc = 1;
-        }
+        $churchPrefix = setting('church.church_code_prefix');
 
         $request->merge(['code' => $churchPrefix.str_pad($churchAutoInc,3,"0",STR_PAD_LEFT)]);
 
@@ -74,7 +65,7 @@ class Main extends Controller
         $church = new Church();
         $church->create($request->all());
 
-        setting(['last_church_code_number' => $churchAutoInc+1])->save();
+        setting(['church.last_church_code_number' => $churchAutoInc+1])->save();
 
         flash('Church was added successfully!')->success();
 
@@ -93,9 +84,9 @@ class Main extends Controller
 
         // return json_encode($church->subregion);
 
-        $subRegion = Demarcation::join('church_histories', 'church_histories.demarcation_id', 'demarcations.id')
+        $subRegion = Demarcation::join('church_histories', 'church_histories.demarcation_id', 'demarcations.id')->whereNull('church_histories.deleted_at')
             ->where('church_histories.church_id', $id)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
-        $region = Demarcation::join('demarcation_histories', 'demarcation_histories.parent_id', 'demarcations.id')
+        $region = Demarcation::join('demarcation_histories', 'demarcation_histories.parent_id', 'demarcations.id')->whereNull('demarcation_histories.deleted_at')
             ->where('demarcation_histories.demarcation_id', $subRegion->id ?? 0)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
     
         $subregions = Demarcation::subregion()->orderBy('name', 'asc')->get();

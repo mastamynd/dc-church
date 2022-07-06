@@ -16,6 +16,11 @@ Route::admin('demarcations', function () {
     Route::get('{type}/{id}/edit', 'Main@edit')->name('edit');
     Route::post('set-overseer/{id}', 'Main@set_overseer')->name('set-overseer');
     Route::post('{type}/create', 'Main@store')->name('store');
-    Route::post('{type}/{id}', 'Main@update')->name('update');
-    Route::post('export', 'Main@export')->name('export');
+    Route::post('{type}/{id}/edit', 'Main@update')->name('update');
+    Route::get('export', 'Main@export')->name('export');
+
+    Route::post('make-payments/{region}', 'Main@make_payments')->name('make-payments');
+    Route::post('mark-bill-paid', 'Main@mark_paid')->name('mark-bill-paid');
+
+    Route::post('payments-made', 'Main@payments_made')->name('payments-made');
 });

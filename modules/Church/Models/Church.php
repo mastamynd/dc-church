@@ -4,6 +4,7 @@ namespace Modules\Church\Models;
 
 use App\Abstracts\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\PaymentReception\Models\PaymentReception;
 
 class Church extends Model
 {
@@ -13,6 +14,10 @@ class Church extends Model
 
     public function pastors(){
         return $this->hasMany(PastorHistory::class)->orderBy('rank', 'desc');
+    }
+
+    public function senior_pastor(){
+        return $this->hasMany(PastorHistory::class)->where('position', 'Senior')->orderBy('rank', 'desc');
     }
 
     public function subregion(){
@@ -25,5 +30,13 @@ class Church extends Model
 
     public function pastor_history(){
         return $this->hasMany(PastorHistory::class)->withTrashed()->orderBy('created_at', 'desc');
+    }
+
+    public function payment_division(){
+        return $this->hasMany(PaymentDivision::class, 'church_id')->groupBy('church_id');
+    }
+
+    public function received_moneys(){
+        return $this->hasMany(PaymentReception::class, 'church_id')->orderBy('created_at', 'desc');
     }
 }

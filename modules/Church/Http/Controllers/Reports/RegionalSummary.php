@@ -36,14 +36,14 @@ class RegionalSummary extends Controller
     public function paymentDivisionSummaryIndex($year = "current")
     {
         $takeyear = $year == "current" ? date('Y') : $year;
-        // $divisions = setting('church.payment_divisions');
+        $divisions = setting('church.payment_divisions');
 
-        // $divisions = json_decode($divisions, true);
+        $divisions = json_decode($divisions, true);
 
-        // $division = array_values($divisions);
+        $division = array_values($divisions);
 
-        // $division = $this->unfold_divisions($division);
-        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        $division = $this->unfold_divisions($division);
+        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
 
         $selected_years = range(2000, date('Y'));
 
@@ -84,7 +84,14 @@ class RegionalSummary extends Controller
 
         $regions = ModelsDemarcation::where('type', 'Region')->get();
         $response = [];
-        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        $divisions = setting('church.payment_divisions');
+
+        $divisions = json_decode($divisions, true);
+
+        $division = array_values($divisions);
+
+        $division = $this->unfold_divisions($division);
+        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         foreach ($regions as $region) {
             $region_report = [];
@@ -156,7 +163,14 @@ class RegionalSummary extends Controller
         }
         $churches = $churches->orderBy('regional_id','asc')->orderBy('amount','Desc')->get();
         $response = [];
-        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        $divisions = setting('church.payment_divisions');
+
+        $divisions = json_decode($divisions, true);
+
+        $division = array_values($divisions);
+
+        $division = $this->unfold_divisions($division);
+        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         foreach($churches as $church){
             isset($response[$church->region_name]) ? '' : $response[$church->region_name] = [];

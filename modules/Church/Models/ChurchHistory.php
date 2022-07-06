@@ -17,6 +17,6 @@ class ChurchHistory extends Model
     }
 
     public function church(){
-        return $this->hasOne(Church::class);
+        return $this->hasOne(Church::class, 'id', 'church_id');
     }
 }

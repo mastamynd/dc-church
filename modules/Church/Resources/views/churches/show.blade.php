@@ -193,17 +193,32 @@
 										<thead class="thead-light">
 											<tr class="table-head-line">
 												<th class="">{{ trans_choice('general.numbers', 1) }}</th>
-												<th class="">{{ trans_choice('church::general.pastor', 1) }}</th>
-												<th class="">{{ trans('invoices.invoice_date') }}</th>
-												<th class="">{{ trans('invoices.due_date') }}</th>
-												<th class="">{{ trans_choice('general.statuses', 1) }}</th>
+												<th class="">{{ trans_choice('church::general.sub_region', 1) }}</th>
+												<th class="">{{ trans_choice('church::general.start', 1) }}</th>
+												<th class="">{{ trans_choice('church::general.end', 1) }}</th>
 											</tr>
 										</thead>
 				
 										<tbody>
-											<tr class="row align-items-center border-top-1 tr-py">
-												<td colspan="5 text-muted">No records found.</td>
+											@foreach ($church->history as $h)
+											<tr>
+												<td>{{ $loop->iteration }}</td>
+												<td>{{ $h->demarcation->name }}</td>
+												<td>{{ $h->created_at }}</td>
+												<td>
+													@if(trim($h->deleted_at) != "") 
+														{{ $h->deleted_at }}
+													@else 
+														<small class="badge badge-success">CURRENT</small>
+													@endif
+												</td>
 											</tr>
+											@endforeach
+											@if($church->history->count() == 0)
+												<tr class="row align-items-center border-top-1 tr-py">
+													<td colspan="5 text-muted">No records found.</td>
+												</tr>
+											@endif
 										</tbody>
 									</table>
 								</div>
@@ -216,16 +231,27 @@
 										<thead class="thead-light">
 											<tr class="table-head-line">
 												<th class="">{{ trans_choice('general.numbers', 1) }}</th>
-												<th class="">{{ trans_choice('church::general.pastor', 1) }}</th>
-												<th class="">{{ trans('invoices.invoice_date') }}</th>
-												<th class="">{{ trans('invoices.due_date') }}</th>
-												<th class="">{{ trans_choice('general.statuses', 1) }}</th>
+												<th class="">{{ trans_choice('general.amount', 1) }}</th>
+												<th class="">{{ trans('payment-reception::general.payment_by') }}</th>
+												<th class="">{{ trans('general.date') }}</th>
+												<th class=""></th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr class="row align-items-center border-top-1 tr-py">
-												<td colspan="5 text-muted">No records found.</td>
-											</tr>
+											@foreach ($church->received_moneys as $money)
+												<tr>
+													<td>{{ $loop->iteration }}</td>
+													<td>@money($money->total, 'KES', true)</td>
+													<td>{{ $money->payer_name }}</td>
+													<td>{{ $money->created_at }}</td>
+													<td><a href="{{ route('payment-reception.view-tithe', $money->id) }}"><i class="fas fa-eye"></i> View</a></td>
+												</tr>
+											@endforeach
+											@if($church->received_moneys->count() == 0)
+												<tr class="row align-items-center border-top-1 tr-py">
+													<td colspan="5 text-muted">No records found.</td>
+												</tr>
+											@endif
 										</tbody>
 									</table>
 								</div>

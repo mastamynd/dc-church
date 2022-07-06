@@ -1,6 +1,8 @@
 @extends('layouts.admin')
 
-@section('title', trans_choice(($type == "region" ? 'demarcations::general.region' : 'demarcations::general.subregion'), 2))
+@php($isSubRegion = in_array($type, ["Sub Region", "Sub-Region", 'subregion']))
+
+@section('title', trans_choice((!$isSubRegion ? 'demarcations::general.region' : 'demarcations::general.subregion'), 2))
 
 @section('new_button')
 	@can('create-demarcations-main')
@@ -36,7 +38,7 @@
 							{{-- @if ($type == "subregion")
 								<th>@sortablelink('code', trans_choice('demarcations::general.region', 1))</th>
 							@endif --}}
-							<th class="text-right">@sortablelink('subregion', trans_choice(($type == "region" ? 'demarcations::general.subregion' : 'demarcations::general.church'), 2))</th>
+							<th class="text-right">@sortablelink('subregion', trans_choice((!$isSubRegion ? 'demarcations::general.subregion' : 'demarcations::general.church'), 2))</th>
 							<th>@sortablelink('enabled', trans('general.enabled'))</th>
 							<th>{{ trans('general.actions') }}</th>
 						</tr>
@@ -60,7 +62,8 @@
 									</td>
 								@endif --}}
 								<td class="text-right">
-									{{ number_format($type == "region" ? $item->demarcation_count : $item->churches_count) }}
+									{{ $item->children->count() }}
+									{{-- {{ number_format(!$isSubRegion ? $item->children->count() : $item->churches(true)) }} --}}
 								</td>
 								<td class="">
 									@if (user()->can('update-church-main'))

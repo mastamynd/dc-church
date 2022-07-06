@@ -4,9 +4,11 @@
 
 @section('new_button')
 	@can('update-payment-reception-main')
-		<span class="btn btn-success btn-sm" data-target="#post-payment-modal" data-toggle="modal">
-			{{ trans('payment-reception::general.post') }}
-		</span>
+		@if(isset($paymentReception->status) && $paymentReception->status != "Completed")
+			<span class="btn btn-success btn-sm" data-target="#post-payment-modal" data-toggle="modal">
+				{{ trans('payment-reception::general.post') }}
+			</span>
+		@endif
 	@endcan
 @endsection
 
@@ -90,7 +92,7 @@
 										<i class="fas fa-font"></i>
 									</span>
 								</div>
-								<input type="text" name="payer_name" value="{{ $paymentReception->payer_name ?? ( user()->name ?? '' ) }}" class="form-control" placeholder="Enter {{ trans_choice('general.name', 1) }}..." />
+								<input type="text" name="payer_name" value="{{ $paymentReception->payer_name ?? ( user()->name ) }}" class="form-control" placeholder="Enter {{ trans_choice('general.name', 1) }}..." />
 							</div>
 						</div>
 					</div>
@@ -150,9 +152,11 @@
 		</div>
 		<div class="card">
 			<div class="card-footer">
+				@if(!isset($paymentReception->status) || (isset($paymentReception->status) && $paymentReception->status != "Completed"))
 				<div class="row save-buttons">
 					{{ Form::saveButtons('church.index') }}
 				</div>
+				@endif
 			</div>
 		</div>
 	{!! Form::close() !!}
@@ -211,7 +215,7 @@
 								</div>
 								<select class="form-control selectize-field" name="data[${idd}][month]" placeholder="{{ trans('general.month') }}">
 									@foreach($months['long'] as $id=>$mn)
-										<option value="{{ strtolower($mn) }}" ${ '{{ $mn }}' ==  selectedMonth ? 'selected' : '' } >{{ $mn }}</option>
+										<option value="{{ strtolower($mn) }}" ${ '{{ strtolower($mn) }}' ==  selectedMonth.toLowerCase() ? 'selected' : '' } >{{ $mn }}</option>
 									@endforeach
 								</select>
 							</div>
@@ -258,9 +262,11 @@
 						</div>
 					</td>
 					<td colspan="1 pt-2">
+						@if(isset($paymentReception->status) && $paymentReception->status != "Completed")
 						<span class="btn btn-sm text-danger btn-transparent remove-td">
 							<i class="fas fa-trash"></i>
 						</span>
+						@endif
 					</td>
 				</tr>
 			`);

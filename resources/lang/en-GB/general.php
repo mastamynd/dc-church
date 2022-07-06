@@ -50,7 +50,7 @@ return [
     'widgets'               => 'Widget|Widgets',
     'templates'             => 'Template|Templates',
     'sales'                 => 'Sale|Sales',
-    'purchases'             => 'Purchase|Purchases',
+    'purchases'             => 'Payment|Payments',
     'notifications'         => 'Notification|Notifications',
     'countries'             => 'Country|Countries',
     'cities'                => 'Town / City|Towns / Cities',

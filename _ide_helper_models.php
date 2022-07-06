@@ -2819,8 +2819,9 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $company_id
  * @property string $name
+ * @property string|null $email
  * @property string $code
- * @property string $founded_on
+ * @property string|null $founded_on
  * @property string|null $photo
  * @property int|null $latitude
  * @property int|null $longitude
@@ -2833,6 +2834,8 @@ namespace Modules\Church\Models{
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $pastor_history
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $pastors
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PaymentDivision[] $payment_division
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $senior_pastor
  * @property-read \Modules\Church\Models\ChurchHistory|null $subregion
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Church all($columns = [])
@@ -3013,6 +3016,7 @@ namespace Modules\Church\Models{
  * @property string|null $phone2
  * @property string|null $ukumbozi_number
  * @property bool $enabled
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -3073,8 +3077,8 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $pastor_id
  * @property int $church_id
- * @property string $position
- * @property \Modules\Church\Models\Church|null $rank
+ * @property string|null $position
+ * @property string|null $rank
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -3082,6 +3086,7 @@ namespace Modules\Church\Models{
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Modules\Church\Models\Pastor|null $pastor
+ * @property-read \Modules\Church\Models\Church|null $ranked
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PastorHistory all($columns = [])
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
@@ -3308,6 +3313,7 @@ namespace Modules\Demarcations\Models{
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Modules\Demarcations\Models\DemarcationHistory|null $parent
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Demarcations\Models\DemarcationOverseer[] $pastors
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Demarcations\Models\DemarcationHistory[] $subregions
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Demarcation all($columns = [])
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()

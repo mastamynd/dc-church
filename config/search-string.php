@@ -464,6 +464,15 @@ return [
             'code' => ['searchable' => true],
             'enabled' => ['boolean' => true],
         ]
+    ],
+    Modules\Church\Models\PaymentDivision::class => [
+        'columns' => [
+            'id',
+            'church_id' => [
+                'route' => ['church.index'],
+            ],
+            'type' => ['searchable' => true],
+            'payment_date' => ['date' => true],
+        ]
     ]
-    
 ];
