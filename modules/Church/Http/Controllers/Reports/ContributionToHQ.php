@@ -5,6 +5,8 @@ namespace Modules\Church\Http\Controllers\Reports;
 use App\Abstracts\Http\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Modules\Church\Models\PaymentDivisionView;
+use Modules\Demarcations\Models\Demarcation;
 
 class ContributionToHQ extends Controller
 {
@@ -13,9 +15,18 @@ class ContributionToHQ extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function reportIndex(Request $request)
     {
-        return $this->response('church::index');
+        $year = !isset($request->year) ? $year = date('Y') :$request->year;
+        $regional_id = !isset($request->regional_id) ? 'all' : $request->regional_id;
+        $response = !isset($request->regional_id) ? Demarcation::where('type','region')->get() : Demarcation::where('id',$request->regional_id)->get();
+        $regions =  Demarcation::where('type','region')->get();
+        $selected_years = range(2000, date('Y'));
+        
+        foreach($response as $region){
+            $region['churches'] = PaymentDivisionView::where('type','contribution_to_hq')->where('regional_id',$region->id)->get();
+        }
+        return view('church::reports.contributiontohq',compact('response','year','regional_id','regions','selected_years'));
     }
 
     /**

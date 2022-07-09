@@ -5,6 +5,8 @@ use App\Traits\DateTime;
 use App\Traits\Sources;
 use App\Utilities\Date;
 use App\Utilities\Widgets;
+use Modules\Church\Models\Church;
+use Modules\Church\Models\PastorHistory;
 
 if (!function_exists('user')) {
     /**
@@ -168,4 +170,9 @@ if (!function_exists('running_in_queue')) {
     {
         return defined('APP_RUNNING_IN_QUEUE') ?? false;
     }
+}
+
+function getPastorHistoryChurh($id){
+    $history = PastorHistory::find($id);
+    return Church::find($history->church_id);
 }

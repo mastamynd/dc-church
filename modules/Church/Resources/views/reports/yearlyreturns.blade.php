@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', trans('church::general.comparison_table').' '. $year)
+@section('title', trans('church::general.yearly_report').' '. $year)
 <style>
     .text-bold {
         font-weight: 800 !important;
@@ -39,7 +39,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h5>{{trans('church::general.yearly_return').' '. $year}}</h5>
+        <h5>{{trans('church::general.yearly_report').' '. $year}}</h5>
     </div>
 
     <div class="table-responsive custom">

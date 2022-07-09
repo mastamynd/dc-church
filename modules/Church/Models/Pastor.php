@@ -22,7 +22,7 @@ class Pastor extends Model
 	}
 
 	public function history(){
-		return $this->hasOne(PastorHistory::class)->orderBy('created_at', 'desc');
+		return PastorHistory::where('pastor_id',$this->id)->orderBy('created_at', 'desc')->first();
 	}
 
 	public function rank(){
@@ -32,4 +32,16 @@ class Pastor extends Model
 	public function rank_history(){
 		return $this->hasMany(PastorHistory::class)->withTrashed()->orderBy('created_at', 'desc');
 	}
+
+	public function getContact(){
+		return Contact::find($this->contact_id);
+	}
+
+	public function getRank(){
+		return PastorHistory::where('pastor_id',$this->id)->first();
+	}
+	public function getRankHistory(){
+		return PastorHistory::withTrashed()->orderBy('created_at', 'desc');
+	}
+	
 }

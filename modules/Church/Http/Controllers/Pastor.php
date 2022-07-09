@@ -83,8 +83,10 @@ class Pastor extends Controller
     public function showPastor($id)
     {
         $pastor = ModelsPastor::find($id)->with(['contact', 'rank', 'rank_history'])->first();
+        
         $history = PastorHistory::where('pastor_id', $id)->collect();
         // return response()->json($pastor);
+        
         return view('church::pastors/show', compact('pastor', 'history'));
     }
 

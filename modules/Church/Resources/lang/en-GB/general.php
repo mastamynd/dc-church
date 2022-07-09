@@ -64,10 +64,17 @@ return [
     'region_prefix' => 'Region Code Prefix',
     'subregion_prefix' => 'Subregion Code Prefix',
     'subregion_code_number' => 'Subregion Start Number',
+    'select_region'  => 'Select Region',
+    'sub_to_hq_section' => 'Contribution In',
 
     'yearly_report' => 'Yearly Return Records',
     'national_analysis' => 'National Analysis Report',
     'comparison_table' => 'Comparison Table',
+    'regional_commitment' => 'Regional Commitment',
+    'contribution_graph' => 'Contribution Graph',
+    'tithe_comparison'  => 'Tithe Comparison',
+    'contribution_to_hq' => 'Contribution Toward Head Quaters',
+
 
     'region_name' => 'Region',
     'church_total' => 'Total Churches',
