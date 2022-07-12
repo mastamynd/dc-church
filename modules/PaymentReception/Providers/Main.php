@@ -109,6 +109,7 @@ class Main extends Provider
         $routes = [
             'admin.php',
             'portal.php',
+            'api.php'
         ];
 
         foreach ($routes as $route) {

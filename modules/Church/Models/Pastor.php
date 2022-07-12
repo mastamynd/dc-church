@@ -18,7 +18,7 @@ class Pastor extends Model
 	}
 
 	public function contact(){
-		return $this->belongsTo(Contact::class, 'contact_id');
+		return $this->belongsTo(Contact::class);
 	}
 
 	public function history(){

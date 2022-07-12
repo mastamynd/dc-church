@@ -486,11 +486,14 @@
 																<a href="{{ route('church.show', [$item->church_id]) }}">{{ $item->demarcation->code }}</a>																	
 															@endif
 														</td>
-														@if(!$isSubRegion)
-															<td>{{ isset($item->demarcation->overseer) ? $item->demarcation->overseer->rank->position.' '.$item->demarcation->overseer->pastor->contact->name : 'Not Set' }}</td>
-														@else
-															<td>{{ isset($item->church->senior_pastor->rank) ? $item->church->senior_pastor->rank->position.' '.$item->church->senior_pastor->pastor->contact->name : 'Not Set' }}</td>
+														@if(isset($item->demarcation->overseer) && isset($item->demarcation->overseer->rank))
+															@if(!$isSubRegion)
+																<td>{{ isset($item->demarcation->overseer) ? $item->demarcation->overseer->rank->position.' '.$item->demarcation->overseer->pastor->contact->name : 'Not Set' }}</td>
+															@else
+																<td>{{ isset($item->church->senior_pastor->rank) ? $item->church->senior_pastor->rank->position.' '.$item->church->senior_pastor->pastor->contact->name : 'Not Set' }}</td>
+															@endif
 														@endif
+														
 														<td>{{ !$isSubRegion ? $item->demarcation->children->count() : $item->church->pastors->count() }}</td>
 													</tr>
 												@endforeach

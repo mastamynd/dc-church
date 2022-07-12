@@ -39,8 +39,6 @@ class Pastor extends Controller
      */
     public function createPastor()
     {
-
-
         return view('church::pastors/create');
     }
 
@@ -82,7 +80,7 @@ class Pastor extends Controller
      */
     public function showPastor($id)
     {
-        $pastor = ModelsPastor::find($id)->with(['contact', 'rank', 'rank_history'])->first();
+        $pastor = ModelsPastor::with(['contact', 'rank', 'rank_history'])->where('id', $id)->first();
         $history = PastorHistory::where('pastor_id', $id)->collect();
         // return response()->json($pastor);
         return view('church::pastors/show', compact('pastor', 'history'));
@@ -195,7 +193,7 @@ class Pastor extends Controller
 	}
 
     public function updatePastor(UpdatePastorRequest $request){
-        $check_pastor = ModelsPastor::find($request->pastor_id)->with("contact")->first();
+        $check_pastor = ModelsPastor::with("contact")->where('id', $request->pastor_id)->first();
         if (isset($request->can_login)) {
             if($check_pastor->contact->user_id > 0){
                 $user = User::find($check_pastor->contact->user_id)->update($request->all());
