@@ -18,11 +18,11 @@ class Pastor extends Model
 	}
 
 	public function contact(){
-		return $this->belongsTo(Contact::class, 'contact_id');
+		return $this->belongsTo(Contact::class);
 	}
 
 	public function history(){
-		return $this->hasOne(PastorHistory::class)->orderBy('created_at', 'desc');
+		return PastorHistory::where('pastor_id',$this->id)->orderBy('created_at', 'desc')->first();
 	}
 
 	public function rank(){
