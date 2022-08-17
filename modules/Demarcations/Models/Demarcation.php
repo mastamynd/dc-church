@@ -178,14 +178,6 @@ class Demarcation extends Model
     public function pastors(){
         return $this->hasMany(DemarcationOverseer::class)->withTrashed()->orderBy('created_at', 'asc');
     }
-
-    public function RemittingPerYearchurches($year){
-		$subregion_ids = DemarcationHistory::where('parent_id', $this->id)->select('demarcation_id')->get()->pluck('demarcation_id'); 
-		$churches = ChurchHistory::whereIn('demarcation_id', $subregion_ids)->with('church')->whereYear('church.founded_on','<=',$year)->get();
-		
-		return $churches;
-	}
-
    
     public function bills(){
         return $this->hasMany(Document::class, $this->type == 'Region' ? 'regional_id' : 'sub_regional_id');

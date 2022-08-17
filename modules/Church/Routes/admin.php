@@ -55,4 +55,13 @@ Route::admin('church', function () {
     Route::get('report/comparison-table/{year?}','Reports\ComparisonTables@reportindex')->name('comparison-table-report');
 
     Route::get('report/national-analysis/{year?}','Reports\NationalAnalysis@reportindex')->name('national-analysis-report');
+
+    Route::get('report/Regional/Commitment/{year?}','Reports\RegionalCommitment@reportIndex')->name('regionalcommitment');
+
+    Route::get('report/ContributionGraph/{year?}','Reports\ContributionGraph@reportIndex')->name('contribution-graph');
+
+    Route::get('report/TitheComparison/{fromYear?}/to/{toYear?}','Reports\TitheComparison@reportIndex')->name('tithe-comparison');
+
+    Route::get('report/ContributionToHQ','Reports\ContributionToHQ@reportIndex')->name('contribution-to-hq');
+
 });

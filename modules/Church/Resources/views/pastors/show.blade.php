@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', $pastor->contact->name)
+@section('title', $pastor->getContact()->name)
 
 @section('new_button')
 
@@ -47,8 +47,8 @@
 			<li class="list-group-item border-0 border-top-1">
 				<div class="font-weight-600">{{ trans('church::general.name') }}</div>
 				<div>
-					<small class="long-texts" title="{{ $pastor->history->church->name ?? 'Not Set' }}">
-					{{ $pastor->history->church->name ?? 'Not Set' }}
+					<small class="long-texts" title="{{ getPastorHistoryChurh($pastor->history()->id)->name ?? 'Not Set' }}">
+					{{ getPastorHistoryChurh($pastor->history()->id)->name ?? 'Not Set' }}
 					</small>
 				</div>
 			</li>
@@ -57,14 +57,14 @@
 			@stack('pastor_ranking_start')
 			<li class="list-group-item border-0 border-top-1">
 				<div class="font-weight-600">{{ trans('church::general.position') }}</div>
-				<div><small>{{ $pastor->history->position ?? 'Not Set' }}</small></div>
+				<div><small>{{ $pastor->history()->position ?? 'Not Set' }}</small></div>
 
 			</li>
 			@stack('pastor_ranking_end')
 			@stack('pastor_ranking_start')
 			<li class="list-group-item border-0 border-top-1">
 				<div class="font-weight-600">{{ trans('church::general.rank') }}</div>
-				<div><small>{{ $pastor->history->rank ?? 'Not Set' }}</small></div>
+				<div><small>{{ $pastor->history()->rank ?? 'Not Set' }}</small></div>
 
 			</li>
 			@stack('pastor_ranking_end')
@@ -132,17 +132,13 @@
 											</td>
 										</tr>
 										@endforeach
-										@if (sizeof($pastor->rank_history) == 0)
-										<tr class="row align-items-center border-top-1 tr-py">
-											<td colspan="4 text-muted">No records found.</td>
-										</tr>
-										@endif
+										
 									</tbody>
 								</table>
 							</div>
 						</div>
 						@stack('customer_pastor_history_content_end')
-						@stack('pastor_statemrnt_content_start')
+						@stack('pastor_statement_content_start')
 						<div class="tab-pane fade" id="pastor-statement-content" role="tabpanel" aria-labelledby="church_statements-tab">
 							<div class="table-responsive custom">
 								<table class="table table-flush table-hover" id="tbl-church_statements">

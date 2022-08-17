@@ -80,7 +80,7 @@ class Reports extends Controller
                 "icon" => "fas fa-hand-holding-usd",
                 "name" => "Regional Commitment",
                 "description" => "Regional Commitment",
-                "url" => "church.paymentDivisionSummaryIndex"
+                "url" => "church.regionalcommitment"
             ],
             [
                 "icon" => "fas fa-coins",
@@ -92,19 +92,19 @@ class Reports extends Controller
                 "icon" => "fas fa-chart-line",
                 "name" => "Contribution Graph",
                 "description" => "Contribution Graph",
-                "url" => "church.paymentDivisionSummaryIndex"
+                "url" => "church.contribution-graph"
             ],
             [
                 "icon" => "fas fa-exchange-alt",
                 "name" => "Tithe Comparison",
                 "description" => "Tithe Comparison",
-                "url" => "church.paymentDivisionSummaryIndex"
+                "url" => "church.tithe-comparison"
             ],
             [
                 "icon" => "fas fa-hand-holding-usd",
                 "name" => "Contribution to HQ",
                 "description" => "Contribution to HQ",
-                "url" => "church.paymentDivisionSummaryIndex"
+                "url" => "church.contribution-to-hq"
             ],
             
         ];
