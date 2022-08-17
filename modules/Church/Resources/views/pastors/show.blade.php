@@ -122,7 +122,12 @@
 												@if(trim($r->deleted_at) != "")
 												{{ $r->deleted_at }}
 												@else
-												<small class="badge badge-success">CURRENT</small>
+													@can('adjust-pastor-details')
+														<small class="btn btn-transparent btn-sm text-danger mh-2" data-target="#stop-history-modal" data-toggle="modal" data-history="{{ $r->id }}">
+															<i class="fas fa-stop"></i>
+														</small>
+													@endcan
+													<small class="badge badge-success">CURRENT</small>
 												@endif
 											</td>
 										</tr>
@@ -143,17 +148,29 @@
 								<table class="table table-flush table-hover" id="tbl-church_statements">
 									<thead class="thead-light">
 										<tr class="table-head-line">
-											<th class="">{{ trans_choice('general.numbers', 1) }}</th>
-											<th class="">{{ trans('invoices.invoice_date') }}</th>
-											<th class="">{{ trans('invoices.due_date') }}</th>
-											<th class="">{{ trans_choice('general.statuses', 1) }}</th>
+											<th>No.</th>
+											<th class="">{{ trans('church::general.year') }}</th>
+											<th class="">{{ trans('church::general.month') }}</th>
+											<th class="">{{ trans('general.amount') }}</th>
 										</tr>
 									</thead>
 									<tbody>
-										<tr class="row align-items-center border-top-1 tr-py">
-											<td colspan="4 text-muted">No records found.</td>
-										</tr>
+										@foreach ($statements as $item)
+											<tr>
+												<td style="width: 2%">{{ $loop->iteration }}</td>
+												<td>{{ $item->year }}</td>
+												<td>{{ $item->month }}</td>
+												<td>@money($item->amount, setting('default.currency'), true)</td>
+											</tr>
+										@endforeach
 									</tbody>
+									<tfoot class="card-footer table-action">
+										<tr class="row">
+											<td colspan="4">
+												@include('partials.admin.pagination', ['items' => $statements])
+											</td>
+										</tr>
+									</tfoot>
 								</table>
 							</div>
 						</div>
@@ -167,6 +184,32 @@
 @endsection
 
 @push('scripts_start')
+<div class="modal fade show" id="stop-history-modal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="{{ route('church.pastor_stop_history') }}" method="post">
+				@csrf
+				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+					<h4>{{ trans('church::general.stop_history') }}</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group form-group-lg">
+						<div class="alert alert-danger">
+							<i class="fas fa-exclamation-triangle fa-2x pull-left float-left"></i> Are you sure that you want to update this pastors history?
+						</div>
+					</div>
+					<div class="form-group">
+						<input type="checkbox" name="delete" value="1" /> Delete this history <strong>completely</strong>.
+					</div>
+				</div>
+				<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+					<span class="btn btn-white" data-dismiss="modal">Close</span>
+					<button type="submit" class="btn btn-danger">UPDATE</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 <div class="modal fade show" id="pastor-history-modal" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -181,7 +224,8 @@
 						<div class="input-group input-group-merge ">
 							<div class="input-group-prepend">
 								<span class="input-group-text">
-									<i class="fas fa-solid fa-church"></i>                                </span>
+									<i class="fas fa-solid fa-church"></i>                                
+								</span>
 							</div>
 							<select data-url="{{ route('church.get_church') }}/" name="church_id" placeholder="{{ trans('church::general.name') }}..." class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
 							</select>
@@ -301,6 +345,14 @@
 			}
 			selectizerNow(this);
 		});
+
+		$("#stop-history-modal").on("shown.bs.modal", function (e){ 
+			var hID = $(e.relatedTarget).data('history');
+
+			$(this).find('form').attr('action', "{{ route('church.pastor_stop_history') }}/"+hID);
+			$(this).find('form').prop('action', "{{ route('church.pastor_stop_history') }}/"+hID);
+		});
+
 	});
 </script>
 <!-- <script src="{{ asset('public/js/sales/customers.js?v=' . version('short')) }}"></script> -->

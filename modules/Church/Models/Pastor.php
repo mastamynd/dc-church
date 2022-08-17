@@ -32,4 +32,8 @@ class Pastor extends Model
 	public function rank_history(){
 		return $this->hasMany(PastorHistory::class)->withTrashed()->orderBy('created_at', 'desc');
 	}
+
+	public function payment_division(){
+		return $this->hasMany(PaymentDivision::class, 'contact_id')->orderBy('created_at', 'desc');
+	}
 }

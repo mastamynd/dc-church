@@ -7,28 +7,80 @@
 <div class="card">
 	<div class="card-header border-bottom-0" :class="[{'bg-gradient-primary': bulk_action.show}]">
 		<div class="row" id="select-form">
-			<div class="col-md-2 col-sm-4">
+			<div class="col-sm-4 col-md-3 col-lg-2">
 				<div class="form-group">
-					<select class="form-control" name="year" id="year-filter">
-						@foreach($years as $y)
-							<option value="{{ $y }}" {{ intval($y)==intval($year) ? 'selected' : '' }}>{{ $y }}</option>
-						@endforeach
-					</select>
+					{{-- <label class="control-label">{{ trans_choice('church::general.year', 1) }}</label> --}}
+					<div class="input-group input-group-merge ">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fa fa-calendar"></i>
+							</span>
+						</div>
+						<select class="form-control selectize-field" name="year" id="year-filter">
+							@foreach($years as $y)
+								<option value="{{ $y }}" {{ intval($y)==intval($year) ? 'selected' : '' }}>{{ $y }}</option>
+							@endforeach
+						</select>
+					</div>
 				</div>
 			</div>
-			<div class="col-md-2 col-sm-4">
+			<div class="col-sm-4 col-md-3 col-lg-3">
 				<div class="form-group">
-					<select class="form-control" name="month" id="month-filter">
-						<option value="all">All</option>
-						@foreach($months as $m)
-							<option value="{{ $m }}" {{ $m==$month ? 'selected' : '' }}>{{ ucfirst($m) }}</option>
-						@endforeach
-					</select>
+					{{-- <label class="control-label">{{ trans_choice('church::general.month', 1) }}</label> --}}
+					<div class="input-group input-group-merge ">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fa fa-calendar"></i>
+							</span>
+						</div>
+						<select class="form-control selectize-field" name="month" id="month-filter">
+							<option value="all">All</option>
+							@foreach($months as $m)
+								<option value="{{ $m }}" {{ $m==$month ? 'selected' : '' }}>{{ ucfirst($m) }}</option>
+							@endforeach
+						</select>
+					</div>
 				</div>
 			</div>
-			<div class="col-md-1 col-sm-4">
+			<div class="col-sm-4 col-md-3 col-lg-3">
+				<div class="form-group form-group-lg">
+					{{-- <label class="control-label">{{ trans_choice('church::general.pastor', 1) }}</label> --}}
+					<div class="input-group input-group-merge ">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fa fa-user"></i>
+							</span>
+						</div>
+						<select data-url="{{ route('church.fetch_pastors') }}/" name="pastor_id" id="pastor-filter"
+							placeholder="{{ trans_choice('church::general.pastor', 1) }}..."
+							class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
+							@if ($pastor)
+								<option value="{{ $pastor->id }}" selected> {{ $pastor->name }}</option>
+							@endif
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4 col-md-3 col-lg-3">
+				<div class="form-group form-group-lg">
+					{{-- <label class="control-label">{{ trans('church::general.name') }}</label> --}}
+					<div class="input-group input-group-merge ">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fas fa-solid fa-church"></i>                                
+							</span>
+						</div>
+						<select data-url="{{ route('church.get_church') }}/" id="church-filter" name="church_id" placeholder="{{ trans('church::general.name') }}..." class="form-control selectize-field" data-searchfield="name" data-labelfield="name" data-valuefield="id">
+							@if ($church)
+								<option value="{{ $church->id }}" selected> {{ $church->name }}</option>
+							@endif
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 col-md-6 col-lg-1">
 				<div class="form-group">
-					<button class="btn btn-info" id="trigger-search">
+					<button class="btn btn-info btn-block" id="trigger-search">
 						<i class="fas fa-search"></i>
 					</button>
 				</div>
@@ -168,13 +220,26 @@
 		$('#trigger-search').on('click', function(){
 			var $year = $('#year-filter').val();
 			var $month = $('#month-filter').val();
-			if($.trim($month)!==""){
+			var $church = $('#church-filter').val();
+			var $pastor = $('#pastor-filter').val();
+			if($.trim($month)!=="" && $month != 'all'){
 				var route = '{{ route("church.pastors.statements") }}/'+$year+'/'+$month;
 			}
 			else{
 				var route = '{{ route("church.pastors.statements") }}/'+$year;
 			}
-			window.location = route;
+
+			var params = [];
+
+			if($.trim($church) !=""){
+				params.push('church_id='+$church);
+			}
+
+			if($.trim($pastor) !=""){
+				params.push('pastor_id='+$pastor);
+			}
+
+			window.location = route+'?'+params.join('&');
 		})
 	});
 </script>

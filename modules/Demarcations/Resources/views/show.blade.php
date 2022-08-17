@@ -476,7 +476,7 @@
 															@if (!$isSubRegion)
 																<a href="{{ route('demarcations.show', ['subregion', $item->demarcation_id]) }}">{{ $item->demarcation->name }}</a>
 															@else
-																<a href="{{ route('church.show', [$item->church_id]) }}">{{ $item->demarcation->name }}</a>																	
+																<a href="{{ route('church.show', [$item->church_id]) }}">{{ $item->church->name }}</a>																	
 															@endif
 														</td>
 														<td>

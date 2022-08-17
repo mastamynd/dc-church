@@ -64,14 +64,13 @@ return [
     'region_prefix' => 'Region Code Prefix',
     'subregion_prefix' => 'Subregion Code Prefix',
     'subregion_code_number' => 'Subregion Start Number',
-
     'yearly_report' => 'Yearly Return Records',
     'national_analysis' => 'National Analysis Report',
     'comparison_table' => 'Comparison Table',
-
     'region_name' => 'Region',
     'church_total' => 'Total Churches',
     'remitting_total' => 'Remitting Churches',
-
-    
+    'stop_history' => 'Stop/Remove Pastor History',    
+    'month'        => 'Month',
+    'year'         => 'Year'
 ];

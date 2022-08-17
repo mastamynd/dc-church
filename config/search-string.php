@@ -447,6 +447,10 @@ return [
         ],
     ],
 
+    Modules\Church\Models\Pastor::class => [
+
+    ],
+
     Modules\Church\Models\Church::class => [
         'columns' => [
             'id',
