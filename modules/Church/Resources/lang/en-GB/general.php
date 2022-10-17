@@ -70,6 +70,9 @@ return [
     'region_name' => 'Region',
     'church_total' => 'Total Churches',
     'remitting_total' => 'Remitting Churches',
+    'print'=>'Print Report',
+
+    
     'stop_history' => 'Stop/Remove Pastor History',    
     'month'        => 'Month',
     'year'         => 'Year'

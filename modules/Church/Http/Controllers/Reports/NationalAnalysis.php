@@ -25,7 +25,7 @@ class NationalAnalysis extends Controller
             
         }
         $selected_years = range(2000, date('Y'));
-        return view('church::reports.nationalanalysis',compact('selected_years','year','columns','regions',));
+        return view('church::reports.nationalanalysis',compact('selected_years','year','columns','regions'));
     }
 
 
@@ -35,6 +35,22 @@ class NationalAnalysis extends Controller
    
     private function getRegionalAllTotalContributions($year,$region_id){
         return PaymentDivisionView::where('regional_id',$region_id)->where('year',$year)->sum('amount');
+    }
+
+    public function printReport($year){
+        $columnsArr = PaymentDivisionView::orderBy('type','asc')->pluck('type')->toArray();
+        $columns = array_unique($columnsArr);
+        $regions = ModelsDemarcation::where('type','Region')->get();
+        foreach($regions as $region){
+            foreach($columns as $column){
+                $region[$column] = $this->getRegionalTotalContributions($year,$region->id,$column);
+            }
+            $region['total_amount'] = $this->getRegionalAllTotalContributions($year,$region->id);
+            $region['remitting_churches'] = PaymentDivisionView::where('regional_id',$region->id)->where('year',$year)->distinct('church_id')->count();
+            
+        }
+        
+        return view('church::reports.print.nationalAnalysis',compact('year','columns','regions'));
     }
    
 }
