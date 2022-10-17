@@ -49,7 +49,7 @@ Route::admin('church', function () {
     Route::get('report/regional/PaymentDivisionSummary/{year}','Reports\RegionalSummary@regionalPaymentDivisionSummary')->name('regionalPaymentDivisionSummary');
     Route::get('report/subRegionPaymentDivisionSummary/{year?}','Reports\RegionalSummary@subRegionPaymentDivisionSummary')->name('subRegionPaymentDivisionSummary');
 
-    Route::get('report/yearly/returns/record/{year?}','Reports\YearReturnRecords@reportIndex')->name('yearly-returns-records');
+    Route::get('report/yearly/returns/record','Reports\YearReturnRecords@reportIndex')->name('yearly-returns-records');
 
     Route::get('report/comparison-table/{year?}','Reports\ComparisonTables@reportindex')->name('comparison-table-report');
 
@@ -60,7 +60,24 @@ Route::admin('church', function () {
     Route::get('report/ContributionGraph/{year?}','Reports\ContributionGraph@reportIndex')->name('contribution-graph');
 
     Route::get('report/TitheComparison/{fromYear?}/to/{toYear?}','Reports\TitheComparison@reportIndex')->name('tithe-comparison');
+    Route::get('report/TitheComparison-index','Reports\TitheComparison@reportIndex')->name('tithe-comparison-index');
+    
 
     Route::get('report/ContributionToHQ','Reports\ContributionToHQ@reportIndex')->name('contribution-to-hq');
+
+    // --------------------print---------------------
+    Route::get('report/yearly/returns/record/print-report/{year}','Reports\YearReturnRecords@printReport')->name('yearly-returns-records-print');
+    Route::get('report/tithe-comparison/print-Report/{fromYear} - {toYear}','Reports\TitheComparison@printReport')->name('tithe-comparison-print');
+    Route::get('report/payment-Division-Summary-Index/print-Report/{year}','Reports\RegionalSummary@paymentDivisionSummaryIndexPrintReport')->name('payment-Division-Summary-Index-Print');
+    Route::get('report/regional-Payment-Division-Summary/print-Report/{year}','Reports\RegionalSummary@regionalPaymentDivisionSummaryPrintReport')->name('regional-Payment-Division-Summary-Print');
+    Route::get('report/sub-Region-Payment-Division-Summary/print-Report/{year}/region/{regional_id}/sub/{sub_regional_id}','Reports\RegionalSummary@subRegionPaymentDivisionSummaryPrintReport')->name('sub-Region-Payment-Division-Summary-Print');
+
+    Route::get('report/Regional-Commitment/Print/{year}','Reports\RegionalCommitment@PrintReport')->name('Regional-Commitment-Print');
+    Route::get('report/national-analysis-print/{year}','Reports\NationalAnalysis@printReport')->name('national-analysis-print');
+    Route::get('report/contribution-to-hq/print/{year}/{regional_id}','Reports\ContributionToHQ@printReport')->name('contribution-to-hq-print');
+    Route::get('report/contribution-graph-print/{year}','Reports\ContributionGraph@printReport')->name('contribution-graph-print');
+
+    Route::get('report/comparison-table-print/{year}','Reports\ComparisonTables@PrintReports')->name('comparison-table-print');
+
 
 });

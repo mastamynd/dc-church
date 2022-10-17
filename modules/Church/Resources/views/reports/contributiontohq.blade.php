@@ -11,7 +11,7 @@
 
 <!-- <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a> -->
 <!-- <a href="{{ route('church.yearly-returns-records',['year'=>$year]) }}" class="btn btn-white btn-sm">{{ trans('church::general.yearly_return') }}</a> -->
-
+<a href="{{route('church.contribution-to-hq-print',['year'=>$year,'regional_id'=>$regional_id])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
 
 @endsection
 
@@ -43,7 +43,7 @@
                     </span>
                 </div>
                 <select name="regional_id" placeholder="Select {{ trans('church::general.select_region') }}..." class="form-control selectize-field" data-searchfield="regional_id" data-labelfield="regional_id" data-valuefield="regional_id">
-                    <option>Select Year...</option>
+                    <option>Select Region...</option>
                     @foreach ($regions as $r)
                     <option value="{{ $r->id }}" {{$r->id == $regional_id ? 'selected' : '' }}>{{ $r->name }}</option>
                     @endforeach

@@ -9,7 +9,7 @@
 
 @section('new_button')
    
-    <a href="#" class="btn btn-white btn-sm">{{ trans('general.print') }}</a>
+<!-- <a href="{{route('church.regional-Payment-Division-Summary-Print',['year'=>$year])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a> -->
    
 @endsection
 

@@ -21,6 +21,7 @@
 @section('new_button')
 
 
+<!-- <a href="{{route('church.tithe-comparison-print',['fromYear'=>$fromYear,'toYear'=>$toYear])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a> -->
 
 
 @endsection

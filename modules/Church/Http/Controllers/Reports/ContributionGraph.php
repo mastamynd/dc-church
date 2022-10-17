@@ -35,6 +35,19 @@ class ContributionGraph extends Controller
         return PaymentDivisionView::where('regional_id',$regional_id)->where('year',$year)->sum('amount');
     }
 
-
+    public function printReport($year){
+        $year = $year;
+        $regions = Demarcation::where('type','Region')->get();
+        $response = [];
+        foreach($regions as $region){
+            $data['name']= $region->name;
+            $data['current_total'] = $this->getRegionContributionPerYear($year,$region->id);
+            $data['prev_total'] = $this->getRegionContributionPerYear($year-1,$region->id);
+            $response[] = $data;
+        }
+        
+        $prev_year = intval($year)-1;
+        return view('church::reports.print.ContributionGraph',compact('prev_year','year','response'));
+    }
     
 }

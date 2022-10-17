@@ -79,6 +79,7 @@ return [
     'region_name' => 'Region',
     'church_total' => 'Total Churches',
     'remitting_total' => 'Remitting Churches',
+    'print'=>'Print Report',
 
     
 ];

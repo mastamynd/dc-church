@@ -30,4 +30,15 @@ class TitheComparison extends Controller
     private function getYearlyTitheContribution($year){
         return PaymentDivisionView::where('year',$year)->sum('amount');
     }
+
+    public function printReport($fromYear,$toYear){
+        $response = [];
+        foreach(range($fromYear,$toYear) as $year){
+            $data['name'] = $year;
+            $data['value'] = $this->getYearlyTitheContribution($year);
+            $response[] = $data;
+        }
+        $selected_years = range(2014, date('Y'));
+        return view('church::reports.print.tithecomparison',compact('fromYear','toYear','response','selected_years'));
+    }
 }

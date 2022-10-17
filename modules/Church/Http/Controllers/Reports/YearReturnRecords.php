@@ -15,11 +15,11 @@ class YearReturnRecords extends Controller
      *
      * @return Response
      */
-    public function reportIndex($year = 0)
+    public function reportIndex(Request $request)
     {
         $columnsArr = PaymentDivisionView::orderBy('type','asc')->pluck('type')->toArray();
         $columns = array_unique($columnsArr);
-        $year = $year == 0 ? date('Y') : $year;
+        $year = isset($request->year) ? $request->year : date('Y');
         $regions = ModelsDemarcation::where('type','Region')->get();
         $selected_years = range(2000, date('Y'));
         foreach($regions as $region){
@@ -37,5 +37,19 @@ class YearReturnRecords extends Controller
    
     private function getRegionalAllTotalContributions($year,$region_id){
         return PaymentDivisionView::where('regional_id',$region_id)->where('year',$year)->sum('amount');
+    }
+
+    public function printReport($year){
+        $columnsArr = PaymentDivisionView::orderBy('type','asc')->pluck('type')->toArray();
+        $columns = array_unique($columnsArr);
+        $regions = ModelsDemarcation::where('type','Region')->get();
+        $selected_years = range(2000, date('Y'));
+        foreach($regions as $region){
+            foreach($columns as $column){
+                $region[$column] = $this->getRegionalTotalContributions($year,$region->id,$column);
+            }
+            $region['total_amount'] = $this->getRegionalAllTotalContributions($year,$region->id);
+        }
+        return view('church::reports.print.YearlyReturns',compact('regions','columns','year','selected_years'));
     }
 }
