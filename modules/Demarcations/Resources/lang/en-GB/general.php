@@ -25,5 +25,7 @@ return [
     'add_new'           => 'Add New',
     'region_search'     => 'Region',
     'subregion_search'     => 'Sub Region',
-    'empty_page'        => 'There are no records in the system.|There are no sub-regions in the system.'
+    'empty_page'        => 'There are no records in the system.|There are no sub-regions in the system.',
+    'no_records' => 'No Records Available.',
+    'tithe' => 'Tithe'
 ];

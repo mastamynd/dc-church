@@ -47,8 +47,8 @@
 			<li class="list-group-item border-0 border-top-1">
 				<div class="font-weight-600">{{ trans('church::general.name') }}</div>
 				<div>
-					<small class="long-texts" title="{{ getPastorHistoryChurh($pastor->history()->id)->name ?? 'Not Set' }}">
-					{{ getPastorHistoryChurh($pastor->history()->id)->name ?? 'Not Set' }}
+					<small class="long-texts" title="{{ getPastorHistoryChurh($pastor->history()->id ?? 0)->name ?? 'Not Set' }}">
+					{{ getPastorHistoryChurh($pastor->history()->id ?? 0)->name ?? 'Not Set' }}
 					</small>
 				</div>
 			</li>
@@ -122,7 +122,7 @@
 												@if(trim($r->deleted_at) != "")
 												{{ $r->deleted_at }}
 												@else
-													@can('adjust-pastor-details')
+													@can('update-church-main')
 														<small class="btn btn-transparent btn-sm text-danger mh-2" data-target="#stop-history-modal" data-toggle="modal" data-history="{{ $r->id }}">
 															<i class="fas fa-stop"></i>
 														</small>

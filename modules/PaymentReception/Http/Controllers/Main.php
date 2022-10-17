@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Modules\Demarcations\Models\Demarcation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\PaymentDivision;
 use Modules\PaymentReception\Models\PaymentReception;
@@ -33,7 +34,17 @@ class Main extends Controller
 	 */
 	public function paymentShow($id='create')
 	{
-		$churches = Church::selectRaw('id, name, code, CONCAT(code, " - ", name) as codename');
+		$tablePrefix = DB::getTablePrefix();
+		$churches = Church::leftJoin('church_histories as ch', function($join){
+			$join->on('ch.church_id', 'churches.id');
+			$join->whereNull('ch.deleted_at');
+		})
+		->leftJoin('demarcations as d', function($join){
+			$join->on('d.id', 'ch.demarcation_id');
+			$join->whereNull('d.deleted_at');
+		})
+		->select('churches.id', 'churches.name', 'churches.code', DB::raw('CONCAT('.$tablePrefix.'churches.code, " - ", '.$tablePrefix.'churches.name, ", ", '.$tablePrefix.'d.name) as codename'));
+
 		$payment_modes = ['mpesa'=>'M-Pesa', 'cash'=>'Cash', 'bank deposit'=>'Bank Deposit', 'ussd'=>'USSD', 'portal'=>'Portal'];
 		$start_year = 2018;
 		$paymentYear = date('Y');
@@ -49,10 +60,10 @@ class Main extends Controller
 		$paymentReception = PaymentReception::find($id);
 
 		if(isset($paymentReception->id)){
-			$churches = $churches->where('id', $paymentReception->church_id);
+			$churches = $churches->where('churches.id', $paymentReception->church_id);
 		}
 
-		$churches = $churches->orderBy('name', 'asc')->limit(10)->get();
+		$churches = $churches->orderBy('churches.name', 'asc')->limit(10)->get();
 
 		return $this->response('payment-reception::edit', compact('paymentReception', 'start_year', 'churches', 'payment_modes', 'months', 'weeks', 'paymentYear', 'paymentMonth', 'paymentWeek'));
 	}

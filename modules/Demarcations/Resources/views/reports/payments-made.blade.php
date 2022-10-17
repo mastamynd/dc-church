@@ -56,7 +56,7 @@
 			</div>
 		</div>
 	@else
-		<x-empty-page group="banking" page="transfers" textPage="{{ trans('demarcations::general.tithe') }}" routeCreate="{{ 'demarcations.receive-tithe' }}" textEmptyPage="{{ trans('demarcations::general.tithes_received_msg') }}" />
+		<x-empty-page group="banking" page="transfers" textPage="{{ trans('demarcations::general.tithe') }}" routeCreate="{{ 'payment-reception.receive-tithe' }}" textEmptyPage="{{ trans('demarcations::general.no_records') }}" />
 	@endif
 @endsection
 
