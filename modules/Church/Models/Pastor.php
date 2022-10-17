@@ -18,11 +18,11 @@ class Pastor extends Model
 	}
 
 	public function contact(){
-		return $this->belongsTo(Contact::class, 'contact_id');
+		return $this->belongsTo(Contact::class);
 	}
 
 	public function history(){
-		return PastorHistory::where('pastor_id',$this->id)->orderBy('created_at', 'desc')->first();
+		return $this->hasOne(PastorHistory::class)->orderBy('created_at', 'desc');
 	}
 
 	public function rank(){
@@ -33,15 +33,7 @@ class Pastor extends Model
 		return $this->hasMany(PastorHistory::class)->withTrashed()->orderBy('created_at', 'desc');
 	}
 
-	public function getContact(){
-		return Contact::find($this->contact_id);
+	public function payment_division(){
+		return $this->hasMany(PaymentDivision::class, 'contact_id')->orderBy('created_at', 'desc');
 	}
-
-	public function getRank(){
-		return PastorHistory::where('pastor_id',$this->id)->first();
-	}
-	public function getRankHistory(){
-		return PastorHistory::withTrashed()->orderBy('created_at', 'desc');
-	}
-	
 }

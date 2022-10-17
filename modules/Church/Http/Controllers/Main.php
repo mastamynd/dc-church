@@ -17,7 +17,7 @@ class Main extends Controller
      */
     public function index()
     {
-        $churches = Church::with('pastors')->collect();
+        $churches = Church::with('pastors')->orderBy('id', 'desc')->collect();
         return $this->response('church::churches.index', compact('churches'));
     }
 

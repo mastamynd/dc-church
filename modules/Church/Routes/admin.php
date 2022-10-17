@@ -37,6 +37,7 @@ Route::admin('church', function () {
     Route::get('pastors/filter/{search?}', 'Pastor@get_pastors')->name('fetch_pastors');
     Route::post('pastors/add-to-church/{id}', 'Pastor@add_to_church')->name('add_to_church');
     Route::get('filter/churches/list/{search?}','Pastor@get_church')->name('get_church');
+    Route::post('pastors/stop_history/{id?}', 'Pastor@stop_history')->name('pastor_stop_history');
 
     //Demarcations Routes
     Route::get('demarcations/{type}', 'Demarcation@index')->name('demarcations.index');

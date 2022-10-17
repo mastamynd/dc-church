@@ -20,7 +20,7 @@
 		'class' => 'mb-0'
 		]) !!}
 		<div class="align-items-center" v-if="!bulk_action.show">
-			<x-search-string model="App\Models\Common\Contact" />
+			<x-search-string model="Modules\Church\Models\Pastor" />
 		</div>
 
 		<!-- {{ Form::bulkActionRowGroup('general.pastor', $bulk_actions, ['group' => 'pastor', 'type' => 'pastor']) }} -->
@@ -44,12 +44,12 @@
 				@foreach($pastors as $item)
 				<tr class=" align-items-center border-top-1">
 					<td class="">
-						{{ Form::bulkActionGroup($item->id, $item->contact->name) }}
+						{{ Form::bulkActionGroup($item->id, $item->name) }}
 					</td>
-					<td class=""><a href="{{route('church.pastors.show',$item->id)}}">{{ $item->contact->name }}</a></td>
+					<td class=""><a href="{{route('church.pastors.show',$item->id)}}">{{ $item->name }}</a></td>
 					<td class="">{{$item->ukumbozi_number}}</td>
 					<td class="">{{ Form::enabledGroup($item->id, $item->name, $item->enabled) }}</td>
-					<td class="">{{$item->contact->phone}}</td>
+					<td class="">{{$item->phone}}</td>
 					<td class="">{{$item->gender}}</td>
 
 					<td class="">

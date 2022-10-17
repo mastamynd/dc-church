@@ -397,15 +397,15 @@ class Main extends Controller
 	public function payments_made(){
 		$dbprefix = DB::getTablePrefix();
 		$payments = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')
-		->leftJoin('payments_division as pd', function($join){
+		->leftJoin('payment_divisions as pd', function($join){
 			$join->on('pd.month', 'payment_divisions.month');
 			$join->on('pd.year', 'payment_divisions.year');
 			$join->on('pd.church_id', 'payment_divisions.church_id');
 			$join->on('pd.regional_id', 'payment_divisions.regional_id');
 			$join->on('pd.type', 'payment_divisions.type');
-		})->selectRaw('c.name, SUM('.$dbprefix.'payment_divisions.amount) as amount, SUM('.$dbprefix.'pd.paid) as amount, payment_divisions.month, payment_divisions.year, payment_divisions.payment_date')
-		->whereNotNull('pd.payment_date')->collect();
+		})->selectRaw($dbprefix.'c.name, SUM('.$dbprefix.'payment_divisions.amount) as amount, SUM('.$dbprefix.'pd.amount) as paid, '.$dbprefix.'payment_divisions.month, '.$dbprefix.'payment_divisions.year, '.$dbprefix.'payment_divisions.payment_date, '.$dbprefix.'payment_divisions.type')
+		->whereNotNull('pd.payment_date')->groupBy('c.id', 'month', 'year')->collect();
 
-		return $this->response('demarcations::demarcations.reports.payments-made', compact('payments'));
+		return $this->response('demarcations::reports.payments-made', compact('payments'));
 	}
 }

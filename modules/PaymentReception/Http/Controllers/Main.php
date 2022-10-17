@@ -34,7 +34,7 @@ class Main extends Controller
 	public function paymentShow($id='create')
 	{
 		$churches = Church::selectRaw('id, name, code, CONCAT(code, " - ", name) as codename');
-		$payment_modes = ['mpesa'=>'M-Pesa', 'cash'=>'Cash', 'bank deposit'=>'Bank Deposit'];
+		$payment_modes = ['mpesa'=>'M-Pesa', 'cash'=>'Cash', 'bank deposit'=>'Bank Deposit', 'ussd'=>'USSD', 'portal'=>'Portal'];
 		$start_year = 2018;
 		$paymentYear = date('Y');
 		$paymentMonth = date('M');
@@ -63,7 +63,7 @@ class Main extends Controller
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function store(Request $request, $id)
+	public function store(Request $request, $id=0)
 	{
 		$dataArr = $request->all();
 		$rows = $dataArr['data'];
@@ -124,7 +124,7 @@ class Main extends Controller
 				'contact_id' => $theCONTACT->id,
 				'company_id' => company_id(),
 				'currency_code' => 'KES',
-				'currency_rate' => 112,
+				'currency_rate' => 1,
 				'contact_country' => 'KE',
 				'contact_name' => 'System Portal',
 				'contact_email' => $theCONTACT->email,

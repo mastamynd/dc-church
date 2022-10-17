@@ -447,6 +447,10 @@ return [
         ],
     ],
 
+    Modules\Church\Models\Pastor::class => [
+
+    ],
+
     Modules\Church\Models\Church::class => [
         'columns' => [
             'id',
@@ -469,10 +473,19 @@ return [
         'columns' => [
             'id',
             'church_id' => [
-                'route' => ['church.index'],
+                'route' => ['church.index', 'search=enabled:1'],
             ],
-            'type' => ['searchable' => true],
+            'regional_id' => [
+                'key' => 'region',
+                'route' => 'demarcations.region.index',
+            ],
+            'sub_regional_id' => [
+                'key' => 'sub_region',
+                'route' => 'demarcations.subregion.index',
+            ],
             'payment_date' => ['date' => true],
+            'month'  => ['searchable' => true],
+            'year'  => ['searchable' => true],
         ]
-    ]
+    ],
 ];

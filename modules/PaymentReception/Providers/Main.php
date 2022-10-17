@@ -83,6 +83,7 @@ class Main extends Provider
     }
     
     // public function loadConfig()
+
     // {
     //     $merge_to_core_configs = ['search-string', 'type', 'config'];
 
@@ -109,6 +110,7 @@ class Main extends Provider
         $routes = [
             'admin.php',
             'portal.php',
+            'api.php'
         ];
 
         foreach ($routes as $route) {
