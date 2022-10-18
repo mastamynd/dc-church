@@ -5,7 +5,10 @@ namespace Modules\Church\Http\Controllers;
 use App\Abstracts\Http\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Modules\Church\Export\ChurchesExport;
 use Modules\Church\Models\Church;
+use Modules\Church\Models\ChurchHistory;
 use Modules\Demarcations\Models\Demarcation;
 
 class Main extends Controller
@@ -19,6 +22,11 @@ class Main extends Controller
     {
         $churches = Church::with('pastors')->orderBy('id', 'desc')->collect();
         return $this->response('church::churches.index', compact('churches'));
+    }
+
+    public function export(Request $request)
+    {
+        return Excel::download(new ChurchesExport, 'churches-'.time().'.xlsx');
     }
 
     /**
@@ -142,10 +150,17 @@ class Main extends Controller
      * @param int $id
      * @return Response
      */
-    public function destroy($id)
-    {
-        //
-    }
+
+	public function destroy(Request $request, $id){
+		ChurchHistory::where('church_id', $id)->delete();
+		$church = Church::findOrFail($id);
+
+		$church->delete();
+
+		flash('Church deleted successfully!')->error();
+
+		return redirect()->back();
+	}
 
     public function fetch_demarcations($search){
 

@@ -163,7 +163,7 @@
 										<tbody>
 											@foreach($church->pastor_history as $r)
 												<tr>
-													<td>{{ $r->pastor->contact->name }}</td>
+													<td>{{ isset($r->pastor->contact) ? $r->pastor->contact->name : 'Removed' }}</td>
 													<td>{{ $r->rank }}</td>
 													<td>{{ $r->position }}</td>
 													<td>{{ $r->created_at }}</td>
@@ -171,7 +171,7 @@
 														@if(trim($r->deleted_at) != "") 
 															{{ $r->deleted_at }}
 														@else 
-															@can('adjust-pastor-details')
+															@can('update-church-main')
 																<small class="btn btn-transparent btn-sm text-danger mh-2" data-target="#stop-history-modal" data-toggle="modal" data-history="{{ $r->id }}">
 																	<i class="fas fa-stop"></i>
 																</small>

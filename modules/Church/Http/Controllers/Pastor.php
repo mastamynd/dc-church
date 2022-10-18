@@ -13,6 +13,8 @@ use Modules\Church\Models\Pastor as ModelsPastor;
 use Illuminate\Support\Str;
 use Modules\Church\Models\PastorHistory;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use Modules\Church\Export\PastorsExport;
 use Modules\Church\Http\Requests\UpdatePastorRequest;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\PaymentDivision;
@@ -27,7 +29,16 @@ class Pastor extends Controller
 	 */
 	public function indexPastors(Request $request)
 	{
-		$pastors = ModelsPastor::leftJoin('contacts as c', 'c.id', 'pastors.contact_id');
+		$db_prefix = DB::getTablePrefix();
+		
+		$pastors = ModelsPastor::leftJoin('contacts as c', 'c.id', 'pastors.contact_id')
+			->leftJoin('pastor_histories as ph', function($join){
+				$join->on('ph.pastor_id','pastors.id');
+				$join->whereNull('ph.deleted_at');
+			})->leftJoin('churches as ch', function($join){
+				$join->on( 'ch.id', 'ph.church_id');
+				$join->whereNull('ch.deleted_at');
+			});
 
 		if($request->has('search')){
 
@@ -39,7 +50,7 @@ class Pastor extends Controller
 			$pastors = $pastors->orWhere('pastors.phone', 'LIKE', '%'.$request->search.'%');
 		}
 
-		$pastors = $pastors->select('pastors.id', 'pastors.phone', 'pastors.id_or_passport', 'pastors.ukumbozi_number', 'c.name', 'pastors.enabled', 'pastors.gender')
+		$pastors = $pastors->select('pastors.id', 'pastors.phone', 'pastors.id_or_passport', 'pastors.ukumbozi_number', 'c.name', DB::raw($db_prefix.'ch.name as church'), 'pastors.enabled', 'pastors.gender')
 			->orderBy('id', 'desc')->collect();
 
 		// return response()->json($pastors);
@@ -54,6 +65,11 @@ class Pastor extends Controller
 	public function createPastor()
 	{
 		return view('church::pastors/create');
+	}
+
+	public function exportPastors(Request $request)
+	{
+		return Excel::download(new PastorsExport, 'pastors-'.time().'.xlsx');
 	}
 
 	/**
@@ -153,14 +169,20 @@ class Pastor extends Controller
 	
 	public function get_church(Request $request, $search = '')
 	{
-
-		$db_prefix = DB::getTablePrefix();
-
-		$churches = Church::selectRaw('id, name, code, CONCAT(code, " - ", name) as codename');
+		$tablePrefix = DB::getTablePrefix();
+		$churches = Church::leftJoin('church_histories as ch', function($join){
+			$join->on('ch.church_id', 'churches.id');
+			$join->whereNull('ch.deleted_at');
+		})
+		->leftJoin('demarcations as d', function($join){
+			$join->on('d.id', 'ch.demarcation_id');
+			$join->whereNull('d.deleted_at');
+		})
+		->select('churches.id', 'churches.name', 'churches.code', DB::raw('CONCAT('.$tablePrefix.'churches.code, " - ", '.$tablePrefix.'churches.name, ", ", '.$tablePrefix.'d.name) as codename'));
 
 		if (trim($search) != '') {
 			$churches = $churches->where(function ($orW) use ($search) {
-				$orW->where('name', 'like', '%' . $search . '%')->orWhere('code', 'like', '%' . $search . '%');
+				$orW->where('churches.name', 'like', '%' . $search . '%')->orWhere('churches.code', 'like', '%' . $search . '%');
 			});
 		}
 
@@ -173,7 +195,7 @@ class Pastor extends Controller
 
 		$pastor = ModelsPastor::find($request->pastor_id);
 
-		$previousHistory = $pastor->history;
+		$previousHistory = $pastor->history();
 
 		PastorHistory::where('pastor_id', $request->pastor_id)->where('church_id', $request->church_id)->delete();
 
@@ -191,7 +213,7 @@ class Pastor extends Controller
 	public function add_to_church(Request $request, $id){
 		$pastor = ModelsPastor::find($request->pastor_id);
 
-		$previousHistory = $pastor->history;
+		$previousHistory = $pastor->history();
 
 		PastorHistory::where('pastor_id', $request->pastor_id)->where('church_id', $id)->delete();
 
@@ -303,6 +325,22 @@ class Pastor extends Controller
 		}
 
 		flash('Pastor history has been updated!')->error();
+
+		return redirect()->back();
+	}
+
+	public function deletePastor(Request $request, $id){
+		PastorHistory::where('pastor_id', $id)->delete();
+		$pastor = ModelsPastor::findOrFail($id);
+		$contact = Contact::find($pastor->contact_id);
+
+		if(isset($contact->id)){
+			$contact->delete();
+		}
+
+		$pastor->delete();
+
+		flash('Pastor deleted successfully!')->error();
 
 		return redirect()->back();
 	}

@@ -115,7 +115,7 @@
 				<tfoot>
 					<td></td>
 					@foreach ($months as $m)
-						<th class="text-right"><a href="{{ route('church.pastors.statements', [$year, $m]) }}">@money($total[$m], 'KES', true)</a></th>
+						<th class="text-right"><a href="{{ route('church.pastors.statements', [$year, $m]) }}">@money($total[$m] ?? 0, 'KES', true)</a></th>
 						@endforeach
 				</tfoot>
 			</table>

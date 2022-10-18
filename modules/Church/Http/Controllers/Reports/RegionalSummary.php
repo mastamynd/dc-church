@@ -137,7 +137,9 @@ class RegionalSummary extends Controller
                     // return response()->json($sub_report);
                 }
                 $sub_data = ModelsDemarcation::find($sub->demarcation_id);
-                $region_report['sub_regions'][$sub_data->name] = $sub_report;
+                if(isset($sub_data->name)){
+                    $region_report['sub_regions'][$sub_data->name] = $sub_report;
+                }
             }
             $response[$region->name] = $region_report;
         }
