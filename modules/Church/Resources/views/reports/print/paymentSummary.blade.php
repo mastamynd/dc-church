@@ -14,9 +14,10 @@
 </head>
 
 <body onload="window.print()" class="p-3">
+    @foreach($response as $key => $report)
     <div class="card">
         <div class="card-header bg-default">
-            <h4 style="color: white !important;">{{$key}} {{ trans_choice('church::general.region',1)}}</h4>
+            <h4 style="color: #55588b !important;">{{$key}} {{ trans_choice('church::general.region',1)}}</h4>
         </div>
         @foreach($report['sub-region'] as $name=>$sub)
         <div class="card-header border-0 border-top-1">
@@ -34,7 +35,7 @@
 
             @foreach($sub['types'] as $types)
             <div class="card-header bg-light">
-                <h4 style="color: white !important;">{{$types['name']}}</h4>
+                <h4 style="color: #55588b !important;">{{$types['name']}}</h4>
             </div>
             <div class="table-responsive custom">
                 <table class="table table-flush table-hover">
@@ -96,6 +97,7 @@
 
 
     </div>
+    @endforeach
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>

@@ -9,7 +9,7 @@
 
 @section('new_button')
    
-<a href="{{route('church.sub-Region-Payment-Division-Summary-Print',['year'=>$year,'regional_id'=>$regional_id,'sub_regional_id'=>$sub_regional_id])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
+<a href="{{route('church.sub-Region-Payment-Division-Summary-Print',['year'=>$takeyear,'regional_id'=>$regional_id,'sub_regional_id'=>$sub_regional_id])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
    
 @endsection
 
