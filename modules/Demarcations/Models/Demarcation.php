@@ -178,7 +178,7 @@ class Demarcation extends Model
     public function pastors(){
         return $this->hasMany(DemarcationOverseer::class)->withTrashed()->orderBy('created_at', 'asc');
     }
-
+   
     public function bills(){
         return $this->hasMany(Document::class, $this->type == 'Region' ? 'regional_id' : 'sub_regional_id');
     }

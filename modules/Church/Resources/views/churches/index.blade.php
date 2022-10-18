@@ -102,6 +102,10 @@
 													{{ trans('general.edit') }}
 												</a>
 											@endcan
+
+											@can('delete-church-main')
+												<span class="dropdown-item" data-target="#delete-church-modal" data-toggle="modal" data-href="{{ route('church.destroy', $item->id) }}">{{ trans('general.delete') }}</span>
+											@endcan
 										</div>
 									</div>
 								</td>
@@ -123,5 +127,38 @@
 @endsection
 
 @push('scripts_start')
+<script type="text/javascript">
+	$(function(){
+		$("#delete-church-modal").on("shown.bs.modal", function (e){ 
+			var urll = $(e.relatedTarget).data('href');
+
+			$(this).find('form').attr('action', urll);
+			$(this).find('form').prop('action', urll);
+		});
+	});
+</script>
+	<div class="modal fade show" id="delete-church-modal"  role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form method="post">
+					@csrf
+					<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+						<i class="fas fa-trash"></i> Delete Church
+					</div>
+					<div class="modal-body">
+						<div class="form-group form-group-lg">
+							<div class="alert alert-danger">
+								<i class="fas fa-exclamation-triangle fa-2x pull-left float-left"></i> Are you sure that you want to delete this church?
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+						<span class="btn btn-white" data-dismiss="modal">Close</span>
+						<button type="submit" class="btn btn-danger">DELETE</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 	<script src="{{ asset('public/js/sales/customers.js?v=' . version('short')) }}"></script>
 @endpush

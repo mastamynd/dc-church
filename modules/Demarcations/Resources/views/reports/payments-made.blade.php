@@ -8,7 +8,7 @@
 			<div class="card-header border-bottom-0" :class="[{'bg-gradient-primary': bulk_action.show}]">
 				{!! Form::open([
 					'method' => 'GET',
-					'route' => 'demarcations.index',
+					'route' => 'demarcations.payments-made',
 					'role' => 'form',
 					'class' => 'mb-0'
 				]) !!}
@@ -22,7 +22,6 @@
 				<table class="table table-flush table-hover">
 					<thead class="thead-light">
 						<tr class="table-head-line">
-							<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
 							<th>@sortablelink('church.name', trans('demarcations::general.name'))</th>
 							<th>To Pay</th>
 							<th>Paid</th>
@@ -30,12 +29,21 @@
 							<th>Month</th>
 							<th>Year</th>
 							<th>Payment Date</th>
+							<th>Type</th>
 						</tr>
 					</thead>
 					<tbody>
 						@foreach ($payments as $item)
+							@php($payment_date = \Carbon\Carbon::parse($item->payment_date))
 							<tr class="align-items-center border-top-1">
-								
+								<td>{{ $item->name }}</td>
+								<td>@money($item->amount, setting('default.currency'), true)</td>
+								<td>@money($item->paid, setting('default.currency'), true)</td>
+								<td>@money(($item->amount-$item->paid), setting('default.currency'), true)</td>
+								<td>{{ $payment_date->format('F') }}</td>
+								<td>{{ $payment_date->format('Y') }}</td>
+								<td>{{ $payment_date->format('d, F Y') }}</td>
+								<td>{{ ucwords(implode(' ', (explode('_', $item->type)))) }}</td>
 							</tr>
 						@endforeach
 					</tbody>
@@ -48,7 +56,7 @@
 			</div>
 		</div>
 	@else
-		<x-empty-page group="banking" page="transfers" textPage="{{ trans('demarcations::general.tithe') }}" routeCreate="{{ 'demarcations.receive-tithe' }}" textEmptyPage="{{ trans('demarcations::general.tithes_received_msg') }}" />
+		<x-empty-page group="banking" page="transfers" textPage="{{ trans('demarcations::general.tithe') }}" routeCreate="{{ 'payment-reception.receive-tithe' }}" textEmptyPage="{{ trans('demarcations::general.no_records') }}" />
 	@endif
 @endsection
 

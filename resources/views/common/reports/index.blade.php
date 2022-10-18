@@ -98,7 +98,7 @@
                     </div>
 
                     <div class="col-auto">
-                        <a href="{{ route('church.paymentDivisionSummaryIndex') }}">
+                        <a href="{{ route($report['url']) }}">
                             <div class="icon icon-shape bg-orange text-white rounded-circle shadow">
                                 <i class="{{ $report['icon'] }}"></i>
                             </div>

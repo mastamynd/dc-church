@@ -57,18 +57,59 @@ class Reports extends Controller
             $categories[$class->getCategory()][] = $report;
         }
 
-        $national = [
-            "icon"=>"fas fa-solid fa-money-bill",
-            "name"=>"Payment Division Summary",
-            "description"=>"Payment Division Summary"
+        $report_ = [
+            [
+                "icon" => "fas fa-chart-pie",
+                "name" => "Yearly Return Records",
+                "description" => "Yearly Return Records",
+                "url" => "church.yearly-returns-records"
+            ],
+            [
+                "icon" => "fas fa-compress-alt",
+                "name" => "Comparison Tables",
+                "description" => "Comparison Tables",
+                "url" => "church.comparison-table-report"
+            ],
+            [
+                "icon" => "fas fa-balance-scale-left",
+                "name" => "National Analysis",
+                "description" => "National Analysis",
+                "url" => "church.national-analysis-report"
+            ],
+            [
+                "icon" => "fas fa-hand-holding-usd",
+                "name" => "Regional Commitment",
+                "description" => "Regional Commitment",
+                "url" => "church.regionalcommitment"
+            ],
+            [
+                "icon" => "fas fa-coins",
+                "name" => "Payment Division Summary",
+                "description" => "Payment Division Summary",
+                "url" => "church.paymentDivisionSummaryIndex"
+            ],
+            [
+                "icon" => "fas fa-chart-line",
+                "name" => "Contribution Graph",
+                "description" => "Contribution Graph",
+                "url" => "church.contribution-graph"
+            ],
+            [
+                "icon" => "fas fa-exchange-alt",
+                "name" => "Tithe Comparison",
+                "description" => "Tithe Comparison",
+                "url" => "church.tithe-comparison"
+            ],
+            [
+                "icon" => "fas fa-hand-holding-usd",
+                "name" => "Contribution to HQ",
+                "description" => "Contribution to HQ",
+                "url" => "church.contribution-to-hq"
+            ],
+            
         ];
         
-        $report_ = [];
-        array_push($report_,$national);
-        // return response()->json($report_);
-        // $categories['Church'][] = $report_;
-
-        return $this->response('common.reports.index', compact('categories', 'totals', 'icons','report_'));
+        return $this->response('common.reports.index', compact('categories', 'totals', 'icons', 'report_'));
     }
 
     /**

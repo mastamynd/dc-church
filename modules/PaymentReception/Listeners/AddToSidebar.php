@@ -34,5 +34,15 @@ class AddToSidebar
 			'title' => trans('payment-reception::general.title'),
 			'icon'  =>'fas fa-hand-holding-usd'
 		]);
+
+		$event->menu->whereTitle(trans('bills.payments'), function($sub) use($user){
+			if($user->can('read-common-reports')){
+				$sub->route('demarcations.payments-made', trans('demarcations::general.payments_made'), [], 10, []);
+			}
+		}, 21,[
+			'title' => trans('demarcations::general.payments_made'),
+			'icon'  =>'fa fa-money-bill'
+		]);
+	
 	}
 }
