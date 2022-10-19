@@ -19,7 +19,7 @@ class ContributionToHQ extends Controller
     {
         $year = !isset($request->year) ? $year = date('Y') :$request->year;
         $regional_id = !isset($request->regional_id) ? 'all' : $request->regional_id;
-        $response = !isset($request->regional_id) ? Demarcation::where('type','region')->get() : Demarcation::where('id',$request->regional_id)->get();
+        $response = !isset($request->regional_id) || $request->regional_id == 'all'  ? Demarcation::where('type','region')->get() : Demarcation::where('id',$request->regional_id)->get();
         $regions =  Demarcation::where('type','region')->get();
         $selected_years = range(2000, date('Y'));
         
