@@ -17,21 +17,26 @@
 
 @section('content')
 <div class="card-header mb-5">
-    <form action="" method="get">
-        <div class="form-group form-group-lg">
-            <label class="control-label">{{ trans('church::general.select_year') }}</label>
-            <div class="input-group input-group-merge ">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <i class="fas fa-solid fa-calendar"></i>
-                    </span>
+    <form action="{{ route('church.national-analysis-report') }}" method="get">
+        <div class="row">
+            <div class="form-group form-group-lg col-md-11">
+                <label class="control-label">{{ trans('church::general.select_year') }}</label>
+                <div class="input-group input-group-merge ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-solid fa-calendar"></i>
+                        </span>
+                    </div>
+                    <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
+                        <option>Select Year...</option>
+                        @foreach ($selected_years as $r)
+                        <option value="{{ $r }}" {{$r == $year ? 'selected' : '' }}>{{ $r }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
-                    <option>Select Year...</option>
-                    @foreach ($selected_years as $r)
-                    <option value="{{ $r }}" {{$r == $year ? 'selected' : '' }}>{{ $r }}</option>
-                    @endforeach
-                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary btn-lg filter-submit float-right mt-4"><i class="fas fa-solid fa-filter"></i></button>
             </div>
         </div>
     </form>
@@ -66,7 +71,7 @@
                     @foreach($columns as $column)
                     <td>{{$item[$column]}}</td>
                     @endforeach
-                    
+
                     <td>{{ $item['total_amount'] }}</td>
                 </tr>
                 @endforeach

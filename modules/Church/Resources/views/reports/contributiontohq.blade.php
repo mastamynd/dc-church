@@ -17,7 +17,7 @@
 
 @section('content')
 <div class="card-header mb-5">
-    <form action="" method="get" class="d-flex justify-content-between">
+    <form action="{{route('church.contribution-to-hq')}}" method="get" class="d-flex justify-content-between">
         <div class="form-group form-group-lg" style="width: 30% !important;">
             <label class="control-label">{{ trans('church::general.select_year') }}</label>
             <div class="input-group input-group-merge ">

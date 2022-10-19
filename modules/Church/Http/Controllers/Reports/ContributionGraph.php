@@ -15,9 +15,9 @@ class ContributionGraph extends Controller
      *
      * @return Response
      */
-    public function reportIndex($year = 0)
+    public function reportIndex(Request $request,$year = 0)
     {
-        $year = $year == 0 ? date('Y') : $year;
+        $year = $year == 0 && !isset($request->year) ? date('Y') : $request->year;
         $regions = Demarcation::where('type','Region')->get();
         $response = [];
         foreach($regions as $region){
