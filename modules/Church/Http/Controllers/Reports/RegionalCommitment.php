@@ -18,9 +18,9 @@ class RegionalCommitment extends Controller
      *
      * @return Response
      */
-    public function reportIndex($year = 0)
+    public function reportIndex(Request $request,$year = 0)
     {
-        $year = $year ==0 ? date('Y') : $year;
+        $year = $year ==0 && !isset($request->year) ? date('Y') : $request->year;
         $regions = Demarcation::where('type','Region')->get();
         foreach($regions as $region){
             $region['current_remitting_churches'] = PaymentDivisionView::where('regional_id',$region->id)->where('year',$year)->distinct('church_id')->count();

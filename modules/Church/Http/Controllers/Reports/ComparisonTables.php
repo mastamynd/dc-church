@@ -15,11 +15,11 @@ class ComparisonTables extends Controller
      *t
      * @return Response
      */
-    public function reportindex($year = 0)
+    public function reportindex(Request $request ,$year = 0)
     {
         $columnsArr = PaymentDivisionView::orderBy('type','asc')->pluck('type')->toArray();
         $columns = array_unique($columnsArr);
-        $year = $year == 0 ? date('Y') : $year;
+        $year = isset($request->year) ? $request->year : date('Y');
         $regions = ModelsDemarcation::where('type','Region')->get();
         foreach($regions as $region){
             foreach($columns as $column){
