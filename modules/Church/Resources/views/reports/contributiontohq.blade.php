@@ -47,7 +47,12 @@
                     @foreach ($regions as $r)
                     <option value="{{ $r->id }}" {{$r->id == $regional_id ? 'selected' : '' }}>{{ $r->name }}</option>
                     @endforeach
-                    <option value="all" {{$r->id == $regional_id ? 'selected' : '' }}>All</option>
+                    @if($regional_id == 'all')
+                    <option value="all" selected>All</option>
+                    @else
+                    <option value="all" >All</option>
+                    @endif
+                    
                 </select>
             </div>
         </div>

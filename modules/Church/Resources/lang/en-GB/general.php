@@ -76,6 +76,7 @@ return [
     'tithe_comparison'=>'Tithe Comparison',
     'contribution_to_hq'=>'Contribution to HQ',
     'sub_to_hq_section'=>'Region',
+    'select_region'=>'Select Region',
 
     
     'stop_history' => 'Stop/Remove Pastor History',    
