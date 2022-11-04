@@ -10,18 +10,18 @@
 @section('new_button')
 
 <!-- <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a> -->
-<a href="{{ route('church.regionalPaymentDivisionSummary',['year'=>$takeyear]) }}" class="btn btn-white btn-sm">{{ trans_choice('church::general.regional_report',1) }}</a>
-<a href="{{ route('church.subRegionPaymentDivisionSummary',['year'=>$takeyear]) }}" class="btn btn-white btn-sm">{{ trans('church::general.national_report_summary') }}</a>
-<a href="{{route('church.payment-Division-Summary-Index-Print',['year'=>$takeyear])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
+<a href="{{ route('church.regionalPaymentDivisionSummary',['year'=>$takeyear,'region_id'=>$region_id]) }}" class="btn btn-white btn-sm">{{ trans_choice('church::general.regional_report',1) }}</a>
+<a href="{{ route('church.subRegionPaymentDivisionSummary',['year'=>$takeyear,'region_id'=>$region_id,'sub_region_id'=>$sub_region_id]) }}" class="btn btn-white btn-sm">{{ trans('church::general.national_report_summary') }}</a>
+<a href="{{route('church.payment-Division-Summary-Index-Print',['year'=>$takeyear,'region_id'=>$region_id,'sub_region_id'=>$sub_region_id])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
 
 @endsection
 
 @section('content')
 @if ($response)
-<div class="card-header mb-5">
+<div class="card-header form-fields mb-5">
     <form action="{{ route('church.paymentDivisionSummaryIndex') }}" method="get">
         <div class="row">
-            <div class="form-group form-group-lg col-md-11">
+            <div class="form-group form-group-lg col-md-3">
                 <label class="control-label">{{ trans('church::general.select_year') }}</label>
                 <div class="input-group input-group-merge ">
                     <div class="input-group-prepend">
@@ -37,7 +37,39 @@
                     </select>
                 </div>
             </div>
-            <div class="col-md-1">
+            <div class="form-group form-group-lg col-md-3">
+                <label class="control-label">{{ trans('church::general.select_region') }}</label>
+                <div class="input-group input-group-merge ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-solid fa-calendar"></i>
+                        </span>
+                    </div>
+                    <select name="region_id" placeholder="Select {{ trans('church::general.select_region') }}..." class="form-control region_id_field selectize-field" data-searchfield="region_id" data-labelfield="region_id" data-valuefield="region_id">
+                        <option>Select Region...</option>
+                        <option value="all">All</option>
+                        @foreach ($regions as $r)
+                        <option value="{{ $r->id }}" {{$r->id == $region_id ? 'selected' : '' }}>{{ $r->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="form-group form-group-lg col-md-3">
+                <label class="control-label">{{ trans('church::general.select_sub_region') }}</label>
+                <div class="input-group input-group-merge ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-solid fa-calendar"></i>
+                        </span>
+                    </div>
+                    <select name="sub_region_id" placeholder="Select {{ trans('church::general.select_sub_region') }}..." class="form-control sub_region_id_field" data-searchfield="sub_region_id" data-labelfield="sub_region_id" data-valuefield="sub_region_id">
+                        <option>Select Sub Region...</option>
+                        <option value="all">All</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
                 <button type="submit" class="btn btn-primary btn-lg filter-submit float-right mt-4"><i class="fas fa-solid fa-filter"></i></button>
             </div>
         </div>
@@ -74,19 +106,19 @@
                 @foreach($response as $item)
                 <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
                     <td>{{$item['name']}}</td>
-                    <td>{{ number_format($item['january'], 2) }}</td>
-                    <td>{{ number_format($item['february'], 2) }}</td>
-                    <td>{{ number_format($item['march'], 2) }}</td>
-                    <td>{{ number_format($item['april'], 2) }}</td>
-                    <td>{{ number_format($item['may'], 2) }}</td>
-                    <td>{{ number_format($item['june'], 2) }}</td>
-                    <td>{{ number_format($item['july'], 2) }}</td>
-                    <td>{{ number_format($item['august'], 2) }}</td>
-                    <td>{{ number_format($item['september'], 2) }}</td>
-                    <td>{{ number_format($item['october'], 2) }}</td>
-                    <td>{{ number_format($item['november'], 2) }}</td>
-                    <td>{{ number_format($item['december'], 2) }}</td>
-                    <td>{{ number_format($item['total'], 2) }}</td>
+                    <td>{{ number_format($item['january'],2)}}</td>
+                    <td>{{number_format($item['february'],2)}}</td>
+                    <td>{{number_format($item['march'],2)}}</td>
+                    <td>{{number_format($item['april'],2)}}</td>
+                    <td>{{number_format($item['may'],2)}}</td>
+                    <td>{{number_format($item['june'],2)}}</td>
+                    <td>{{number_format($item['july'],2)}}</td>
+                    <td>{{ number_format($item['august'],2)}}</td>
+                    <td>{{number_format($item['september'],2)}}</td>
+                    <td>{{number_format($item['october'],2)}}</td>
+                    <td>{{number_format($item['november'],2)}}</td>
+                    <td>{{number_format($item['december'],2)}}</td>
+                    <td>{{number_format($item['total'],2)}}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -114,7 +146,7 @@
     }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js" integrity="sha512-pF+DNRwavWMukUv/LyzDyDMn8U2uvqYQdJN0Zvilr6DDo/56xPDZdDoyPDYZRSL4aOKO/FGKXTpzDyQJ8je8Qw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+<div class="hidden subregion-field" data-subregion="{{$sub_region_id}}" ></div>
 <script>
     var selectizerNow = function(tis) {
         var $url = $(tis).data('url');
@@ -166,12 +198,44 @@
     }
 
     $(function() {
+        
         $(this).find('.selectize-field').each(function() {
             if ($(this)[0].selectize) {
                 $(this)[0].selectize.destroy();
             }
             selectizerNow(this);
         });
+        $('.region_id_field').on('change', (e) => {
+            var value = $(e.currentTarget).val();
+            if(value > 0){
+                $.ajax({
+                    url: `{{route('church.getSubregionsByRegionID')}}`,
+                    method: 'GET',
+                    data: {
+                        "region_id": value,
+                    },
+                    success: (data) => {
+                        $('.sub_region_id_field').empty();
+                        var option_ = ` <option>Select Sub Region...</option>
+                            <option value="all">All</option>`;
+                        $('.sub_region_id_field').append(option_);
+                        const selected_sub = $('.subregion-field').data('subregion');
+                        console.log(parseInt(selected_sub))
+                        $.each(data, (i, obj) => {
+                            // console.log(obj.dermacation_id);
+                            var option = `<option value="${obj.demarcation_id}" ${obj.demarcation_id == parseInt(selected_sub) ? 'selected' : ''}>${obj.demarcation.name}</option>`
+                            $('.sub_region_id_field').append(option);
+                        });
+    
+                       
+                    }
+    
+                })
+
+                console.log(value)
+            }
+        })
+        $('.region_id_field').trigger('change');
     });
 </script>
 @endpush

@@ -77,6 +77,9 @@ return [
     'contribution_to_hq'=>'Contribution to HQ',
     'sub_to_hq_section'=>'Region',
     'select_region'=>'Select Region',
+    'select_sub_region'=>'Select Sub Region',
+
+    'export_excel' => 'Export Excel',
 
     
     'stop_history' => 'Stop/Remove Pastor History',    

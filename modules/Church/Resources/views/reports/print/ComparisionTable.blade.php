@@ -15,19 +15,39 @@
 
         table th, table td{
             border: 1px solid #000;
+            background-color: transparent !important;
         } 
+        *{
+            font-size: 12px !important;
+        }
     </style>
 
 </head>
 
 <body onload="window.print()" class="p-3">
     <div class="card border-0">
-        <div class="card-header text-center">
-        <h5>{{trans('church::general.comparison_table').' '. $year}}</h5>
+        <div class="card-header">
+            <div class="d-flex justify-content-between">
+                <div class="logo">
+                    <img src="{{asset('public/img/delivarance.jpeg')}}" alt="img">
+                </div>
+
+                <div class="detail" style="text-align: right;">
+                    <span class="detail-record">Delivarance Church International</span> <br>
+                    <span class="detail-record">P.O BOX 12345</span> <br>
+                    <span class="detail-record">00200 Nairobi</span><br>
+                    <span class="detail-record">Phone : 07123456789</span><br>
+                    <span class="detail-record">Email : Delivarance.Church@gmail.com</span>
+
+                </div>
+            </div>
+            <h5 class="text-center" style="font-weight: 550 !important;">{{trans('church::general.comparison_table').' '. $year}}</h5>
+
         </div>
+
         <div class="card-body">
             <div class="table-responsive custom">
-                <table class="table table-flush table-hover">
+                <table class="table table-sm table-condensed">
                     <thead class="thead-light">
                         <tr class="table-head-line">
                             <th>{{ trans('church::general.region_name') }}</th>
@@ -38,7 +58,7 @@
                             @endforeach
                             <th>Yr.{{$year}} Total</th>
                             <th>Yr.{{$prev_year}} Total</th>
-                            <th>Differences</th>
+                            <th>Diff</th>
                             <th>Growth%</th>
                         </tr>
                     </thead>

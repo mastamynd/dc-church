@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\Church\Models\PaymentDivisionView;
 use Modules\Demarcations\Models\Demarcation as ModelsDemarcation;
+use Excel;
+use Modules\Church\Export\YearlyReturnRecordExport;
 
 class YearReturnRecords extends Controller
 {
@@ -51,5 +53,9 @@ class YearReturnRecords extends Controller
             $region['total_amount'] = $this->getRegionalAllTotalContributions($year,$region->id);
         }
         return view('church::reports.print.YearlyReturns',compact('regions','columns','year','selected_years'));
+    }
+    public function exportExcelReport($year){
+        return Excel::download(new YearlyReturnRecordExport($year), 'YearlyReturnRecord'.$year.'.xlsx');
+        
     }
 }
