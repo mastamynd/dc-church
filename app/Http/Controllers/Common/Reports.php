@@ -36,26 +36,26 @@ class Reports extends Controller
 
         $reports = Report::orderBy('name')->get();
 
-        foreach ($reports as $report) {
-            if (!Utility::canShow($report->class)) {
-                continue;
-            }
+        // foreach ($reports as $report) {
+        //     if (!Utility::canShow($report->class)) {
+        //         continue;
+        //     }
 
-            $class = Utility::getClassInstance($report, false);
+        //     $class = Utility::getClassInstance($report, false);
 
-            if (empty($class)) {
-                continue;
-            }
+        //     if (empty($class)) {
+        //         continue;
+        //     }
 
-            $ttl = 3600 * 6; // 6 hours
+        //     $ttl = 3600 * 6; // 6 hours
 
-            $totals[$report->id] = Cache::remember('reports.totals.' . $report->id, $ttl, function () use ($class) {
-                return $class->getGrandTotal();
-            });
+        //     $totals[$report->id] = Cache::remember('reports.totals.' . $report->id, $ttl, function () use ($class) {
+        //         return $class->getGrandTotal();
+        //     });
 
-            $icons[$report->id] = $class->getIcon();
-            $categories[$class->getCategory()][] = $report;
-        }
+        //     $icons[$report->id] = $class->getIcon();
+        //     $categories[$class->getCategory()][] = $report;
+        // }
 
         $report_ = [
             [

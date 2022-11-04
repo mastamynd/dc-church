@@ -384,7 +384,6 @@ namespace App\Models\Banking{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int|null $project_id
  * @property-read \App\Models\Banking\Account|null $account
  * @property-read \App\Models\Document\Document|null $bill
  * @property-read \App\Models\Setting\Category|null $category
@@ -1244,6 +1243,8 @@ namespace App\Models\Document{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $regional_id
+ * @property int|null $sub_regional_id
  * @property-read \App\Models\Setting\Category|null $category
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Common\Contact|null $contact
@@ -2028,6 +2029,8 @@ namespace App\Models\Purchase{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $regional_id
+ * @property int|null $sub_regional_id
  * @property-read \App\Models\Setting\Category|null $category
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Common\Contact|null $contact
@@ -2438,6 +2441,8 @@ namespace App\Models\Sale{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int|null $regional_id
+ * @property int|null $sub_regional_id
  * @property-read \App\Models\Setting\Category|null $category
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Common\Contact|null $contact
@@ -2819,7 +2824,6 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $company_id
  * @property string $name
- * @property string|null $email
  * @property string $code
  * @property string|null $founded_on
  * @property string|null $photo
@@ -2829,12 +2833,14 @@ namespace Modules\Church\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $email
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\ChurchHistory[] $history
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $pastor_history
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $pastors
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PaymentDivision[] $payment_division
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\PaymentReception\Models\PaymentReception[] $received_moneys
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $senior_pastor
  * @property-read \Modules\Church\Models\ChurchHistory|null $subregion
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
@@ -2887,8 +2893,6 @@ namespace Modules\Church\Models{
  * @property int $id
  * @property int $church_id
  * @property int $demarcation_id
- * @property string $start_date
- * @property string|null $end_date
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -3010,20 +3014,18 @@ namespace Modules\Church\Models{
  * @property int $contact_id
  * @property string|null $picture
  * @property string|null $date_of_birth
- * @property string $gender
+ * @property string|null $gender
  * @property string|null $id_or_passport
  * @property string|null $phone
  * @property string|null $phone2
  * @property string|null $ukumbozi_number
  * @property bool $enabled
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Modules\Church\Models\Church|null $church
+ * @property-read \Modules\Church\Models\PastorHistory|null $church
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Common\Contact|null $contact
- * @property-read \Modules\Church\Models\PastorHistory|null $history
  * @property-read \App\Models\Auth\User|null $owner
  * @property-read \Modules\Church\Models\PastorHistory|null $rank
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\PastorHistory[] $rank_history
@@ -3078,7 +3080,7 @@ namespace Modules\Church\Models{
  * @property int $pastor_id
  * @property int $church_id
  * @property string|null $position
- * @property string|null $rank
+ * @property string $rank
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -3163,8 +3165,11 @@ namespace Modules\Church\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $year
+ * @property string|null $month
+ * @property-read \Modules\Church\Models\Church|null $church
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Auth\User|null $owner
+ * @property-read \Modules\Church\Models\Pastor|null $pastor
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentDivision all($columns = [])
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
@@ -3212,41 +3217,6 @@ namespace Modules\Church\Models{
 /**
  * Modules\Church\Models\PaymentDivisionView
  *
- * @property int $id
- * @property string $church_name
- * @property string|null $pastor_name
- * @property int|null $church_id
- * @property string $region_name
- * @property int|null $regional_id
- * @property string|null $regional_overseer_name
- * @property string $subregion_name
- * @property int|null $sub_regional_id
- * @property string|null $subregional_overseer_name
- * @property float|null $january
- * @property float|null $february
- * @property float|null $march
- * @property float|null $april
- * @property float|null $may
- * @property float|null $june
- * @property float|null $july
- * @property float|null $august
- * @property float|null $september
- * @property float|null $october
- * @property float|null $november
- * @property float|null $december
- * @property int|null $contact_id
- * @property int|null $transaction_id
- * @property string|null $type
- * @property float $amount
- * @property int|null $invoice_id
- * @property int|null $invoice_item_id
- * @property int|null $bill_id
- * @property int|null $bill_item_id
- * @property string|null $payment_date
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $year
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Auth\User|null $owner
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
@@ -3297,13 +3267,15 @@ namespace Modules\Demarcations\Models{
  * Modules\Demarcations\Models\Demarcation
  *
  * @property int $id
+ * @property int $company_id
  * @property string $name
+ * @property string $code
  * @property string $type
  * @property bool $enabled
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $code
+ * @property-read \Plank\Mediable\MediableCollection|\App\Models\Document\Document[] $bills
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Church\Models\ChurchHistory[] $children
  * @property-read \App\Models\Common\Company|null $company
  * @property-read mixed $churches_count
@@ -3471,6 +3443,522 @@ namespace Modules\Demarcations\Models{
  * @method static \Illuminate\Database\Query\Builder|DemarcationOverseer withoutTrashed()
  */
 	class DemarcationOverseer extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\Account
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $type_id
+ * @property int|null $account_id
+ * @property string $code
+ * @property string $name
+ * @property string|null $description
+ * @property bool $enabled
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|Account[] $accounts
+ * @property-read \Modules\DoubleEntry\Models\AccountBank|null $bank
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read double $balance
+ * @property-read string $balance_colorized
+ * @property-read string $balance_linked_general_ledger
+ * @property-read double $balance_without_subaccounts
+ * @property-read string $balance_without_subaccounts_colorized
+ * @property-read double $credit_total
+ * @property-read double $debit_total
+ * @property-read string $name_linked_general_ledger
+ * @property-read double $opening_balance
+ * @property-read string $trans_name
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\DoubleEntry\Models\Ledger[] $ledgers
+ * @property-read \App\Models\Auth\User|null $owner
+ * @property-write mixed $end_date
+ * @property-write mixed $start_date
+ * @property-read \Illuminate\Database\Eloquent\Collection|Account[] $sub_accounts
+ * @property-read \Modules\DoubleEntry\Models\AccountTax|null $tax
+ * @property-read \Modules\DoubleEntry\Models\Type|null $type
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account code($code)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account exists()
+ * @method static \Modules\DoubleEntry\Database\Factories\Account factory(...$parameters)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account inType($types)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account isNotSubAccount()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Account onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Account truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|Account withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Account withoutTrashed()
+ */
+	class Account extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\AccountBank
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $account_id
+ * @property int $bank_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Modules\DoubleEntry\Models\Account $account
+ * @property-read \App\Models\Banking\Account|null $bank
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank newQuery()
+ * @method static \Illuminate\Database\Query\Builder|AccountBank onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountBank truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|AccountBank withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|AccountBank withoutTrashed()
+ */
+	class AccountBank extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\AccountItem
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $account_id
+ * @property int $item_id
+ * @property string $type
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Modules\DoubleEntry\Models\Account $account
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Common\Item|null $item
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem newQuery()
+ * @method static \Illuminate\Database\Query\Builder|AccountItem onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountItem truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|AccountItem withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|AccountItem withoutTrashed()
+ */
+	class AccountItem extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\AccountTax
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $account_id
+ * @property int $tax_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Modules\DoubleEntry\Models\Account $account
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Auth\User|null $owner
+ * @property-read \App\Models\Setting\Tax|null $tax
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax newQuery()
+ * @method static \Illuminate\Database\Query\Builder|AccountTax onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|AccountTax truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|AccountTax withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|AccountTax withoutTrashed()
+ */
+	class AccountTax extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\DEClass
+ *
+ * @property int $id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\DoubleEntry\Models\Account[] $accounts
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Auth\User|null $owner
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\DoubleEntry\Models\Type[] $types
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass newQuery()
+ * @method static \Illuminate\Database\Query\Builder|DEClass onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|DEClass truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|DEClass withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|DEClass withoutTrashed()
+ */
+	class DEClass extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\Journal
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property string $paid_at
+ * @property float $amount
+ * @property string $description
+ * @property string|null $reference
+ * @property string|null $journal_number
+ * @property string|null $basis
+ * @property string|null $currency_code
+ * @property float|null $currency_rate
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \App\Models\Common\Contact|null $contact
+ * @property-read string $attachment
+ * @property-read \Modules\DoubleEntry\Models\Ledger|null $ledger
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\DoubleEntry\Models\Ledger[] $ledgers
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Common\Media[] $media
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal exists()
+ * @method static \Modules\DoubleEntry\Database\Factories\Journal factory(...$parameters)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal flushCache(array $tags = [])
+ * @method static \Plank\Mediable\MediableCollection|static[] get($columns = ['*'])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Journal onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal whereHasMedia($tags = [], bool $matchAll = false)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal whereHasMediaMatchAll(array $tags)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal withMedia($tags = [], bool $matchAll = false, bool $withVariants = false)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal withMediaAndVariants($tags = [], bool $matchAll = false)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal withMediaAndVariantsMatchAll($tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Journal withMediaMatchAll(bool $tags = [], bool $withVariants = false)
+ * @method static \Illuminate\Database\Query\Builder|Journal withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Journal withoutTrashed()
+ */
+	class Journal extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\Ledger
+ *
+ * @property int $id
+ * @property int $company_id
+ * @property int $account_id
+ * @property string $ledgerable_type
+ * @property int $ledgerable_id
+ * @property string $issued_at
+ * @property string $entry_type
+ * @property float|null $debit
+ * @property float|null $credit
+ * @property string|null $reference
+ * @property string|null $notes
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Modules\DoubleEntry\Models\Account $account
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read mixed $description
+ * @property-read mixed $ledgerable_link
+ * @property-read mixed $transaction
+ * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $ledgerable
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger accrual()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger cash()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger contact($contact)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Ledger onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger record($id, $type)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Ledger truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|Ledger withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Ledger withoutTrashed()
+ */
+	class Ledger extends \Eloquent {}
+}
+
+namespace Modules\DoubleEntry\Models{
+/**
+ * Modules\DoubleEntry\Models\Type
+ *
+ * @property int $id
+ * @property int $class_id
+ * @property string $name
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\DoubleEntry\Models\Account[] $accounts
+ * @property-read \App\Models\Common\Company|null $company
+ * @property-read \Modules\DoubleEntry\Models\DEClass|null $declass
+ * @property-read \App\Models\Auth\User|null $owner
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type all($columns = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type avg($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type cache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type cachedValue(array $arguments, string $cacheKey)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collect($sort = 'name')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model collectForExport($ids = [], $sort = 'name', $id_field = 'id')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model companyId($company_id)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model contact($contacts)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type count($columns = '*')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disableCache()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type disableModelCaching()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model disabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model enabled()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type exists()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type flushCache(array $tags = [])
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type getModelCacheCooldown(\Illuminate\Database\Eloquent\Model $instance)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type inRandomOrder($seed = '')
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type insert(array $values)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type isCachable()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isNotOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model isOwner()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type max($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type min($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model monthsOfYear($field)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type newModelQuery()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Type onlyTrashed()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type query()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model reconciled($value = 1)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model sortable($defaultParameters = null)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model source($source)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type sum($column)
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Type truncate()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model usingSearchString()
+ * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model withCacheCooldownSeconds(?int $seconds = null)
+ * @method static \Illuminate\Database\Query\Builder|Type withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Type withoutTrashed()
+ */
+	class Type extends \Eloquent {}
 }
 
 namespace Modules\GlPostingSettings\Models{
@@ -3754,6 +4242,7 @@ namespace Modules\GlPostingSettings\Models{
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Modules\DoubleEntry\Models\Account|null $account
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Document\DocumentItem|null $document_item
  * @property-read \App\Models\Document\Document|null $invoice
@@ -3902,8 +4391,33 @@ namespace Modules\GlPostingSettings\Models{
 
 namespace Modules\PaymentReception\Models{
 /**
+ * Modules\PaymentReception\Models\IntegrationPaymentPayload
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|IntegrationPaymentPayload newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|IntegrationPaymentPayload newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|IntegrationPaymentPayload query()
+ */
+	class IntegrationPaymentPayload extends \Eloquent {}
+}
+
+namespace Modules\PaymentReception\Models{
+/**
  * Modules\PaymentReception\Models\PaymentReception
  *
+ * @property int $id
+ * @property int $church_id
+ * @property string $payment_mode
+ * @property string|null $reference
+ * @property string|null $phone_number
+ * @property string|null $payer_name
+ * @property string|null $payer_phone
+ * @property string|null $payer_email
+ * @property int|null $created_by
+ * @property string|null $status
+ * @property int|null $posted_by
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Modules\Church\Models\Church|null $church
  * @property-read \App\Models\Common\Company|null $company
  * @property-read mixed $total
@@ -3956,8 +4470,19 @@ namespace Modules\PaymentReception\Models{
 /**
  * Modules\PaymentReception\Models\PaymentReceptionItems
  *
+ * @property int $id
+ * @property int $payment_reception_id
+ * @property int $year
+ * @property string $month
+ * @property int $week
+ * @property float $amount
+ * @property float $topup
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Common\Company|null $company
  * @property-read \App\Models\Auth\User|null $owner
+ * @property-read \Modules\PaymentReception\Models\PaymentReception|null $reception
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model account($accounts)
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|PaymentReceptionItems all($columns = [])
  * @method static \GeneaLabs\LaravelModelCaching\CachedBuilder|Model allCompanies()
