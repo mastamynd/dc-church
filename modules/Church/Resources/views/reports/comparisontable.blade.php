@@ -73,7 +73,7 @@
                     <td>{{ number_format($item['churches_count']},0)}</td>
                     <td>{{number_format($item['remitting_churches'],0)}}</td>
                     @foreach($columns as $column)
-                        <td>{{$item[$column]}}</td> 
+                        <td>{{ number_format($item[$column], 2) }}</td> 
                     @endforeach 
                     <td>{{number_format($item['current_total_amount'],2)}}</td>
                     <td>{{number_format($item['prev_total_amount'],2) }}</td>

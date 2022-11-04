@@ -21,6 +21,7 @@ Route::admin('demarcations', function () {
 
     Route::post('make-payments/{region}', 'Main@make_payments')->name('make-payments');
     Route::post('mark-bill-paid', 'Main@mark_paid')->name('mark-bill-paid');
+    Route::post('delete/{id}', 'Main@destroy')->name('delete');
 
     Route::get('payments-made', 'Main@payments_made')->name('payments-made');
 });

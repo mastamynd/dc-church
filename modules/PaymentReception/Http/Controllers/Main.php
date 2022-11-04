@@ -65,7 +65,13 @@ class Main extends Controller
 
 		$churches = $churches->orderBy('churches.name', 'asc')->limit(10)->get();
 
-		return $this->response('payment-reception::edit', compact('paymentReception', 'start_year', 'churches', 'payment_modes', 'months', 'weeks', 'paymentYear', 'paymentMonth', 'paymentWeek'));
+		$missing = [$id];
+
+		$lastReceiptions = PaymentReception::join('churches as c', 'c.id', 'payment_receptions.church_id')->join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
+			->whereNotIn('payment_receptions.id', $missing)->select('c.name', 'c.code', 'payment_receptions.id', 'pri.month', 'pri.year', 'payer_name', 'pri.amount')
+			->orderBy('pri.created_at', 'desc')->limit(10)->get();
+
+		return $this->response('payment-reception::edit', compact('lastReceiptions', 'paymentReception', 'start_year', 'churches', 'payment_modes', 'months', 'weeks', 'paymentYear', 'paymentMonth', 'paymentWeek'));
 	}
 
 	/**
@@ -104,12 +110,30 @@ class Main extends Controller
 		return redirect()->route('payment-reception.view-tithe', $payment->id);
 	}
 
-	public function post_payment($id){
+	public function post_multiple_payments(Request $request){
+		foreach($request->ids as $id){
+			$this->post_payment($id, true);
+		}
+
+		return redirect()->route('payment-reception.index');
+	}
+
+	public function post_payment($id, $internal = false){
 		$payment = PaymentReception::find($id);
+
+		if($payment->status == "Completed"){
+			flash('Tithe has already been submitted!')->important()->error();
+			return redirect()->route('payment-reception.view-tithe', $id);
+		}
+
 		$this->create_invoice($payment);
 
 		$payment->status = 'Completed';
 		$payment->save();
+
+		if($internal){
+			return true;
+		}
 
 		flash('Tithe Submission Approved!')->success();
 
@@ -341,4 +365,18 @@ class Main extends Controller
 		return true;
 	}
 
+	public function destroy($id){
+		$payment = PaymentReception::find($id);
+		if($payment->status == "Completed"){
+			flash('The Tithe has already been posted! Cannot Delete!!')->error()->important();
+			return redirect()->back();
+		}
+
+		$payment->delete();
+		return redirect()->back();
+	}
+
+	public function workflow(){
+		return $this->response('payment-reception::payment-workflow');
+	}
 }

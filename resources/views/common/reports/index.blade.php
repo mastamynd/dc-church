@@ -10,7 +10,7 @@
 
 @section('content')
 <div class="row mb-4">
-    @foreach($categories as $name => $reports)
+    {{-- @foreach($categories as $name => $reports)
   
         <div class="col-md-12">
             <h3>{{ $name }}</h3>
@@ -80,7 +80,7 @@
         @endforeach
    
 
-    @endforeach
+    @endforeach --}}
     <div class="col-md-12">
         <h3>Church</h3>
     </div>

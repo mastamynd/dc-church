@@ -10,6 +10,9 @@
 	<a href="{{ route('demarcations.edit', [$type, $demarcation->id]) }}" class="btn btn-white btn-sm">
 		{{ trans('general.edit') }}
 	</a>
+	<a href="{{ route('church.regionalPaymentDivisionSummary', [date('Y')]) }}?{{ $isSubRegion ? 'sub_regional_id' : 'regional_id' }}={{ $demarcation->id }}" class="btn btn-white btn-sm">
+		Payment Division Report
+	</a>
 	@if (!$isSubRegion)
 		<span class="btn btn-warning btn-sm" data-target="#add-subregion-modal" data-toggle="modal">
 			{{ (isset($demarcation->subregion) && isset($demarcation->subregion->demarcation)) ? 
