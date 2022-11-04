@@ -18,7 +18,7 @@
     @foreach($response as $key => $report)
     <div class="card">
         <div class="card-header bg-default">
-            <h4 style="color: white !important;">{{$key}} </h4>
+            <h4 style="">{{$key}} </h4>
         </div>
 
         <div class="table-responsive custom">
@@ -75,7 +75,7 @@
         <div class="subs-regions p-3">
 
             @foreach($report['sub_regions'] as $name=>$subs)
-            <div class="card-header bg-light mb-2">
+            <div class="card-header bg-light  mb-2">
                 <h5>{{$name}} </h5>
             </div>
             <div class="table-responsive custom">

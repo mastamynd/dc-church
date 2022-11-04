@@ -7,8 +7,8 @@
     }
 </style>
 
+
 @section('new_button')
-   
 <a href="{{route('church.sub-Region-Payment-Division-Summary-Print',['year'=>$takeyear,'regional_id'=>$regional_id,'sub_regional_id'=>$sub_regional_id])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
    
 @endsection
@@ -65,19 +65,19 @@
                                     <tr class="align-items-center border-top-1">
                                         <td>{{$item['church_name']}}</td>
                                         <td>{{$item->pastor_name}}</td>
-                                        <td>{{$item->january}}</td>
-                                        <td>{{$item->february}}</td>
-                                        <td>{{$item->march}}</td>
-                                        <td>{{$item->april}}</td>
-                                        <td>{{$item->may}}</td>
-                                        <td>{{$item->june}}</td>
-                                        <td>{{$item->july}}</td>
-                                        <td>{{$item->august}}</td>
-                                        <td>{{$item->september}}</td>
-                                        <td>{{$item->october}}</td>
-                                        <td>{{$item->november}}</td>
-                                        <td>{{$item->december}}</td>
-                                        <td>{{$item->total}}</td>
+                                        <td>{{number_format($item->january,2)}}</td>
+                                        <td>{{number_format($item->february,2)}}</td>
+                                        <td>{{number_format($item->march,2)}}</td>
+                                        <td>{{number_format($item->april,2)}}</td>
+                                        <td>{{number_format($item->may,2)}}</td>
+                                        <td>{{number_format($item->june,2)}}</td>
+                                        <td>{{number_format($item->july,2)}}</td>
+                                        <td>{{number_format($item->august,2)}}</td>
+                                        <td>{{number_format($item->september,2)}}</td>
+                                        <td>{{number_format($item->october,2)}}</td>
+                                        <td>{{number_format($item->november,2)}}</td>
+                                        <td>{{number_format($item->december,2)}}</td>
+                                        <td>{{number_format($item->total,2)}}</td>
                                     </tr>
                                         
                                     

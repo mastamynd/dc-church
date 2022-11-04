@@ -8,19 +8,38 @@
     <title>Print {{trans('church::general.yearly_report').' '. $year}} </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
-        
+        .detail-record {
+            line-height: 2%;
+        }
+       
+
     </style>
 
 </head>
 
 <body onload="window.print()" class="p-3">
     <div class="card border-0">
-        <div class="card-header text-center">
-            <h5>{{trans('church::general.yearly_report').' '. $year}}</h5>
+        <div class="card-header">
+            <div class="d-flex justify-content-between">
+                <div class="logo">
+                    <img src="{{asset('public/img/delivarance.jpeg')}}" alt="img">
+                </div>
+
+                <div class="detail" style="text-align: right;">
+                    <span class="detail-record">Delivarance Church International</span> <br>
+                    <span class="detail-record">P.O BOX 12345</span> <br>
+                    <span class="detail-record">00200 Nairobi</span><br>
+                    <span class="detail-record">Phone : 07123456789</span><br>
+                    <span class="detail-record">Email : Delivarance.Church@gmail.com</span>
+
+                </div>
+            </div>
+            <h5 class="text-center" style="font-weight: 550 !important;">{{trans('church::general.yearly_report').' '. $year}}</h5>
+
         </div>
         <div class="card-body">
-            <div class="table-responsive custom">
-                <table class="table table-flush table-bordered table-hover">
+            <div class="table-responsive  custom">
+                <table class="table border-1 table-bordered table-sm table-condensed">
                     <thead class="bg-light">
                         <tr class="table-head-line">
                             <th>{{ trans('church::general.region_name') }}</th>
@@ -34,12 +53,12 @@
                     <tbody>
                         @foreach($regions as $item)
                         <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
-                            <td>{{$item->name}}</td>
+                            <td style="border-color:black 3px !important">{{$item->name}}</td>
 
                             @foreach($columns as $column)
-                            <td>{{$item[$column]}}</td>
+                            <td style="border-color:black 3px !important">{{$item[$column]}}</td>
                             @endforeach
-                            <td>{{$item['total_amount']}}</td>
+                            <td style="border-color:black 3px !important">{{$item['total_amount']}}</td>
                         </tr>
                         @endforeach
                     </tbody>

@@ -2,140 +2,253 @@
 
 @section('title', trans_choice('church::general.regional_report',2).' '. $year)
 <style>
-    .text-bold{
+    .text-bold {
         font-weight: 800 !important;
     }
 </style>
 
 @section('new_button')
-   
-<!-- <a href="{{route('church.regional-Payment-Division-Summary-Print',['year'=>$year])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a> -->
-   
+
+<a href="{{route('church.regional-Payment-Division-Summary-Print',['year'=>$year,'region_id'=>$reqion_id])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
+
 @endsection
 
 @section('content')
-    @if($response)
-        @foreach($response as $key => $report)
-            <div class="card">
-                <div class="card-header bg-default" >
-                    <h4 style="color: white !important;">{{$key}} </h4>
-                </div>
-            
-                <div class="table-responsive custom">
-                    <table class="table table-flush table-hover">
-                        <thead class="thead-light">
-                            <tr class="table-head-line">
-                                <th class="">{{ trans('church::general.summary') }}</th>
-                                <th class="">{{ trans('church::general.jan') }}</th>
-                                <th class="">{{ trans('church::general.feb') }}</th>
-                                <th class="">{{ trans('church::general.mar') }}</th>
-                                <th class="">{{ trans('church::general.apr') }}</th>
-                                <th class="">{{ trans('church::general.may') }}</th>
-                                <th>{{ trans('church::general.jun') }}</th>
-                                <th>{{ trans('church::general.jul') }}</th>
-                                <th>{{ trans('church::general.aug') }}</th>
-                                <th>{{ trans('church::general.sep') }}</th>
-                                <th>{{ trans('church::general.oct') }}</th>
-                                <th>{{ trans('church::general.nov') }}</th>
-                                <th>{{ trans('church::general.dec') }}</th>
-                                <th>{{ trans('church::general.total') }}</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach($report as $k => $item)
-                               @if($k != 'sub_regions') 
-                               <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
-                                    <td>{{$item['name']}}</td>
-                                    <td>{{$item['january']}}</td>
-                                    <td>{{$item['february']}}</td>
-                                    <td>{{$item['march']}}</td>
-                                    <td>{{$item['april']}}</td>
-                                    <td>{{$item['may']}}</td>
-                                    <td>{{$item['june']}}</td>
-                                    <td>{{$item['july']}}</td>
-                                    <td>{{$item['august']}}</td>
-                                    <td>{{$item['september']}}</td>
-                                    <td>{{$item['october']}}</td>
-                                    <td>{{$item['november']}}</td>
-                                    <td>{{$item['december']}}</td>
-                                    <td>{{$item['total']}}</td>
-                                </tr>
-                                @endif
-                             
-                               
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="card-header bg-light mt-3 mb-3">
-                    <h5>{{trans('church::general.sub_regional_report')}} </h5>
-                </div>
-                <div class="subs-regions p-3">
-
-                    @foreach($report['sub_regions'] as $name=>$subs)
-                    <div class="card-header bg-light mb-2">
-                        <h5>{{$name}} </h5>
+<div class="card-header mb-5">
+    <form action="{{ route('church.regionalPaymentDivisionSummary',['year'=>$year]) }}" method="get">
+        <div class="row">
+            <div class="form-group form-group-lg col-md-5">
+                <label class="control-label">{{ trans('church::general.select_year') }}</label>
+                <div class="input-group input-group-merge ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-solid fa-calendar"></i>
+                        </span>
                     </div>
-                    <div class="table-responsive custom">
-                        <table class="table table-flush table-hover">
-                            <thead class="thead-light">
-                                <tr class="table-head-line">
-                                    <th class="">{{ trans('church::general.summary') }}</th>
-                                    <th class="">{{ trans('church::general.jan') }}</th>
-                                    <th class="">{{ trans('church::general.feb') }}</th>
-                                    <th class="">{{ trans('church::general.mar') }}</th>
-                                    <th class="">{{ trans('church::general.apr') }}</th>
-                                    <th class="">{{ trans('church::general.may') }}</th>
-                                    <th>{{ trans('church::general.jun') }}</th>
-                                    <th>{{ trans('church::general.jul') }}</th>
-                                    <th>{{ trans('church::general.aug') }}</th>
-                                    <th>{{ trans('church::general.sep') }}</th>
-                                    <th>{{ trans('church::general.oct') }}</th>
-                                    <th>{{ trans('church::general.nov') }}</th>
-                                    <th>{{ trans('church::general.dec') }}</th>
-                                    <th>{{ trans('church::general.total') }}</th>
-                                </tr>
-                            </thead>
-    
-                            <tbody>
-                                @foreach($subs as $l => $item_)
-                                    <tr class="align-items-center border-top-1 {{$item_['name'] == 'TOTAL' ? 'text-bold' : ''}}">
-                                        <td>{{$item_['name']}}</td>
-                                        <td>{{$item_['january']}}</td>
-                                        <td>{{$item_['february']}}</td>
-                                        <td>{{$item_['march']}}</td>
-                                        <td>{{$item_['april']}}</td>
-                                        <td>{{$item_['may']}}</td>
-                                        <td>{{$item_['june']}}</td>
-                                        <td>{{$item_['july']}}</td>
-                                        <td>{{$item_['august']}}</td>
-                                        <td>{{$item_['september']}}</td>
-                                        <td>{{$item_['october']}}</td>
-                                        <td>{{$item_['november']}}</td>
-                                        <td>{{$item_['december']}}</td>
-                                        <td>{{$item_['total']}}</td>
-                                    </tr>
-                                
-                                   
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                   @endforeach
+                    <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
+                        <option>Select Year...</option>
+                        @foreach ($selected_years as $r)
+                        <option value="{{ $r }}" {{$r == $year ? 'selected' : '' }}>{{ $r }}</option>
+                        @endforeach
+                    </select>
                 </div>
-
-                
             </div>
+            <div class="form-group form-group-lg col-md-5">
+                <label class="control-label">{{ trans('church::general.select_region') }}</label>
+                <div class="input-group input-group-merge ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-solid fa-calendar"></i>
+                        </span>
+                    </div>
+                    <select name="region_id" placeholder="Select {{ trans('church::general.select_region') }}..." class="form-control selectize-field" data-searchfield="region_id" data-labelfield="region_id" data-valuefield="region_id">
+                        <option>Select Region...</option>
+                        <option value="all">All</option>
+                        @foreach ($all_regions as $r)
+                        <option value="{{ $r->id }}" {{$r->id == $reqion_id ? 'selected' : '' }}>{{ $r->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-lg filter-submit float-right mt-4"><i class="fas fa-solid fa-filter"></i></button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if($response)
+@foreach($response as $key => $report)
+<div class="card">
+    <div class="card-header bg-default">
+        <h4 style="color: white !important;">{{$key}} </h4>
+    </div>
+
+    <div class="table-responsive custom">
+        <table class="table table-flush table-hover">
+            <thead class="thead-light">
+                <tr class="table-head-line">
+                    <th class="">{{ trans('church::general.summary') }}</th>
+                    <th class="">{{ trans('church::general.jan') }}</th>
+                    <th class="">{{ trans('church::general.feb') }}</th>
+                    <th class="">{{ trans('church::general.mar') }}</th>
+                    <th class="">{{ trans('church::general.apr') }}</th>
+                    <th class="">{{ trans('church::general.may') }}</th>
+                    <th>{{ trans('church::general.jun') }}</th>
+                    <th>{{ trans('church::general.jul') }}</th>
+                    <th>{{ trans('church::general.aug') }}</th>
+                    <th>{{ trans('church::general.sep') }}</th>
+                    <th>{{ trans('church::general.oct') }}</th>
+                    <th>{{ trans('church::general.nov') }}</th>
+                    <th>{{ trans('church::general.dec') }}</th>
+                    <th>{{ trans('church::general.total') }}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach($report as $k => $item)
+                @if($k != 'sub_regions')
+                <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                    <td>{{$item['name']}}</td>
+                    <td>{{$item['january']}}</td>
+                    <td>{{$item['february']}}</td>
+                    <td>{{$item['march']}}</td>
+                    <td>{{$item['april']}}</td>
+                    <td>{{$item['may']}}</td>
+                    <td>{{$item['june']}}</td>
+                    <td>{{$item['july']}}</td>
+                    <td>{{$item['august']}}</td>
+                    <td>{{$item['september']}}</td>
+                    <td>{{$item['october']}}</td>
+                    <td>{{$item['november']}}</td>
+                    <td>{{$item['december']}}</td>
+                    <td>{{$item['total']}}</td>
+                </tr>
+                @endif
+
+
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-header bg-light mt-3 mb-3">
+        <h5>{{trans('church::general.sub_regional_report')}} </h5>
+    </div>
+    <div class="subs-regions p-3">
+
+        @foreach($report['sub_regions'] as $name=>$subs)
+        <div class="card-header bg-light mb-2">
+            <h5>{{$name}} </h5>
+        </div>
+        <div class="table-responsive custom">
+            <table class="table table-flush table-hover">
+                <thead class="thead-light">
+                    <tr class="table-head-line">
+                        <th class="">{{ trans('church::general.summary') }}</th>
+                        <th class="">{{ trans('church::general.jan') }}</th>
+                        <th class="">{{ trans('church::general.feb') }}</th>
+                        <th class="">{{ trans('church::general.mar') }}</th>
+                        <th class="">{{ trans('church::general.apr') }}</th>
+                        <th class="">{{ trans('church::general.may') }}</th>
+                        <th>{{ trans('church::general.jun') }}</th>
+                        <th>{{ trans('church::general.jul') }}</th>
+                        <th>{{ trans('church::general.aug') }}</th>
+                        <th>{{ trans('church::general.sep') }}</th>
+                        <th>{{ trans('church::general.oct') }}</th>
+                        <th>{{ trans('church::general.nov') }}</th>
+                        <th>{{ trans('church::general.dec') }}</th>
+                        <th>{{ trans('church::general.total') }}</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach($subs as $l => $item_)
+                    <tr class="align-items-center border-top-1 {{$item_['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                        <td>{{$item_['name']}}</td>
+                        <td>{{number_format($item_['january'],2)}}</td>
+                        <td>{{number_format($item_['february'],2)}}</td>
+                        <td>{{number_format($item_['march'],2)}}</td>
+                        <td>{{number_format($item_['april'],2)}}</td>
+                        <td>{{number_format($item_['may'],2)}}</td>
+                        <td>{{number_format($item_['june'],2)}}</td>
+                        <td>{{number_format($item_['july'],2)}}</td>
+                        <td>{{number_format($item_['august'],2)}}</td>
+                        <td>{{number_format($item_['september'],2)}}</td>
+                        <td>{{number_format($item_['october'],2)}}</td>
+                        <td>{{number_format($item_['november'],2)}}</td>
+                        <td>{{number_format($item_['december'],2)}}</td>
+                        <td>{{number_format($item_['total'],2)}}</td>
+                    </tr>
+
+
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
         @endforeach
-    @else
-        <tr>
-            <td colspan="14" class="text-center">No Transactions Found</td>
-        </tr>
-    @endif
+    </div>
+
+
+</div>
+@endforeach
+@else
+<tr>
+    <td colspan="14" class="text-center">No Transactions Found</td>
+</tr>
+@endif
 @endsection
 
 @push('scripts_start')
-    
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.min.css" integrity="sha512-bkB9w//jjNUnYbUpATZQCJu2khobZXvLP5GZ8jhltg7P/dghIrTaSJ7B/zdlBUT0W/LXGZ7FfCIqNvXjWKqCYA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.bootstrap4.min.css" integrity="sha512-MMojOrCQrqLg4Iarid2YMYyZ7pzjPeXKRvhW9nZqLo6kPBBTuvNET9DBVWptAo/Q20Fy11EIHM5ig4WlIrJfQw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style type="text/css" rel="stylesheet">
+    .selectize-dropdown,
+    .selectize-input {
+        line-height: 18px;
+        padding: 13px;
+    }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js" integrity="sha512-pF+DNRwavWMukUv/LyzDyDMn8U2uvqYQdJN0Zvilr6DDo/56xPDZdDoyPDYZRSL4aOKO/FGKXTpzDyQJ8je8Qw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+        var selectizerNow = function(tis) {
+        var $url = $(tis).data('url');
+        var $valueField = $(tis).data('valuefield');
+        var $labelField = $(tis).data('labelfield');
+        var $searchField = $(tis).data('searchfield');
+        var $icon = $(tis).data('icon');
+        var locked = $(this).attr('readonly') == 'true';
+
+        if ($url) {
+            $(tis).selectize({
+                valueField: $valueField,
+                labelField: $labelField,
+                searchField: $searchField,
+                create: false,
+                render: {
+                    option: function(item, escape) {
+                        return (
+                            `<div class="p-2 pt-3 pb-3"><i class="far ${$icon}"></i> ${item[$labelField]}</div>`
+                        );
+                    },
+                },
+                load: function(query, callback) {
+                    if (!query.length) return callback();
+                    var $voucherType = $('select[name="payment_voucher_type"]').val();
+
+                    $.ajax({
+                        url: $url + encodeURIComponent(query),
+                        type: "GET",
+                        data: {
+                            'voucher_type': $voucherType
+                        },
+                        error: function() {
+                            callback();
+                        },
+                        success: function(res) {
+                            callback(res);
+                        },
+                    });
+                },
+            });
+        } else {
+            $(tis).selectize();
+        }
+
+        if (locked) {
+            tis[0].selectize.lock();
+        }
+    }
+
+    $(function() {
+        
+        $(this).find('.selectize-field').each(function() {
+            if ($(this)[0].selectize) {
+                $(this)[0].selectize.destroy();
+            }
+            selectizerNow(this);
+        });
+        
+    });
+</script>
 @endpush

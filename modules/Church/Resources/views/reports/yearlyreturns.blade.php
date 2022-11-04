@@ -15,6 +15,7 @@
 
 
 <a href="{{route('church.yearly-returns-records-print',['year'=>$year])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
+<a href="{{route('church.yearly-returns-record-export',['year'=>$year])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-file-excel"></i> {{ trans('church::general.export_excel') }} </a>
 
 
 @endsection
@@ -70,9 +71,9 @@
                     <td>{{$item->name}}</td>
 
                     @foreach($columns as $column)
-                    <td>{{$item[$column]}}</td>
+                    <td>{{number_format($item[$column],2)}}</td>
                     @endforeach
-                    <td>{{$item['total_amount']}}</td>
+                    <td>{{number_format($item['total_amount'],2)}}</td>
                 </tr>
                 @endforeach
             </tbody>

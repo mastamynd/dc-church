@@ -98,18 +98,18 @@
                             @foreach($region['churches'] as $item)
                                 <tr>
                                     <td>{{$item->church_name}}</td>
-                                    <td>{{$item->january}}</td>
-                                    <td>{{$item->february}}</td>
-                                    <td>{{$item->march}}</td>
-                                    <td>{{$item->april}}</td>
-                                    <td>{{$item->may}}</td>
-                                    <td>{{$item->june}}</td>
-                                    <td>{{$item->july}}</td>
-                                    <td>{{$item->august}}</td>
-                                    <td>{{$item->september}}</td>
-                                    <td>{{$item->october}}</td>
-                                    <td>{{$item->november}}</td>
-                                    <td>{{$item->december}}</td>
+                                    <td>{{ number_format($item->january,2)}}</td>
+                                    <td>{{number_format($item->february,2)}}</td>
+                                    <td>{{number_format($item->march,2)}}</td>
+                                    <td>{{number_format($item->april,2)}}</td>
+                                    <td>{{number_format($item->may,2)}}</td>
+                                    <td>{{number_format($item->june,2)}}</td>
+                                    <td>{{number_format($item->july,2)}}</td>
+                                    <td>{{number_format($item->august,2)}}</td>
+                                    <td>{{number_format($item->september,2)}}</td>
+                                    <td>{{number_format($item->october,2)}}</td>
+                                    <td>{{number_format($item->november,2)}}</td>
+                                    <td>{{number_format($item->december,2)}}</td>
                                 </tr>
                             @endforeach
                         </tbody>

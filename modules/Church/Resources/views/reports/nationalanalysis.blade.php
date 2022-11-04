@@ -66,13 +66,13 @@
                 @foreach($regions as $item)
                 <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
                     <td>{{$item->name}}</td>
-                    <td>{{$item['churches_count']}}</td>
-                    <td>{{$item['remitting_churches']}}</td>
+                    <td>{{number_format($item['churches_count'],0)}}</td>
+                    <td>{{number_format($item['remitting_churches'],0)}}</td>
                     @foreach($columns as $column)
-                    <td>{{$item[$column]}}</td>
+                    <td>{{number_format($item[$column],2)}}</td>
                     @endforeach
 
-                    <td>{{ $item['total_amount'] }}</td>
+                    <td>{{ number_format($item['total_amount'],2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
