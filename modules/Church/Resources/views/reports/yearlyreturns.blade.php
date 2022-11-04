@@ -53,7 +53,7 @@
         <h5>{{trans('church::general.yearly_report').' '. $year}}</h5>
     </div>
 
-    <div class="row">
+    <div class="row p-3">
         <div class="col-md-8">
             <div class="table-responsive custom">
                 <table class="table table-flush table-bordered table-hover">
@@ -83,7 +83,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div id="chartContainer" data-graphdata="{{json_encode($graph)}}" style="height: 300px; width: 100%;"></div>
+            <div id="chartContainer" data-graphdata="{{json_encode($graph)}}" class="mt-5" style="height: 300px; width: 100%;"></div>
         </div>
     </div>
 
