@@ -15,11 +15,11 @@ class ComparisonTables extends Controller
      *t
      * @return Response
      */
-    public function reportindex($year = 0)
+    public function reportindex(Request $request ,$year = 0)
     {
         $columnsArr = PaymentDivisionView::orderBy('type','asc')->pluck('type')->toArray();
         $columns = array_unique($columnsArr);
-        $year = $year == 0 ? date('Y') : $year;
+        $year = isset($request->year) ? $request->year : date('Y');
         $regions = ModelsDemarcation::where('type','Region')->get();
         foreach($regions as $region){
             foreach($columns as $column){
@@ -46,6 +46,24 @@ class ComparisonTables extends Controller
     }
     private function getGrowthPercentage($difference,$prev_value){
         return $prev_value > 0 ? $difference/$prev_value * 100 : 100;
+    }
+
+    public function printReports($year){
+        $columnsArr = PaymentDivisionView::orderBy('type','asc')->pluck('type')->toArray();
+        $columns = array_unique($columnsArr);
+        $regions = ModelsDemarcation::where('type','Region')->get();
+        foreach($regions as $region){
+            foreach($columns as $column){
+                $region[$column] = $this->getRegionalTotalContributions($year,$region->id,$column);
+            }
+            $region['current_total_amount'] = $this->getRegionalAllTotalContributions($year,$region->id);
+            $region['prev_total_amount'] = $this->getRegionalAllTotalContributions(intval($year) - 1,$region->id);
+            $region['difference'] = $region['current_total_amount'] -  $region['prev_total_amount'] ;
+            $region['growth'] = $this->getGrowthPercentage($region['difference'],$region['prev_total_amount']);
+            $region['remitting_churches'] = PaymentDivisionView::where('regional_id',$region->id)->where('year',$year)->distinct('church_id')->count();
+        }
+        $prev_year = intval($year)-1;
+        return view('church::reports.print.ComparisionTable',compact('regions','year','prev_year','columns'));
     }
     
 }

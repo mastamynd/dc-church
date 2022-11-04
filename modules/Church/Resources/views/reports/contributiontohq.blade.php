@@ -11,13 +11,13 @@
 
 <!-- <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a> -->
 <!-- <a href="{{ route('church.yearly-returns-records',['year'=>$year]) }}" class="btn btn-white btn-sm">{{ trans('church::general.yearly_return') }}</a> -->
-
+<a href="{{route('church.contribution-to-hq-print',['year'=>$year,'regional_id'=>$regional_id])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
 
 @endsection
 
 @section('content')
 <div class="card-header mb-5">
-    <form action="" method="get" class="d-flex justify-content-between">
+    <form action="{{route('church.contribution-to-hq')}}" method="get" class="d-flex justify-content-between">
         <div class="form-group form-group-lg" style="width: 30% !important;">
             <label class="control-label">{{ trans('church::general.select_year') }}</label>
             <div class="input-group input-group-merge ">
@@ -43,11 +43,16 @@
                     </span>
                 </div>
                 <select name="regional_id" placeholder="Select {{ trans('church::general.select_region') }}..." class="form-control selectize-field" data-searchfield="regional_id" data-labelfield="regional_id" data-valuefield="regional_id">
-                    <option>Select Year...</option>
+                    <option>Select Region...</option>
                     @foreach ($regions as $r)
                     <option value="{{ $r->id }}" {{$r->id == $regional_id ? 'selected' : '' }}>{{ $r->name }}</option>
                     @endforeach
-                    <option value="all" {{$r->id == $regional_id ? 'selected' : '' }}>All</option>
+                    @if($regional_id == 'all')
+                    <option value="all" selected>All</option>
+                    @else
+                    <option value="all" >All</option>
+                    @endif
+                    
                 </select>
             </div>
         </div>
@@ -93,18 +98,18 @@
                             @foreach($region['churches'] as $item)
                                 <tr>
                                     <td>{{$item->church_name}}</td>
-                                    <td>{{$item->january}}</td>
-                                    <td>{{$item->february}}</td>
-                                    <td>{{$item->march}}</td>
-                                    <td>{{$item->april}}</td>
-                                    <td>{{$item->may}}</td>
-                                    <td>{{$item->june}}</td>
-                                    <td>{{$item->july}}</td>
-                                    <td>{{$item->august}}</td>
-                                    <td>{{$item->september}}</td>
-                                    <td>{{$item->october}}</td>
-                                    <td>{{$item->november}}</td>
-                                    <td>{{$item->december}}</td>
+                                    <td>{{ number_format($item->january,2)}}</td>
+                                    <td>{{number_format($item->february,2)}}</td>
+                                    <td>{{number_format($item->march,2)}}</td>
+                                    <td>{{number_format($item->april,2)}}</td>
+                                    <td>{{number_format($item->may,2)}}</td>
+                                    <td>{{number_format($item->june,2)}}</td>
+                                    <td>{{number_format($item->july,2)}}</td>
+                                    <td>{{number_format($item->august,2)}}</td>
+                                    <td>{{number_format($item->september,2)}}</td>
+                                    <td>{{number_format($item->october,2)}}</td>
+                                    <td>{{number_format($item->november,2)}}</td>
+                                    <td>{{number_format($item->december,2)}}</td>
                                 </tr>
                             @endforeach
                         </tbody>

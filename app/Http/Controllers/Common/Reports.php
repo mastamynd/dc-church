@@ -98,7 +98,7 @@ class Reports extends Controller
                 "icon" => "fas fa-exchange-alt",
                 "name" => "Tithe Comparison",
                 "description" => "Tithe Comparison",
-                "url" => "church.tithe-comparison"
+                "url" => "church.tithe-comparison-index"
             ],
             [
                 "icon" => "fas fa-hand-holding-usd",

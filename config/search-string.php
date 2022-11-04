@@ -488,4 +488,20 @@ return [
             'year'  => ['searchable' => true],
         ]
     ],
+    Modules\PaymentReception\Models\PaymentReception::class => [
+        'columns' => [
+            'id',
+            'church_id' => [
+                'route' => ['church.index', 'search=enabled:1'],
+            ],
+            'status' => [
+                'values' => [
+                    'COMPLETED' => 'COMPLETED',
+                    'PENDING' => 'PENDING',
+                ],
+            ],
+            'payer_name' => ['searchable' => true, 'key'=>'user'],
+            'created_at' => ['date' => true, 'key'=>'date'],
+        ]
+    ],
 ];

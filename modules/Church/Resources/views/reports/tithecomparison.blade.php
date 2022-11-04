@@ -21,13 +21,14 @@
 @section('new_button')
 
 
+<!-- <a href="{{route('church.tithe-comparison-print',['fromYear'=>$fromYear,'toYear'=>$toYear])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a> -->
 
 
 @endsection
 
 @section('content')
 <div class="card-header mb-5">
-    <form action="" method="get" class="d-flex justify-content-between">
+    <form action="{{route('church.tithe-comparison-index')}}" method="get" class="d-flex justify-content-between">
         <div class="form-group form-group-lg" style="width: 35% !important;">
             <label class="control-label">From Year</label>
             <div class="input-group input-group-merge ">
@@ -36,7 +37,7 @@
                         <i class="fas fa-solid fa-calendar"></i>
                     </span>
                 </div>
-                <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
+                <select name="fromyear" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="fromyear" data-labelfield="year" data-valuefield="year">
                     <option>Select Year...</option>
                     @foreach ($selected_years as $r)
                     <option value="{{ $r }}" {{$r == $fromYear ? 'selected' : '' }}>{{ $r }}</option>
@@ -52,7 +53,7 @@
                         <i class="fas fa-solid fa-calendar"></i>
                     </span>
                 </div>
-                <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
+                <select name="toyear" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="toyear" data-labelfield="year" data-valuefield="year">
                     <option>Select Year...</option>
                     @foreach ($selected_years as $r)
                     <option value="{{ $r }}" {{$r == $toYear ? 'selected' : '' }}>{{ $r }}</option>

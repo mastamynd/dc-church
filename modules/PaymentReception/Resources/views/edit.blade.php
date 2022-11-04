@@ -77,7 +77,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="card">
+		<div class="card d-none">
 			<div class="card-body">
 				<div class="py-2">
 					<h4><i class="fas fa-user"></i> PAYMENT MADE BY</h4>
@@ -157,6 +157,39 @@
 					{{ Form::saveButtons('church.index') }}
 				</div>
 				@endif
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<div class="py-2 d-flex justify-content-around">
+					<h4 class="w-100"><i class="fas fa-list"></i> RECENTLY CREATED</h4>
+				</div>
+				<div class="table-responsive">
+					<table class="table table-flush table-hover">
+						<thead class="thead-light">
+							<tr class="table-head-line">
+								<th>Church</th>
+								<th>Code</th>
+								<th>Created By</th>
+								<th>Month</th>
+								<th>Year</th>
+								<th>Amount</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach ($lastReceiptions as $item)
+								<tr>
+									<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->name }}</a></td>
+									<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->code }}</a></td>
+									<td>{{ $item->payer_name }}</td>
+									<td>{{ ucwords($item->month) }}</td>
+									<td>{{ $item->year }}</td>
+									<td>@money($item->amount, 'KES', true)</td>
+								</tr>
+							@endforeach
+						</tbody>
+					</table>
+				</div>
 			</div>
 		</div>
 	{!! Form::close() !!}

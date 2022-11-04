@@ -10,7 +10,7 @@
 
 @section('content')
 <div class="row mb-4">
-    @foreach($categories as $name => $reports)
+    {{-- @foreach($categories as $name => $reports)
   
         <div class="col-md-12">
             <h3>{{ $name }}</h3>
@@ -80,7 +80,7 @@
         @endforeach
    
 
-    @endforeach
+    @endforeach --}}
     <div class="col-md-12">
         <h3>Church</h3>
     </div>
@@ -91,7 +91,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col">
-                        <a href="{{ route('church.paymentDivisionSummaryIndex') }}">
+                        <a href="{{ route($report['url']) }}">
                             <h5 class="card-title text-uppercase text-muted mb-0">{{ $report['name'] }}</h5>
                         </a>
 
@@ -107,7 +107,7 @@
                 </div>
 
                 <p class="mt-3 mb-0 text-sm">
-                    <a class="text-default" href="">
+                    <a class="text-default" href="{{ route($report['url']) }}">
                         <span class="pre">{{ $report['description'] }}</span>
                     </a>
                 </p>

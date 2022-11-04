@@ -33,20 +33,24 @@ class RegionalSummary extends Controller
         return $divisionArr;
     }
 
-    public function paymentDivisionSummaryIndex($year = "current")
+    public function paymentDivisionSummaryIndex(Request $request, $year = "current")
     {
-        $takeyear = $year == "current" ? date('Y') : $year;
+        $takeyear = $year == "current" && !isset($request->year) ? date('Y') : $request->year;
         $divisions = setting('church.payment_divisions');
-
+        $region_id = isset($request->region_id) && $request->region_id!= 'all' ? $request->region_id : 0;
+        $sub_region_id = isset($request->sub_region_id) && $request->sub_region_id != 'all' && $request->sub_region_id != '' ? $request->sub_region_id : 0;
         $divisions = json_decode($divisions, true);
 
-        $division = array_values($divisions);
+        // $division = array_values($divisions);
 
-        $division = $this->unfold_divisions($division);
-        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        // $division = $this->unfold_divisions($division);
+        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
 
         $selected_years = range(2000, date('Y'));
+        $regions = ModelsDemarcation::where('type', 'Region')->get();
+        
 
+        // return response()->json(($region_id));
 
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         $response = [];
@@ -54,7 +58,11 @@ class RegionalSummary extends Controller
             if ($type == "pastor_fund") {
                 $total = [];
                 foreach ($months as $month) {
-                    $total[$month] = PaymentDivision::where('year', $takeyear)->sum($month);
+                    $count = PaymentDivision::query();
+                    $count = $count->where('year', $takeyear);
+                    $count = $region_id > 0 ? $count->where('regional_id',$region_id) : $count;
+                    $count = $sub_region_id > 0 ? $count->where('sub_regional_id',$sub_region_id) : $count;
+                    $total[$month] = $count->sum($month) ;
                 };
                 $total['total'] = array_sum($total);
                 $total['name'] = "TOTAL";
@@ -62,7 +70,12 @@ class RegionalSummary extends Controller
             }
             $month_record = [];
             foreach ($months as $month) {
-                $month_record[$month] = PaymentDivision::where('year', $takeyear)->where('type', $type)->sum($month);
+                $count_m = PaymentDivision::query();
+                $count_m = $count_m->where('year', $takeyear)->where('type', $type);
+                $count_m = $region_id > 0 ? $count_m->where('regional_id',$region_id) : $count_m;
+                $count_m = $sub_region_id > 0 ? $count_m->where('sub_regional_id',$sub_region_id) : $count_m;
+
+                $month_record[$month] = $count_m->sum($month);
             };
             $month_record['total'] = array_sum($month_record);
             $month_record['name'] = $value;
@@ -70,8 +83,8 @@ class RegionalSummary extends Controller
         }
 
 
-        // return response()->json($response);
-        return $this->response('church::reports.national', compact('response', 'selected_years', 'takeyear'));
+        // return response()->json($sub_region_id);
+        return $this->response('church::reports.national', compact('response', 'selected_years', 'takeyear','regions','region_id','sub_region_id'));
     }
 
     /**
@@ -79,19 +92,24 @@ class RegionalSummary extends Controller
      *
      * @return Response
      */
-    public function regionalPaymentDivisionSummary($year)
+    public function regionalPaymentDivisionSummary(Request $request,$year,$region_id=0)
     {
 
-        $regions = ModelsDemarcation::where('type', 'Region')->get();
+        $reqion_id = isset($request->region_id) ? $request->region_id : $region_id;
+        
+        $year = isset($request->year) ? $request->year : $year;
+        $regions = $reqion_id == 0 ? ModelsDemarcation::where('type', 'Region')->get() :  ModelsDemarcation::where('type', 'Region')->where('id',$reqion_id)->get();
+        $all_regions = ModelsDemarcation::where('type', 'Region')->get();
+        $selected_years = range(2000, date('Y'));
         $response = [];
         $divisions = setting('church.payment_divisions');
 
-        $divisions = json_decode($divisions, true);
+        // $divisions = json_decode($divisions, true);
 
-        $division = array_values($divisions);
+        // $division = array_values($divisions);
 
-        $division = $this->unfold_divisions($division);
-        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        // $division = $this->unfold_divisions($division);
+        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         foreach ($regions as $region) {
             $region_report = [];
@@ -144,7 +162,7 @@ class RegionalSummary extends Controller
             $response[$region->name] = $region_report;
         }
         // return response()->json($response);
-        return $this->response('church::reports.regional', compact('response', 'year'));
+        return $this->response('church::reports.regional', compact('response', 'year','all_regions','selected_years','reqion_id'));
     }
 
     /**
@@ -153,26 +171,24 @@ class RegionalSummary extends Controller
      * @param Request $request
      * @return Response
      */
-    public function subRegionPaymentDivisionSummary(Request $request,$year = 0)
+    public function subRegionPaymentDivisionSummary(Request $request,$year = 0,$region_id = 0,$sub_region_id)
     {
         $takeyear = $year == 0 ? date('Y') : $year;
         $churches = PaymentDivisionView::where('year',$takeyear);
-        if($request->has('regional_id')){
-            $churches = $churches->where('regional_id', $request->regional_id);
-        }
-        if($request->has('sub_regional_id')){
-            $churches = $churches->where('sub_regional_id', $request->sub_regional_id);
-        }
+        $regional_id = isset($request->regional_id) ? $request->regional_id : $region_id;
+        $sub_regional_id = isset($request->sub_regional_id) ? $request->sub_regional_id : $sub_region_id;
+        $churches = $regional_id > 0 ? $churches->where('regional_id', $regional_id) : $churches; 
+        $churches = $sub_regional_id > 0 ? $churches->where('sub_regional_id', $sub_regional_id) : $churches;
         $churches = $churches->orderBy('regional_id','asc')->orderBy('amount','Desc')->get();
         $response = [];
         $divisions = setting('church.payment_divisions');
 
         $divisions = json_decode($divisions, true);
 
-        $division = array_values($divisions);
+        // $division = array_values($divisions);
 
-        $division = $this->unfold_divisions($division);
-        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        // $division = $this->unfold_divisions($division);
+        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         foreach($churches as $church){
             isset($response[$church->region_name]) ? '' : $response[$church->region_name] = [];
@@ -185,51 +201,162 @@ class RegionalSummary extends Controller
             $response[$church->region_name]['sub-region'][$church->subregion_name]['overseer'] = $church->subregional_overseer_name;
         }
         // return response()->json($response);
-        return $this->response('church::reports.paymentsummary',compact('response','takeyear'));
+        return $this->response('church::reports.paymentsummary',compact('response','takeyear','regional_id','sub_regional_id'));
     }
 
-    /**
-     * Show the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        return view('church::show');
-    }
+    public function paymentDivisionSummaryIndexPrintReport($year,$region_id =0,$sub_region_id = 0){
+        $takeyear = $year;
+        $divisions = setting('church.payment_divisions');
+        
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        return view('church::edit');
-    }
+        $divisions = json_decode($divisions, true);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+        // $division = array_values($divisions);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function destroy($id)
+        // $division = $this->unfold_divisions($division);
+        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+
+        $selected_years = range(2000, date('Y'));
+        $regional_id = $region_id > 0 ? $region_id : 0;
+        $sub_regional_id = $sub_region_id > 0 ? $sub_region_id: 0;
+
+
+        $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        $response = [];
+        foreach ($division as $type => $value) {
+            if ($type == "pastor_fund") {
+                $total = [];
+                foreach ($months as $month) {
+                    $count = PaymentDivision::query();
+                    $count = $count->where('year', $takeyear);
+                    $count = $regional_id > 0 ? $count->where('regional_id',$regional_id) : $count;
+                    $count = $sub_regional_id > 0 ? $count->where('sub_regional_id',$sub_regional_id) : $count;
+                    $total[$month] = $count->sum($month) ;
+                    
+                };
+                $total['total'] = array_sum($total);
+                $total['name'] = "TOTAL";
+                $response['total'] = $total;
+            }
+            $month_record = [];
+            foreach ($months as $month) {
+                $count_m = PaymentDivision::query();
+                $count_m = $count_m->where('year', $takeyear)->where('type', $type);
+                $count_m = $regional_id > 0 ? $count_m->where('regional_id',$regional_id) : $count_m;
+                $count_m = $sub_regional_id > 0 ? $count_m->where('sub_regional_id',$sub_regional_id) : $count_m;
+                $month_record[$month] = $count_m->sum($month);
+            };
+            $month_record['total'] = array_sum($month_record);
+            $month_record['name'] = $value;
+            $response[$type] = $month_record;
+        }
+
+
+        // return response()->json($response);
+        return $this->response('church::reports.print.national', compact('response', 'selected_years', 'takeyear'));
+    }
+    public function regionalPaymentDivisionSummaryPrintReport($year,$region_id = 0){
+        $regions = $region_id == 0 ? ModelsDemarcation::where('type', 'Region')->get() : ModelsDemarcation::where('type', 'Region')->where('id',$region_id)->get();
+        $response = [];
+        $divisions = setting('church.payment_divisions');
+
+        // $divisions = json_decode($divisions, true);
+
+        // $division = array_values($divisions);
+
+        // $division = $this->unfold_divisions($division);
+        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        foreach ($regions as $region) {
+            $region_report = [];
+            foreach ($division as $type => $value) {
+                if ($type == "pastor_fund") {
+                    $total = [];
+                    foreach ($months as $month) {
+                        $total[$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->sum($month);
+                    };
+                    $total['total'] = array_sum($total);
+                    $total['name'] = "TOTAL";
+                    $region_report['total'] = $total;
+                }
+                foreach ($months as $month) {
+                    $region_report[$type][$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->where('type', $type)->sum($month);
+                }
+                $region_report[$type]['total'] = array_sum($region_report[$type]);
+                $region_report[$type]['name'] = $value;
+            }
+            $subs = DemarcationHistory::where('parent_id', $region->id)->get();
+            $region_report['sub_regions'] = [];
+            foreach ($subs as $sub) {
+                // return response()->json($sub);
+                $sub_report = [];
+                foreach ($division as $type => $value) {
+                    if ($type == "pastor_fund") {
+                        $total_ = [];
+                        foreach ($months as $month) {
+                            $total_[$month] = PaymentDivision::where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
+                            
+                        };
+                        $total_['total'] = array_sum($total_);
+                        $total_['name'] = "TOTAL";
+                        $sub_report['total'] = $total;
+                        
+                    }
+                    foreach ($months as $month) {
+                        $sub_report[$type][$month] = PaymentDivision::where('type', $type)->where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
+                        
+                    }
+                    $sub_report[$type]['total']= array_sum($sub_report[$type]);
+                    $sub_report[$type]['name'] = $value;
+                    // return response()->json($sub_report);
+                }
+                $sub_data = ModelsDemarcation::find($sub->demarcation_id);
+                $region_report['sub_regions'][$sub_data->name] = $sub_report;
+            }
+            $response[$region->name] = $region_report;
+        }
+        // return response()->json($response);
+        return $this->response('church::reports.print.regional', compact('response', 'year'));
+    }
+    public function subRegionPaymentDivisionSummaryPrintReport($year,$regional_id,$sub_regional_id)
     {
-        //
+        $takeyear = $year == 0 ? date('Y') : $year;
+        $churches = PaymentDivisionView::where('year',$takeyear);
+      
+        if($regional_id > 0){
+            $churches = $churches->where('regional_id', $regional_id);
+        }
+        if($sub_regional_id > 0){
+            $churches = $churches->where('sub_regional_id', $sub_regional_id);
+        }
+        $churches = $churches->orderBy('regional_id','asc')->orderBy('amount','Desc')->get();
+        
+        $response = [];
+        $divisions = setting('church.payment_divisions');
+
+        // $divisions = json_decode($divisions, true);
+
+        // $division = array_values($divisions);
+
+        // $division = $this->unfold_divisions($division);
+        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+        foreach($churches as $church){
+            isset($response[$church->region_name]) ? '' : $response[$church->region_name] = [];
+            $response[$church->region_name]['overseer'] = $church->regional_overseer_name;
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name] = [];
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type] = [];
+            $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['name'] = $division[$church->type];
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches']) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'] = [];
+            array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'],$church);
+            $response[$church->region_name]['sub-region'][$church->subregion_name]['overseer'] = $church->subregional_overseer_name;
+        }
+        // return response()->json($response);
+        // return $this->response('church::reports.paymentsummary',compact('response','takeyear','regional_id','sub_regional_id'));
+        return $this->response('church::reports.print.paymentSummary',compact('response','takeyear','regional_id','year','sub_regional_id'));
+    }
+    public function getSubregionsByRegionID(Request $request){
+        $subs = DemarcationHistory::where('parent_id', $request->region_id)->with('demarcation')->get();
+        return response()->json($subs);
     }
 }

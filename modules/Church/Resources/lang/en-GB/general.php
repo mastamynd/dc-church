@@ -70,6 +70,15 @@ return [
     'region_name' => 'Region',
     'church_total' => 'Total Churches',
     'remitting_total' => 'Remitting Churches',
+    'print'=>'Print Report',
+    'regional_commitment'=>'Regional Commitment',
+    'contribution_graph'=>'Contribution Graph',
+    'tithe_comparison'=>'Tithe Comparison',
+    'contribution_to_hq'=>'Contribution to HQ',
+    'sub_to_hq_section'=>'Region',
+    'select_region'=>'Select Region',
+
+    
     'stop_history' => 'Stop/Remove Pastor History',    
     'month'        => 'Month',
     'year'         => 'Year'

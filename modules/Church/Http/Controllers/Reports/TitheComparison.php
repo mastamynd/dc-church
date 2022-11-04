@@ -14,10 +14,10 @@ class TitheComparison extends Controller
      *
      * @return Response
      */
-    public function reportIndex($fromYear = 0,$toYear=0)
+    public function reportIndex(Request $request ,$fromYear = 0,$toYear=0)
     {
-        $fromYear = $fromYear == 0 ? 2014 : $fromYear;
-        $toYear = $toYear==0 ? date('Y') : $toYear;
+        $fromYear = $fromYear == 0 && !isset($request->fromyear) ? 2014 : $request->fromyear;
+        $toYear = $toYear==0 && !isset($request->toyear) ? date('Y') : $request->toyear;
         $response = [];
         foreach(range($fromYear,$toYear) as $year){
             $data['name'] = $year;
@@ -29,5 +29,16 @@ class TitheComparison extends Controller
     }
     private function getYearlyTitheContribution($year){
         return PaymentDivisionView::where('year',$year)->sum('amount');
+    }
+
+    public function printReport($fromYear,$toYear){
+        $response = [];
+        foreach(range($fromYear,$toYear) as $year){
+            $data['name'] = $year;
+            $data['value'] = $this->getYearlyTitheContribution($year);
+            $response[] = $data;
+        }
+        $selected_years = range(2014, date('Y'));
+        return view('church::reports.print.tithecomparison',compact('fromYear','toYear','response','selected_years'));
     }
 }

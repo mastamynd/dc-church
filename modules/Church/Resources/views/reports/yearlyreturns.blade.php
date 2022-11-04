@@ -5,45 +5,56 @@
     .text-bold {
         font-weight: 800 !important;
     }
+
+    .filter-submit {
+        margin-top: 50% !important;
+    }
 </style>
 
 @section('new_button')
 
-<!-- <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a> -->
-<!-- <a href="{{ route('church.yearly-returns-records',['year'=>$year]) }}" class="btn btn-white btn-sm">{{ trans('church::general.yearly_return') }}</a> -->
+
+<a href="{{route('church.yearly-returns-records-print',['year'=>$year])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
+<a href="{{route('church.yearly-returns-record-export',['year'=>$year])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fa fa-file-excel"></i> {{ trans('church::general.export_excel') }} </a>
 
 
 @endsection
 
 @section('content')
 <div class="card-header mb-5">
-    <form action="" method="get">
-        <div class="form-group form-group-lg">
-            <label class="control-label">{{ trans('church::general.select_year') }}</label>
-            <div class="input-group input-group-merge ">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <i class="fas fa-solid fa-calendar"></i>
-                    </span>
+    <form action="{{route('church.yearly-returns-records')}}" method="get">
+        <div class="p-2 row">
+
+            <div class="form-group form-group-lg col-md-11 ">
+                <label class="control-label">{{ trans('church::general.select_year') }}</label>
+                <div class="input-group input-group-merge ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-solid fa-calendar"></i>
+                        </span>
+                    </div>
+                    <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
+                        <option>Select Year...</option>
+                        @foreach ($selected_years as $r)
+                        <option value="{{ $r }}" {{$r == $year ? 'selected' : '' }}>{{ $r }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
-                    <option>Select Year...</option>
-                    @foreach ($selected_years as $r)
-                    <option value="{{ $r }}" {{$r == $year ? 'selected' : '' }}>{{ $r }}</option>
-                    @endforeach
-                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary btn-lg filter-submit float-right"><i class="fas fa-solid fa-filter"></i></button>
             </div>
         </div>
     </form>
 </div>
 
-<div class="card">
+<div class="card" id="printableArea">
     <div class="card-header">
         <h5>{{trans('church::general.yearly_report').' '. $year}}</h5>
     </div>
 
     <div class="table-responsive custom">
-        <table class="table table-flush table-hover">
+        <table class="table table-flush table-bordered table-hover">
             <thead class="thead-light">
                 <tr class="table-head-line">
                     <th>{{ trans('church::general.region_name') }}</th>
@@ -60,9 +71,9 @@
                     <td>{{$item->name}}</td>
 
                     @foreach($columns as $column)
-                        <td>{{$item[$column]}}</td> 
-                    @endforeach 
-                    <td>{{$item['total_amount']}}</td>
+                    <td>{{number_format($item[$column],2)}}</td>
+                    @endforeach
+                    <td>{{number_format($item['total_amount'],2)}}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -144,6 +155,8 @@
             }
             selectizerNow(this);
         });
+
+       
     });
 </script>
 @endpush

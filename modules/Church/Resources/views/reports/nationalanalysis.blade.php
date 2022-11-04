@@ -11,27 +11,32 @@
 
 <!-- <a href="{{ route('customers.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a> -->
 <!-- <a href="{{ route('church.yearly-returns-records',['year'=>$year]) }}" class="btn btn-white btn-sm">{{ trans('church::general.yearly_return') }}</a> -->
-
+<a href="{{route('church.national-analysis-print',['year'=>$year,])}}" target="_blank" class="btn btn-primary btn-sm"><i class="fas fa-regular fa-print"></i> {{ trans('church::general.print') }} </a>
 
 @endsection
 
 @section('content')
 <div class="card-header mb-5">
-    <form action="" method="get">
-        <div class="form-group form-group-lg">
-            <label class="control-label">{{ trans('church::general.select_year') }}</label>
-            <div class="input-group input-group-merge ">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <i class="fas fa-solid fa-calendar"></i>
-                    </span>
+    <form action="{{ route('church.national-analysis-report') }}" method="get">
+        <div class="row">
+            <div class="form-group form-group-lg col-md-11">
+                <label class="control-label">{{ trans('church::general.select_year') }}</label>
+                <div class="input-group input-group-merge ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-solid fa-calendar"></i>
+                        </span>
+                    </div>
+                    <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
+                        <option>Select Year...</option>
+                        @foreach ($selected_years as $r)
+                        <option value="{{ $r }}" {{$r == $year ? 'selected' : '' }}>{{ $r }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <select name="year" placeholder="Select {{ trans('church::general.select_year') }}..." class="form-control selectize-field" data-searchfield="year" data-labelfield="year" data-valuefield="year">
-                    <option>Select Year...</option>
-                    @foreach ($selected_years as $r)
-                    <option value="{{ $r }}" {{$r == $year ? 'selected' : '' }}>{{ $r }}</option>
-                    @endforeach
-                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary btn-lg filter-submit float-right mt-4"><i class="fas fa-solid fa-filter"></i></button>
             </div>
         </div>
     </form>
@@ -61,13 +66,13 @@
                 @foreach($regions as $item)
                 <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
                     <td>{{$item->name}}</td>
-                    <td>{{$item['churches_count']}}</td>
-                    <td>{{$item['remitting_churches']}}</td>
+                    <td>{{number_format($item['churches_count'],0)}}</td>
+                    <td>{{number_format($item['remitting_churches'],0)}}</td>
                     @foreach($columns as $column)
-                    <td>{{$item[$column]}}</td>
+                    <td>{{number_format($item[$column],2)}}</td>
                     @endforeach
-                    
-                    <td>{{ $item['total_amount'] }}</td>
+
+                    <td>{{ number_format($item['total_amount'],2) }}</td>
                 </tr>
                 @endforeach
             </tbody>

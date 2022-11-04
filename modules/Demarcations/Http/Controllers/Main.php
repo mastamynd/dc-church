@@ -179,6 +179,18 @@ class Main extends Controller
 		return redirect()->back();
 	}
 
+	public function destroy($id){
+		$demarcation = Demarcation::find($id);
+		$type = $demarcation->type;
+		$demarcation->delete();
+		DemarcationHistory::where('demarcation_id', $id)->delete();
+		DemarcationOverseer::where('demarcation_id', $id)->delete();
+		
+
+		flash($type." was deleted successfully")->success();
+		return redirect()->back();
+	}
+
 	public function export(){
 		$data = Demarcation::with('overseer.pastor', 'subregions', 'subregions.demarcation', 'subregions.demarcation.overseer.pastor', 'subregions.demarcation.children.church', 'subregions.demarcation.children.church.senior_pastor')->get();
 
