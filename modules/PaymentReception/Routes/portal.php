@@ -9,6 +9,6 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::portal('payment-reception', function () {
-    // Route::get('invoices/{invoice}', 'Main@show')->name('invoices.show');
+    Route::get('workflow', 'Main@workflow')->name('workflow');
     // Route::post('invoices/{invoice}/confirm', 'Main@confirm')->name('invoices.confirm');
 });

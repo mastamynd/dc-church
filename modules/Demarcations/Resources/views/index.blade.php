@@ -86,11 +86,15 @@
 												{{ trans('general.show') }}
 											</a>
 
-											@can('update-demarcation-main')
+											@can('update-demarcations-main')
 												<a class="dropdown-item" href="{{ route('demarcations.edit', [$type, $item->id]) }}">
 													{{ trans('general.edit') }}
 												</a>
 											@endcan
+											
+											@can('delete-demarcations-main')
+												<span class="dropdown-item" data-target="#delete-demarcation-modal" data-toggle="modal" data-href="{{ route('demarcations.delete', $item->id) }}">{{ trans('general.delete') }}</span>
+										@endcan
 										</div>
 									</div>
 								</td>
@@ -112,5 +116,39 @@
 @endsection
 
 @push('scripts_start')
+	<script type="text/javascript">
+	$(function(){
+		$("#delete-demarcation-modal").on("shown.bs.modal", function (e){ 
+			var urll = $(e.relatedTarget).data('href');
+
+			$(this).find('form').attr('action', urll);
+			$(this).find('form').prop('action', urll);
+		});
+	});
+	</script>
+	<div class="modal fade show" id="delete-demarcation-modal"  role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form method="post">
+					@csrf
+					<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+						<i class="fas fa-trash"></i> Delete
+					</div>
+					<div class="modal-body">
+						<div class="form-group form-group-lg">
+							<div class="alert alert-danger">
+								<i class="fas fa-exclamation-triangle fa-2x pull-left float-left"></i> Are you sure that you want to delete this?
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+						<span class="btn btn-white" data-dismiss="modal">Close</span>
+						<button type="submit" class="btn btn-danger">DELETE</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
 	<script src="{{ asset('public/js/sales/customers.js?v=' . version('short')) }}"></script>
 @endpush

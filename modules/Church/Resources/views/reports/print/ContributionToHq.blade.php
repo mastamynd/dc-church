@@ -8,7 +8,14 @@
     <title>Print {{trans('church::general.contribution_to_hq').' '. $year}} </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
-        
+        table{
+            border: none !important;
+            border-collapse: collapse;
+        }
+
+        table th, table td{
+            border: 1px solid #000;
+        } 
     </style>
 
 </head>
@@ -50,18 +57,18 @@
                             @foreach($region['churches'] as $item)
                                 <tr>
                                     <td>{{$item->church_name}}</td>
-                                    <td>{{$item->january}}</td>
-                                    <td>{{$item->february}}</td>
-                                    <td>{{$item->march}}</td>
-                                    <td>{{$item->april}}</td>
-                                    <td>{{$item->may}}</td>
-                                    <td>{{$item->june}}</td>
-                                    <td>{{$item->july}}</td>
-                                    <td>{{$item->august}}</td>
-                                    <td>{{$item->september}}</td>
-                                    <td>{{$item->october}}</td>
-                                    <td>{{$item->november}}</td>
-                                    <td>{{$item->december}}</td>
+                                    <td>{{ number_format($item->january, 2)}}</td>
+                                    <td>{{ number_format($item->february, 2)}}</td>
+                                    <td>{{ number_format($item->march, 2)}}</td>
+                                    <td>{{ number_format($item->april, 2)}}</td>
+                                    <td>{{ number_format($item->may, 2)}}</td>
+                                    <td>{{ number_format($item->june, 2)}}</td>
+                                    <td>{{ number_format($item->july, 2)}}</td>
+                                    <td>{{ number_format($item->august, 2)}}</td>
+                                    <td>{{ number_format($item->september, 2)}}</td>
+                                    <td>{{ number_format($item->october, 2)}}</td>
+                                    <td>{{ number_format($item->november, 2)}}</td>
+                                    <td>{{ number_format($item->december, 2)}}</td>
                                 </tr>
                             @endforeach
                         </tbody>

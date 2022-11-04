@@ -143,7 +143,7 @@ class RegionalSummary extends Controller
             }
             $response[$region->name] = $region_report;
         }
-        // return response()->json($response);
+        return response()->json($response);
         return $this->response('church::reports.regional', compact('response', 'year'));
     }
 

@@ -46,20 +46,20 @@
                             @foreach($report as $k => $item)
                                @if($k != 'sub_regions') 
                                <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
-                                    <td>{{$item['name']}}</td>
-                                    <td>{{$item['january']}}</td>
-                                    <td>{{$item['february']}}</td>
-                                    <td>{{$item['march']}}</td>
-                                    <td>{{$item['april']}}</td>
-                                    <td>{{$item['may']}}</td>
-                                    <td>{{$item['june']}}</td>
-                                    <td>{{$item['july']}}</td>
-                                    <td>{{$item['august']}}</td>
-                                    <td>{{$item['september']}}</td>
-                                    <td>{{$item['october']}}</td>
-                                    <td>{{$item['november']}}</td>
-                                    <td>{{$item['december']}}</td>
-                                    <td>{{$item['total']}}</td>
+                                    <td>{{ $item['name'] }}</td>
+                                    <td>{{ number_format(floatval($item['january']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['february']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['march']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['april']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['may']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['june']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['july']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['august']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['september']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['october']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['november']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['december']), 2) }}</td>
+                                    <td>{{ number_format(floatval($item['total']), 2) }}</td>
                                 </tr>
                                 @endif
                              
@@ -102,20 +102,20 @@
                             <tbody>
                                 @foreach($subs as $l => $item_)
                                     <tr class="align-items-center border-top-1 {{$item_['name'] == 'TOTAL' ? 'text-bold' : ''}}">
-                                        <td>{{$item_['name']}}</td>
-                                        <td>{{$item_['january']}}</td>
-                                        <td>{{$item_['february']}}</td>
-                                        <td>{{$item_['march']}}</td>
-                                        <td>{{$item_['april']}}</td>
-                                        <td>{{$item_['may']}}</td>
-                                        <td>{{$item_['june']}}</td>
-                                        <td>{{$item_['july']}}</td>
-                                        <td>{{$item_['august']}}</td>
-                                        <td>{{$item_['september']}}</td>
-                                        <td>{{$item_['october']}}</td>
-                                        <td>{{$item_['november']}}</td>
-                                        <td>{{$item_['december']}}</td>
-                                        <td>{{$item_['total']}}</td>
+                                        <td>{{ number_format($item_['name'], 2) }}</td>
+                                        <td>{{ number_format($item_['january'], 2) }}</td>
+                                        <td>{{ number_format($item_['february'], 2) }}</td>
+                                        <td>{{ number_format($item_['march'], 2) }}</td>
+                                        <td>{{ number_format($item_['april'], 2) }}</td>
+                                        <td>{{ number_format($item_['may'], 2) }}</td>
+                                        <td>{{ number_format($item_['june'], 2) }}</td>
+                                        <td>{{ number_format($item_['july'], 2) }}</td>
+                                        <td>{{ number_format($item_['august'], 2) }}</td>
+                                        <td>{{ number_format($item_['september'], 2) }}</td>
+                                        <td>{{ number_format($item_['october'], 2) }}</td>
+                                        <td>{{ number_format($item_['november'], 2) }}</td>
+                                        <td>{{ number_format($item_['december'], 2) }}</td>
+                                        <td>{{ number_format($item_['total'], 2) }}</td>
                                     </tr>
                                 
                                    

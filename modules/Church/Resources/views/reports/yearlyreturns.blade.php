@@ -72,7 +72,7 @@
                     @foreach($columns as $column)
                     <td>{{$item[$column]}}</td>
                     @endforeach
-                    <td>{{$item['total_amount']}}</td>
+                    <td>{{ number_format($item['total_amount'], 2) }}</td>
                 </tr>
                 @endforeach
             </tbody>
