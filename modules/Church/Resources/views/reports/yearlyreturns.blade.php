@@ -53,33 +53,39 @@
         <h5>{{trans('church::general.yearly_report').' '. $year}}</h5>
     </div>
 
-    <div class="table-responsive custom">
-        <table class="table table-flush table-bordered table-hover">
-            <thead class="thead-light">
-                <tr class="table-head-line">
-                    <th>{{ trans('church::general.region_name') }}</th>
-                    @foreach($columns as $column)
-                    <th>{{ ucwords(str_replace('_', ' ',$column)) }}</th>
-                    @endforeach
-                    <th>{{ trans('church::general.total') }}</th>
-                </tr>
-            </thead>
+    <div class="row p-3">
+        <div class="col-md-8">
+            <div class="table-responsive custom">
+                <table class="table table-flush table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr class="table-head-line">
+                            <th>{{ trans('church::general.region_name') }}</th>
+                            @foreach($columns as $column)
+                            <th>{{ ucwords(str_replace('_', ' ',$column)) }}</th>
+                            @endforeach
+                            <th>{{ trans('church::general.total') }}</th>
+                        </tr>
+                    </thead>
 
-            <tbody>
-                @foreach($regions as $item)
-                <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
-                    <td>{{$item->name}}</td>
+                    <tbody>
+                        @foreach($regions as $item)
+                        <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                            <td>{{$item->name}}</td>
 
-                    @foreach($columns as $column)
-                    <td>{{number_format($item[$column],2)}}</td>
-                    @endforeach
-                    <td>{{number_format($item['total_amount'],2)}}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+                            @foreach($columns as $column)
+                            <td>{{number_format($item[$column],2)}}</td>
+                            @endforeach
+                            <td>{{number_format($item['total_amount'],2)}}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div id="chartContainer" data-graphdata="{{json_encode($graph)}}" class="mt-5" style="height: 300px; width: 100%;"></div>
+        </div>
     </div>
-
 
 </div>
 
@@ -97,7 +103,7 @@
     }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js" integrity="sha512-pF+DNRwavWMukUv/LyzDyDMn8U2uvqYQdJN0Zvilr6DDo/56xPDZdDoyPDYZRSL4aOKO/FGKXTpzDyQJ8je8Qw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 <script>
     var selectizerNow = function(tis) {
         var $url = $(tis).data('url');
@@ -155,8 +161,28 @@
             }
             selectizerNow(this);
         });
+        const graphData = $('#chartContainer').data('graphdata');
+        var chart = new CanvasJS.Chart("chartContainer",
+	{
+		title:{
+			text: "Yearly Returns Chart"
+		},
+		legend: {
+			maxWidth: 350,
+			itemWidth: 120
+		},
+		data: [
+		{
+			type: "pie",
+			showInLegend: true,
+			legendText: "{indexLabel}",
+			dataPoints: graphData
+		}
+		]
+	});
+	chart.render();
 
-       
+
     });
 </script>
 @endpush

@@ -46,7 +46,7 @@
                         </span>
                     </div>
                     <select name="region_id" placeholder="Select {{ trans('church::general.select_region') }}..." class="form-control region_id_field selectize-field" data-searchfield="region_id" data-labelfield="region_id" data-valuefield="region_id">
-                        <option>Select Region...</option>
+                        <option value="0">Select Region...</option>
                         <option value="all">All</option>
                         @foreach ($regions as $r)
                         <option value="{{ $r->id }}" {{$r->id == $region_id ? 'selected' : '' }}>{{ $r->name }}</option>
@@ -63,7 +63,7 @@
                         </span>
                     </div>
                     <select name="sub_region_id" placeholder="Select {{ trans('church::general.select_sub_region') }}..." class="form-control sub_region_id_field" data-searchfield="sub_region_id" data-labelfield="sub_region_id" data-valuefield="sub_region_id">
-                        <option>Select Sub Region...</option>
+                        <option value="0">Select Sub Region...</option>
                         <option value="all">All</option>
 
                     </select>
@@ -216,7 +216,7 @@
                     },
                     success: (data) => {
                         $('.sub_region_id_field').empty();
-                        var option_ = ` <option>Select Sub Region...</option>
+                        var option_ = `<option value="0">Select Sub Region...</option>
                             <option value="all">All</option>`;
                         $('.sub_region_id_field').append(option_);
                         const selected_sub = $('.subregion-field').data('subregion');

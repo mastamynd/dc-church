@@ -24,13 +24,16 @@ class YearReturnRecords extends Controller
         $year = isset($request->year) ? $request->year : date('Y');
         $regions = ModelsDemarcation::where('type','Region')->get();
         $selected_years = range(2000, date('Y'));
+        $graph = [];
         foreach($regions as $region){
             foreach($columns as $column){
                 $region[$column] = $this->getRegionalTotalContributions($year,$region->id,$column);
             }
             $region['total_amount'] = $this->getRegionalAllTotalContributions($year,$region->id);
+            $graph[]=['y'=>$region['total_amount'],'indexLabel'=>$region->name];
         }
-        return view('church::reports.yearlyreturns',compact('regions','columns','year','selected_years'));
+        
+        return view('church::reports.yearlyreturns',compact('regions','columns','year','selected_years','graph'));
 
     }
     private function getRegionalTotalContributions($year,$region_id,$trans_type){
