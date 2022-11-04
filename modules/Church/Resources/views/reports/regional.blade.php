@@ -42,7 +42,7 @@
                         </span>
                     </div>
                     <select name="region_id" placeholder="Select {{ trans('church::general.select_region') }}..." class="form-control selectize-field" data-searchfield="region_id" data-labelfield="region_id" data-valuefield="region_id">
-                        <option>Select Region...</option>
+                        <option value="0">Select Region...</option>
                         <option value="all">All</option>
                         @foreach ($all_regions as $r)
                         <option value="{{ $r->id }}" {{$r->id == $reqion_id ? 'selected' : '' }}>{{ $r->name }}</option>
