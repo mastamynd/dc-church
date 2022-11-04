@@ -70,7 +70,7 @@
                 @foreach($regions as $item)
                 <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
                     <td>{{$item->name}}</td>
-                    <td>{{ number_format($item['churches_count']},0)}</td>
+                    <td>{{ number_format($item['churches_count'],0)}}</td>
                     <td>{{number_format($item['remitting_churches'],0)}}</td>
                     @foreach($columns as $column)
                         <td>{{ number_format($item[$column], 2) }}</td> 
