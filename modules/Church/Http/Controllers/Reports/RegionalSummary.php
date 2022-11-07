@@ -55,8 +55,25 @@ class RegionalSummary extends Controller
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         $response = [];
         $r_totals = [];
+        $size = sizeof($division);
+        $loop = 1;
         foreach ($division as $type => $value) {
-            if ($type == "pastor_fund") {
+            
+            $month_record = [];
+            foreach ($months as $month) {
+                $count_m = PaymentDivision::query();
+                $count_m = $count_m->where('year', $takeyear)->where('type', $type);
+                $count_m = $region_id > 0 ? $count_m->where('regional_id',$region_id) : $count_m;
+                $count_m = $sub_region_id > 0 ? $count_m->where('sub_regional_id',$sub_region_id) : $count_m;
+
+                $month_record[$month] = $count_m->sum($month);
+                
+            };
+            $month_record['total'] = array_sum($month_record);
+            $month_record['name'] = $value;
+            $response[$type] = $month_record;
+
+            if ($loop == $size) {
                 $total = [];
                 foreach ($months as $month) {
                     $count = PaymentDivision::query();
@@ -71,19 +88,7 @@ class RegionalSummary extends Controller
                 $response['total'] = $total;
                 // $r_totals[$][] = $count->sum($total);
             }
-            $month_record = [];
-            foreach ($months as $month) {
-                $count_m = PaymentDivision::query();
-                $count_m = $count_m->where('year', $takeyear)->where('type', $type);
-                $count_m = $region_id > 0 ? $count_m->where('regional_id',$region_id) : $count_m;
-                $count_m = $sub_region_id > 0 ? $count_m->where('sub_regional_id',$sub_region_id) : $count_m;
-
-                $month_record[$month] = $count_m->sum($month);
-                
-            };
-            $month_record['total'] = array_sum($month_record);
-            $month_record['name'] = $value;
-            $response[$type] = $month_record;
+            ++$loop;
         }
 
         $s_total = $response['total'];
