@@ -204,12 +204,41 @@ class RegionalSummary extends Controller
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name] = [];
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type] = [];
             $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['name'] = $division[$church->type];
-            $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total'] = [];
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january'] + $church->january : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january'] = $church->january;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february'] + $church->february : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february'] = $church->february;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march'] + $church->march : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march'] = $church->march;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april'] + $church->april : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april'] = $church->april;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may'] + $church->may : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may'] = $church->may;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june'] + $church->june : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june'] = $church->june;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july'] + $church->july : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july'] = $church->july;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august'] + $church->august : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august'] = $church->august;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september'] + $church->september : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september'] = $church->september;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october'] + $church->october : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october'] = $church->october;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november'] + $church->november : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november'] = $church->november;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december'] + $church->december : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december'] = $church->december;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals'] + $church->getTotalAmount() : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals'] = $church->getTotalAmount();
+
+
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches']) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'] = [];
             array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'],$church);
             $response[$church->region_name]['sub-region'][$church->subregion_name]['overseer'] = $church->subregional_overseer_name;
+            
+            
         }
-        return response()->json($response);
+        // return response()->json($response);
         return $this->response('church::reports.paymentsummary',compact('response','takeyear','regional_id','sub_regional_id'));
     }
 
@@ -345,20 +374,47 @@ class RegionalSummary extends Controller
         $churches = $churches->orderBy('regional_id','asc')->orderBy('amount','Desc')->get();
         
         $response = [];
-        $divisions = setting('church.payment_divisions');
+        // $divisions = setting('church.payment_divisions');
 
-        $divisions = json_decode($divisions, true);
+        // $divisions = json_decode($divisions, true);
 
-        $division = array_values($divisions);
+        // $division = array_values($divisions);
 
-        $division = $this->unfold_divisions($division);
-        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        // $division = $this->unfold_divisions($division);
+        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         foreach($churches as $church){
             isset($response[$church->region_name]) ? '' : $response[$church->region_name] = [];
             $response[$church->region_name]['overseer'] = $church->regional_overseer_name;
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name] = [];
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type] = [];
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january'] + $church->january : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['january'] = $church->january;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february'] + $church->february : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['february'] = $church->february;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march'] + $church->march : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['march'] = $church->march;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april'] + $church->april : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['april'] = $church->april;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may'] + $church->may : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['may'] = $church->may;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june'] + $church->june : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['june'] = $church->june;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july'] + $church->july : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['july'] = $church->july;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august'] + $church->august : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['august'] = $church->august;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september'] + $church->september : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['september'] = $church->september;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october'] + $church->october : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['october'] = $church->october;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november'] + $church->november : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['november'] = $church->november;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december'] + $church->december : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['december'] = $church->december;
+
+            isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals'] + $church->getTotalAmount() : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals'] = $church->getTotalAmount();
+
             $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['name'] = $division[$church->type];
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches']) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'] = [];
             array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'],$church);
