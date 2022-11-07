@@ -55,8 +55,10 @@ class RegionalSummary extends Controller
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         $response = [];
         $r_totals = [];
+        $size = sizeof($division);
+        $loop = 1;
         foreach ($division as $type => $value) {
-            if ($type == "pastor_fund") {
+            if ( in_array($type,['pastor_fund','pastors_fund'])) {
                 $total = [];
                 foreach ($months as $month) {
                     $count = PaymentDivision::query();
@@ -126,7 +128,7 @@ class RegionalSummary extends Controller
                 }
                 $region_report[$type]['total'] = array_sum($region_report[$type]);
                 $region_report[$type]['name'] = $value;
-                if ($type == "pastor_fund") {
+                if (in_array($type,['pastor_fund','pastors_fund'])) {
                     $total = [];
                     foreach ($months as $month) {
                         $total[$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->sum($month);
@@ -149,7 +151,7 @@ class RegionalSummary extends Controller
                     }
                     $sub_report[$type]['total']= array_sum($sub_report[$type]);
                     $sub_report[$type]['name'] = $value;
-                    if ($type == "pastor_fund") {
+                    if (in_array($type,['pastor_fund','pastors_fund'])) {
                         $total_ = [];
                         foreach ($months as $month) {
                             $total_[$month] = PaymentDivision::where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
@@ -262,7 +264,7 @@ class RegionalSummary extends Controller
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         $response = [];
         foreach ($division as $type => $value) {
-            if ($type == "pastor_fund") {
+            if (in_array($type,['pastor_fund','pastors_fund'])) {
                 $total = [];
                 foreach ($months as $month) {
                     $count = PaymentDivision::query();
@@ -316,7 +318,7 @@ class RegionalSummary extends Controller
                 }
                 $region_report[$type]['total'] = array_sum($region_report[$type]);
                 $region_report[$type]['name'] = $value;
-                if ($type == "pastor_fund") {
+                if (in_array($type,['pastor_fund','pastors_fund'])) {
                     $total = [];
                     foreach ($months as $month) {
                         $total[$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->sum($month);
@@ -339,7 +341,7 @@ class RegionalSummary extends Controller
                     }
                     $sub_report[$type]['total']= array_sum($sub_report[$type]);
                     $sub_report[$type]['name'] = $value;
-                    if ($type == "pastor_fund") {
+                    if (in_array($type,['pastor_fund','pastors_fund'])) {
                         $total_ = [];
                         foreach ($months as $month) {
                             $total_[$month] = PaymentDivision::where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
