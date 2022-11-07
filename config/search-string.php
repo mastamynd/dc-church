@@ -496,6 +496,7 @@ return [
             'year'  => ['searchable' => true],
             'name'  => ['searchable' => true],
             'type'  => ['searchable' => true],
+            'cheque_number'  => ['searchable' => true],
             'payment_date' => ['date'=>'date', 'date' => true]
         ]
     ],

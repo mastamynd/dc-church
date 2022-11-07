@@ -229,7 +229,7 @@
 														@endif
 													</td>
 													<td>{{ $bill->contact_name }}</td>
-													<td>{{ trim($bill->reference) == '' ? '-' : $bill->reference }}</td>
+													<td>{{ $bill->status == 'paid' ? $bill->order_number : '-' }}</td>
 													<td>@money($bill->amount, setting('default.currency'), true)</td>
 													<td><small class="badge badge-pill text-white bg-{{ $status == 'PAID' ? 'green' : 'red' }}">{{ $status }}</small></td>
 													<td>{{ \Carbon\Carbon::parse($bill->created_at)->format('F') }}</td>

@@ -29,6 +29,7 @@
 							<th>@sortablelink('month', 'Month')</th>
 							<th>@sortablelink('year', 'Year')</th>
 							<th>@sortablelink('payment_date', 'Date')</th>
+							<th>@sortablelink('cheque_number', 'Cheque')</th>
 							<th>@sortablelink('type', 'Type')</th>
 						</tr>
 					</thead>
@@ -43,6 +44,7 @@
 								<td>{{ $item->month }}</td>
 								<td>{{ $item->year }}</td>
 								<td>{{ $item->payment_date }}</td>
+								<td>{{ $item->cheque_number }}</td>
 								<td>{{ $item->type }}</td>
 							</tr>
 						@endforeach
