@@ -41,10 +41,10 @@ class RegionalSummary extends Controller
         $sub_region_id = isset($request->sub_region_id) && $request->sub_region_id != 'all' && $request->sub_region_id != '' ? $request->sub_region_id : 0;
         $divisions = json_decode($divisions, true);
 
-        // $division = array_values($divisions);
+        $division = array_values($divisions);
 
-        // $division = $this->unfold_divisions($division);
-        $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
+        $division = $this->unfold_divisions($division);
+        // $division = ['dc_secretariat' => 'DC Secretariat', 'contribution_to_hq' => 'Contribution to HQ', 'region' => 'Regional', 'sub_region' => 'Sub Regional', 'pastor_fund' => 'Ukombozi'];
 
         $selected_years = range(2000, date('Y'));
         $regions = ModelsDemarcation::where('type', 'Region')->orderBy('name','asc')->get();
