@@ -23,7 +23,22 @@
 <body onload="window.print()" class="p-3">
     <div class="card">
         <div class="card-header">
-            <h5>{{trans('church::general.regional_commitment').' '. $year}}</h5>
+        <div class="d-flex justify-content-between">
+                <div class="logo">
+                    <img src="{{asset('public/img/delivarance.jpeg')}}" alt="img">
+                </div>
+
+                <div class="detail" style="text-align: right;">
+                    <span class="detail-record">Delivarance Church International</span> <br>
+                    <span class="detail-record">P.O BOX 12345</span> <br>
+                    <span class="detail-record">00200 Nairobi</span><br>
+                    <span class="detail-record">Phone : 07123456789</span><br>
+                    <span class="detail-record">Email : Delivarance.Church@gmail.com</span>
+
+                </div>
+            </div>
+            <h5 class="text-center" style="font-weight: 550 !important;">{{trans('church::general.regional_commitment').' '. $year}}</h5>
+            
         </div>
 
         <div class="table-responsive custom">
@@ -49,6 +64,13 @@
                         <td>{{ $item['prev_commitment_perc'] }} %</td>
                     </tr>
                     @endforeach
+                    <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                    <td>Totals</td>
+                    <td>{{ number_format($totals['churches_count'],0)}}</td>
+                    <td>{{ number_format($totals['current_remitting_churches'],0)}}</td>
+                    <td>{{ round($totals['current_commitment_perc'],2)}} %</td>
+                    <td>{{ number_format($totals['prev_commitment_perc'],2) }} %</td>
+                </tr>
                 </tbody>
             </table>
         </div>
