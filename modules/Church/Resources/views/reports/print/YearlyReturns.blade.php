@@ -8,17 +8,29 @@
     <title>Print {{trans('church::general.yearly_report').' '. $year}} </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
-        table{
-            border: none !important;
-            border-collapse: collapse;
-        }
+ 
         .detail-record {
             line-height: 2%;
         }
+        table{
+            border: none !important;
+            border-collapse: collapse;
+            font-size: 12pt !important;
+        }
+
         table th, table td{
-            border: 1px solid #000 !important;
             background-color: transparent !important;
+            border: 1px solid #000 !important;
+            color: #000;
+            font-size: 12px !important;
+            padding: 5px !important;
         } 
+
+        .card-header{
+            border: none !important;
+            background-color: transparent;
+            font-size: 13px !important;
+        }
     </style>
 </head>
 
