@@ -5,6 +5,18 @@
     .text-bold {
         font-weight: 800 !important;
     }
+    .c-year{
+        background-color: #f2dede !important;
+    }
+    .p-year{
+        background-color: #fcf8e3 !important;
+    }
+    .d-years{
+        background-color: #d9edf7 !important;
+    }
+    .g-years{
+        background-color: #dff0d8 !important;
+    }
 </style>
 
 @section('new_button')
@@ -59,10 +71,10 @@
                     @foreach($columns as $column)
                     <th>{{ ucwords(str_replace('_', ' ',$column)) }}</th>
                     @endforeach
-                    <th>Yr.{{$year}} Total</th>
-                    <th>Yr.{{$prev_year}} Total</th>
-                    <th>Differences</th>
-                    <th>Growth%</th>
+                    <th class="c-year">Yr.{{$year}} Total</th>
+                    <th class="p-year">Yr.{{$prev_year}} Total</th>
+                    <th class="d-years">Differences</th>
+                    <th class="g-years">Growth%</th>
                 </tr>
             </thead>
 
@@ -75,12 +87,24 @@
                     @foreach($columns as $column)
                         <td>{{ number_format($item[$column], 2) }}</td> 
                     @endforeach 
-                    <td>{{number_format($item['current_total_amount'],2)}}</td>
-                    <td>{{number_format($item['prev_total_amount'],2) }}</td>
-                    <td>{{ $item['difference'] }}</td>
-                    <td>{{ $item['growth'] }} %</td>
+                    <td class="c-year">{{number_format($item['current_total_amount'],2)}}</td>
+                    <td class="p-year">{{number_format($item['prev_total_amount'],2) }}</td>
+                    <td class="d-years">{{ $item['difference'] }}</td>
+                    <td class="g-years">{{ $item['growth'] }} %</td>
                 </tr>
                 @endforeach
+                <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                    <td>Totals</td>
+                    <td>{{ number_format($totals['churches_count'],0)}}</td>
+                    <td>{{number_format($totals['remitting_churches'],0)}}</td>
+                    @foreach($columns as $column)
+                        <td>{{ number_format($totals[$column], 2) }}</td> 
+                    @endforeach 
+                    <td class="c-year">{{number_format($totals['current_total_amount'],2)}}</td>
+                    <td class="p-year">{{number_format($totals['prev_total_amount'],2) }}</td>
+                    <td class="d-years">{{ $totals['difference'] }}</td>
+                    <td class="g-years">{{ $totals['growth'] }} %</td>
+                </tr>
             </tbody>
         </table>
     </div>

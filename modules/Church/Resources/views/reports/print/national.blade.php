@@ -79,6 +79,23 @@
                         <td>{{ number_format($item['total'], 2) }}</td>
                     </tr>
                     @endforeach
+                    <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                        <td>{{$s_total['name']}}</td>
+                        <td>{{ number_format($s_total['january'],2)}}</td>
+                        <td>{{number_format($s_total['february'],2)}}</td>
+                        <td>{{number_format($s_total['march'],2)}}</td>
+                        <td>{{number_format($s_total['april'],2)}}</td>
+                        <td>{{number_format($s_total['may'],2)}}</td>
+                        <td>{{number_format($s_total['june'],2)}}</td>
+                        <td>{{number_format($s_total['july'],2)}}</td>
+                        <td>{{ number_format($s_total['august'],2)}}</td>
+                        <td>{{number_format($s_total['september'],2)}}</td>
+                        <td>{{number_format($s_total['october'],2)}}</td>
+                        <td>{{number_format($s_total['november'],2)}}</td>
+                        <td>{{number_format($s_total['december'],2)}}</td>
+                        <td>{{number_format($s_total['total'],2)}}</td>
+                    </tr>
+                    s_total
                 </tbody>
             </table>
         </div>
