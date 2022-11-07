@@ -95,7 +95,7 @@
                         <td>{{number_format($s_total['december'],2)}}</td>
                         <td>{{number_format($s_total['total'],2)}}</td>
                     </tr>
-                    s_total
+                    
                 </tbody>
             </table>
         </div>

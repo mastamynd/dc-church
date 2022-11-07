@@ -55,7 +55,6 @@ class RegionalSummary extends Controller
         $months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
         $response = [];
         $r_totals = [];
-        $size = sizeof($division);
         $loop = 1;
         foreach ($division as $type => $value) {
             if ( in_array($type,['pastor_fund','pastors_fund'])) {
