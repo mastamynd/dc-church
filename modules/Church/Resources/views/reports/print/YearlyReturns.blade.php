@@ -73,9 +73,9 @@
                             <td style="border-color:black 3px !important">{{$item->name}}</td>
 
                             @foreach($columns as $column)
-                            <td style="border-color:black 3px !important">{{$item[$column]}}</td>
+                            <td style="border-color:black 3px !important; text-align: right">{{$item[$column]}}</td>
                             @endforeach
-                            <td style="border-color:black 3px !important">{{$item['total_amount']}}</td>
+                            <td style="border-color:black 3px !important; text-align: right">{{$item['total_amount']}}</td>
                         </tr>
                         @endforeach
                     </tbody>

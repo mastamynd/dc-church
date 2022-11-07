@@ -343,6 +343,8 @@ class Main extends Controller
 	}
 
 	public function mark_paid(Request $request){
+		// return response()->json($request->all());
+
 		$paymentModes = [
 			"Cash"=>"offline-payments.cash.1",
 			"Bank Transfer"=>"offline-payments.bank_transfer.2",
@@ -367,17 +369,14 @@ class Main extends Controller
 				continue;
 			}
 
-			$div->payment_date = Carbon::now();
-			$div->save();
 
-
-			$bill->order_number = $request->cheque;
+			$bill->order_number = $request->cheque_number;
 			$bill->due_at = $request->date_paid;
 			$bill->save();
 
 			$div = PaymentDivision::where('bill_id', $bill->id)->first();
 			$div->payment_date = Carbon::now();
-
+			$div->cheque_number = $request->cheque_number;
 			$div->save();
 
 			$payable_amnts = [
