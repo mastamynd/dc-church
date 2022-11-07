@@ -13,7 +13,7 @@
 					'class' => 'mb-0'
 				]) !!}
 					<div class="align-items-center" v-if="!bulk_action.show">
-						<x-search-string model="Modules\Church\Models\PaymentDivision" />
+						<x-search-string model="Modules\Church\Models\PaymentMadeView" />
 					</div>
 				{!! Form::close() !!}
 			</div>
@@ -22,14 +22,14 @@
 				<table class="table table-flush table-hover">
 					<thead class="thead-light">
 						<tr class="table-head-line">
-							<th>@sortablelink('church.name', trans('demarcations::general.name'))</th>
-							<th>To Pay</th>
-							<th>Paid</th>
-							<th>Pending Amount</th>
-							<th>Month</th>
-							<th>Year</th>
-							<th>Payment Date</th>
-							<th>Type</th>
+							<th>@sortablelink('name', trans('demarcations::general.name'))</th>
+							<th>@sortablelink('to_pay', 'Payable')</th>
+							<th>@sortablelink('paid', 'Paid')</th>
+							<th>@sortablelink('paid', 'Pending')</th>
+							<th>@sortablelink('month', 'Month')</th>
+							<th>@sortablelink('year', 'Year')</th>
+							<th>@sortablelink('payment_date', 'Date')</th>
+							<th>@sortablelink('type', 'Type')</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -37,13 +37,13 @@
 							@php($payment_date = \Carbon\Carbon::parse($item->payment_date))
 							<tr class="align-items-center border-top-1">
 								<td>{{ $item->name }}</td>
-								<td>@money($item->amount, setting('default.currency'), true)</td>
+								<td>@money($item->to_pay, setting('default.currency'), true)</td>
 								<td>@money($item->paid, setting('default.currency'), true)</td>
-								<td>@money(($item->amount-$item->paid), setting('default.currency'), true)</td>
-								<td>{{ $payment_date->format('F') }}</td>
-								<td>{{ $payment_date->format('Y') }}</td>
-								<td>{{ $payment_date->format('d, F Y') }}</td>
-								<td>{{ ucwords(implode(' ', (explode('_', $item->type)))) }}</td>
+								<td>@money(($item->to_pay-$item->paid), setting('default.currency'), true)</td>
+								<td>{{ $item->month }}</td>
+								<td>{{ $item->year }}</td>
+								<td>{{ $item->payment_date }}</td>
+								<td>{{ $item->type }}</td>
 							</tr>
 						@endforeach
 					</tbody>

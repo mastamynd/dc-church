@@ -261,7 +261,12 @@
 													<table class="table table-flush table-hover">
 														<thead class="thead-light">
 															<tr class="table-head-line">
-																<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
+																<th colspan="1%">
+																	<div class="custom-control custom-checkbox">
+																		<input checked="true" type="checkbox" class="custom-control-input toggle-amount-to-pay-cbx" id="bulk-action-main-{{ $demarcation->id }}">
+																		<label class="custom-control-label" for="bulk-action-main-{{ $demarcation->id }}"></label>
+																	</div>																
+																</th>
 																<th class="">{{ trans_choice('church::general.title', 1) }}</th>
 																<th class="">{{ trans('general.amount') }}</th>
 																<th class="">{{ trans('general.month') }}</th>
@@ -276,8 +281,8 @@
 																<tr class="align-items-center border-top-1 tr-py">
 																	<td>
 																		<div class="custom-control custom-checkbox">
-																			<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-dem-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->pd_ids }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->pd_ids }}" name="items[region][{{ $loop->iteration }}]">
-																			<label class="custom-control-label" for="bulk-action-1648024450"></label>
+																			<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-dem-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->amount }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->amount }}" name="items[region][{{ $demarcation->id }}][{{ $pd->pd_ids }}]">
+																			<label class="custom-control-label" for="bulk-action-dem-{{ $loop->iteration }}"></label>
 																		</div>
 																	</td>
 																	<td>{{ $pd->name }}</td>
@@ -309,7 +314,12 @@
 															<table class="table table-flush table-hover">
 																<thead class="thead-light">
 																	<tr class="table-head-line">
-																		<th colspan="1%">{{ Form::bulkActionAllGroup(['id'=>'maize']) }}</th>
+																		<th colspan="1%">
+																			<div class="custom-control custom-checkbox">
+																				<input checked="true" type="checkbox" class="custom-control-input toggle-amount-to-pay-cbx" id="bulk-action-sub_dem-{{ $item->demarcation->id }}">
+																				<label class="custom-control-label"  for="bulk-action-sub_dem-{{ $item->demarcation->id }}"></label>
+																			</div>
+																		</th>
 																		<th class="">{{ trans_choice('church::general.title', 1) }}</th>
 																		<th class="">{{ trans('general.amount') }}</th>
 																		<th class="">{{ trans('general.month') }}</th>
@@ -324,8 +334,8 @@
 																		<tr class="align-items-center border-top-1 tr-py">
 																			<td>
 																				<div class="custom-control custom-checkbox">
-																					<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-sub_dem-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->pd_ids }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->pd_ids }}" name="items[sub_region][{{ $item->demarcation->id }}]">
-																					<label class="custom-control-label" for="bulk-action-sub_dem-{{ $loop->iteration }}"></label>
+																					<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-sub_dem-{{ $item->demarcation->id }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->amount }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->amount }}" name="items[sub_region][{{ $item->demarcation->id }}][{{ $pd->pd_ids }}]">
+																					<label class="custom-control-label" for="bulk-action-sub_dem-{{ $item->demarcation->id }}"></label>
 																				</div>
 																			</td>
 																			<td>{{ $pd->name }}</td>
@@ -365,7 +375,12 @@
 																<table class="table table-flush table-hover">
 																	<thead class="thead-light">
 																		<tr class="table-head-line">
-																			<th colspan="1%">{{ Form::bulkActionAllGroup() }}</th>
+																			<th colspan="1%">	
+																				<div class="custom-control custom-checkbox">
+																					<input checked="true" type="checkbox" class="custom-control-input toggle-amount-to-pay-cbx" id="bulk-{{ $rowD['code'] }}-{{ $item->demarcation->id }}">
+																					<label class="custom-control-label" for="bulk-{{ $rowD['code'] }}-{{ $item->demarcation->id }}"></label>
+																				</div>																				
+																			</th>
 																			@if ($rowD['code'] == 'pastors_fund')
 																				<th class="">{{ trans_choice('church::general.pastor', 1) }}</th>																					
 																			@endif
@@ -383,7 +398,7 @@
 																			<tr class="align-items-center border-top-1 tr-py">
 																				<td>
 																					<div class="custom-control custom-checkbox">
-																						<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-{{ $rowD['code'] }}-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->pd_ids }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->pd_ids }}" name="items[{{$rowD['code']}}][{{ $rowD['code'] != 'pastors_fund' ? $demarcation->id : $pd->pastor_id }}]">
+																						<input checked="true" data-value="{{ $pd->amount }}" type="checkbox" class="custom-control-input amount-to-pay-cbx" id="bulk-action-{{ $rowD['code'] }}-{{ $loop->iteration }}" data-bulk-action="{{ $loop->iteration }}" :value="{{ $pd->amount }}" v-model="bulk_action.selected" v-on:change="onSelect" value="{{ $pd->amount }}" name="items[{{$rowD['code']}}][{{ $demarcation->id }}][{{ $pd->pd_ids }}]">
 																						<label class="custom-control-label" for="bulk-action-{{ $rowD['code'] }}-{{ $loop->iteration }}"></label>
 																					</div>
 																				</td>

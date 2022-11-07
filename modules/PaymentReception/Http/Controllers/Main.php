@@ -107,7 +107,7 @@ class Main extends Controller
 			
 		}
 
-		return redirect()->route('payment-reception.view-tithe', $payment->id);
+		return redirect()->route('payment-reception.index');
 	}
 
 	public function post_multiple_payments(Request $request){

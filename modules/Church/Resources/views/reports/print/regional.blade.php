@@ -121,7 +121,7 @@
                     <tbody>
                         @foreach($subs as $l => $item_)
                         <tr class="align-items-center border-top-1 {{$item_['name'] == 'TOTAL' ? 'text-bold' : ''}}">
-                            <td>{{ number_format($item_['name'], 2) }}</td>
+                            <td>{{ $item_['name'] }}</td>
                             <td>{{ number_format($item_['january'], 2) }}</td>
                             <td>{{ number_format($item_['february'], 2) }}</td>
                             <td>{{ number_format($item_['march'], 2) }}</td>

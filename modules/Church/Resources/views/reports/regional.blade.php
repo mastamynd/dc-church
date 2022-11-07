@@ -160,8 +160,6 @@
                         <td>{{number_format($item_['december'],2)}}</td>
                         <td>{{number_format($item_['total'],2)}}</td>
                     </tr>
-
-
                     @endforeach
                 </tbody>
             </table>

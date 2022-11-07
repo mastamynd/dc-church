@@ -44,15 +44,14 @@
                 </div>
                 <select name="regional_id" placeholder="Select {{ trans('church::general.select_region') }}..." class="form-control selectize-field" data-searchfield="regional_id" data-labelfield="regional_id" data-valuefield="regional_id">
                     <option>Select Region...</option>
-                    @foreach ($regions as $r)
-                    <option value="{{ $r->id }}" {{$r->id == $regional_id ? 'selected' : '' }}>{{ $r->name }}</option>
-                    @endforeach
                     @if($regional_id == 'all')
                     <option value="all" selected>All</option>
                     @else
                     <option value="all" >All</option>
                     @endif
-                    
+                    @foreach ($regions as $r)
+                    <option value="{{ $r->id }}" {{$r->id == $regional_id ? 'selected' : '' }}>{{ $r->name }}</option>
+                    @endforeach                    
                 </select>
             </div>
         </div>
