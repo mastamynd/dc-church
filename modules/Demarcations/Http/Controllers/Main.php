@@ -413,7 +413,7 @@ class Main extends Controller
 	public function payments_made(){
 		$dbprefix = DB::getTablePrefix();
 		$payments = PaymentMadeView::withTrashed()->collect();
-
+		
 		return $this->response('demarcations::reports.payments-made', compact('payments'));
 	}
 }
