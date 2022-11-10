@@ -426,7 +426,7 @@ class RegionalSummary extends Controller
         return $this->response('church::reports.print.paymentSummary',compact('response','takeyear','regional_id','year','sub_regional_id'));
     }
     public function getSubregionsByRegionID(Request $request){
-        $subs = DemarcationHistory::where('parent_id', $request->region_id)->with('demarcation')->orderBy('name','asc')->get();
+        $subs = DemarcationHistory::where('parent_id', $request->region_id)->with('demarcation')->get()->sortBy('demarcation.name',SORT_REGULAR,false)->values();
         return response()->json($subs);
     }
 }
