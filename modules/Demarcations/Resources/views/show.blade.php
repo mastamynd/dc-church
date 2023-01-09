@@ -84,7 +84,7 @@
 					<div>
 						@if(!empty($demarcation->overseer))
 							<a class="long-texts text-sm" href="{{ route('church.pastors.show', $demarcation->overseer->pastor_id) }}">
-								<small class="badge bg-dark text-white badge-pill">{{ $demarcation->overseer->rank->rank }}</small> <span class="text-muted">{{ $demarcation->overseer->pastor->contact->name }}</span>
+								<small class="badge bg-dark text-white badge-pill">{{ isset($demarcation->overseer->rank) ? $demarcation->overseer->rank->rank : '' }}</small> <span class="text-muted">{{ isset($demarcation->overseer->pastor) ? $demarcation->overseer->pastor->contact->name : '' }}</span>
 							</a>
 						@else
 							<span class="badge badge-warning badge-sm">Not Set</span>
@@ -452,9 +452,9 @@
 										<tbody>
 											@foreach($demarcation->pastors as $r)
 												<tr>
-													<td>{{ $r->pastor->contact->name }}</td>
-													<td>{{ $r->rank->rank }}</td>
-													<td>{{ $r->rank->position }}</td>
+													<td>{{ isset($r->pastor) ? $r->pastor->contact->name : '-' }}</td>
+													<td>{{ isset($r->rank) ? $r->rank->rank : '' }}</td>
+													<td>{{ isset($r->rank) ? $r->rank->position : '' }}</td>
 													<td>{{ $r->created_at }}</td>
 													<td>
 														@if(trim($r->deleted_at) != "") 

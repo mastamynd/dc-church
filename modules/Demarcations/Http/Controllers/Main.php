@@ -18,8 +18,10 @@ use Modules\Demarcations\Models\DemarcationHistory;
 use Modules\Demarcations\Models\DemarcationOverseer;
 use App\Http\Requests\Banking\Transaction as TransRequest;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\PaymentMadeView;
+use Modules\Demarcations\Exports\PaymentsMadeExport;
 
 class Main extends Controller
 {
@@ -410,10 +412,50 @@ class Main extends Controller
 		return redirect()->back();
 	}
 
-	public function payments_made(){
+	public function payments_made(Request $request){
 		$dbprefix = DB::getTablePrefix();
 		$payments = PaymentMadeView::withTrashed()->collect();
+
+		if($request->has('export')){
+			return Excel::download(new PaymentsMadeExport($payments), 'payments-list.xlsx');
+		}
 		
 		return $this->response('demarcations::reports.payments-made', compact('payments'));
+	}
+
+	public function pending_payments(){
+		$divisions = setting('church.payment_divisions');
+		$divisions = json_decode($divisions);
+		
+		$regions = Demarcation::region()->with('subregions.demarcation');
+
+		if(request()->has('region')){
+			$regions = $regions->where('id', request()->region);
+		}
+
+		$regions = $regions->get();
+
+		$allregs = Demarcation::region()->orderBy('name', 'asc')->get();
+
+		// return response()->json($divisions);
+
+		return $this->response('demarcations::payments', compact('divisions', 'regions', 'allregs'));
+	}
+
+	public function get_pending_items_by_dem($div, $id){
+		$payments = PaymentDivision::with(['church.senior_pastor.pastor.contact', 'subregion', 'pastor'])->whereNull('payment_date')->where('regional_id', $id)->where('type', $div)
+			->selectRaw('id,church_id,regional_id,sub_regional_id,month,year,amount,contact_id')->get();
+
+		$dataConfiged = [];
+
+		foreach($payments as $pay){
+			if(!isset($dataConfiged[$pay->sub_regional_id])){
+				$dataConfiged[$pay->sub_regional_id] = [];
+			}
+
+			$dataConfiged[$pay->sub_regional_id][] = $pay; 
+		}
+
+		return response()->json(["data"=>$dataConfiged], 200,);
 	}
 }

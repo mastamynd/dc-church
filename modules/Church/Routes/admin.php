@@ -20,6 +20,7 @@ Route::admin('church', function () {
     Route::post('church/{id}', 'Main@update')->name('update');
     Route::get('churches/export', 'Main@export')->name('export');
     Route::post('church/assign-subregion/{id}', 'Demarcation@assign')->name('assign_subregion');
+    Route::post('church/stop_history/{id?}', 'Main@stop_history')->name('dem_stop_history');
     Route::get('church/fetch-demarcations/{id}/{search?}', 'Demarcation@fetch_demarcations')->name('fetch_demarcations');
     
     

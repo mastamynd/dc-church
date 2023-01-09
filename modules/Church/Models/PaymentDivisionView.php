@@ -19,6 +19,13 @@ class PaymentDivisionView extends Model
 
      public function getTotalAmount(){
          return $this->january + $this->february + $this->march + $this->april + $this->may + $this->june + $this->july + $this->august + $this->september + $this->october + $this->november + $this->december;
-     }
-   
+    }
+     
+    public function scopePaid($query){
+        return $query->whereNotNull('payment_date');
+    }
+     
+    public function scopeUnpaid($query){
+        return $query->whereNull('payment_date');
+    }
 }

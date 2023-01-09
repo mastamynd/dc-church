@@ -510,6 +510,7 @@ return [
                 'values' => [
                     'COMPLETED' => 'COMPLETED',
                     'PENDING' => 'PENDING',
+                    'pending_issue' => 'POSTING ISSUE'
                 ],
             ],
             'payer_name' => ['searchable' => true, 'key'=>'user'],

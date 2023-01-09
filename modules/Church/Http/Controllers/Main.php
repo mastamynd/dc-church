@@ -166,4 +166,19 @@ class Main extends Controller
     public function fetch_demarcations($search){
 
     }
+
+    public function stop_history(Request $request, $id){
+        $h = ChurchHistory::find($id);
+
+        if($request->has('delete') && $request->delete == 1){
+			$h->forceDelete();
+		}
+		else{
+			$h->delete();
+		}
+
+        flash('Church history changed!')->error();
+
+		return redirect()->back();
+    }
 }

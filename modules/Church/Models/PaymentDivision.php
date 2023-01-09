@@ -3,9 +3,11 @@
 namespace Modules\Church\Models;
 
 use App\Abstracts\Model;
+use Demarcation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Demarcations\Models\Demarcation as ModelsDemarcation;
 
 class PaymentDivision extends Model
 {
@@ -16,15 +18,23 @@ class PaymentDivision extends Model
 		return $this->hasOne(Document::class, 'id', 'bill_id');
 	}
 
+	public function region(){
+		return $this->belongsTo(ModelsDemarcation::class, 'regional_id');
+	}
+
+	public function subregion(){
+		return $this->belongsTo(ModelsDemarcation::class, 'sub_regional_id')->orderBy('name');
+	}
+
 	public function invoice(){
 		return $this->hasOne(Document::class, 'id', 'invoice_id');
 	}
 
 	public function church(){
-		return $this->hasOne(Church::class, 'id', 'church_id');
+		return $this->hasOne(Church::class, 'id', 'church_id')->orderBy('name');
 	}
 
 	public function pastor(){
-		return $this->hasOne(Pastor::class, 'id', 'pastor_id');
+		return $this->hasOne(Pastor::class, 'id', 'contact_id');
 	}
 }
