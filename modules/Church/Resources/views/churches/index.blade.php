@@ -20,7 +20,7 @@
 					'class' => 'mb-0'
 				]) !!}
 					<div class="align-items-center" v-if="!bulk_action.show">
-						<x-search-string model="Modules\Church\Models\Church" />
+						<x-search-string model="Modules\Church\Models\ChurchView" />
 					</div>
 
 					{{ Form::bulkActionRowGroup('church::general.name', $bulk_actions, ['group' => 'church', 'type' => 'churches']) }}
@@ -35,9 +35,8 @@
 							<th>@sortablelink('name', trans('church::general.name'))</th>
 							<th>@sortablelink('code', trans('church::general.code'))</th>
 							<th>@sortablelink('region', trans_choice('church::general.region', 1))</th>
-							<th>@sortablelink('subregion', trans_choice('church::general.subregion', 1))</th>
+							<th>@sortablelink('sub_region', trans_choice('church::general.subregion', 1))</th>
 							<th>@sortablelink('pastor', trans_choice('church::general.pastor', 1))</th>
-							<th>@sortablelink('enabled', trans('general.enabled'))</th>
 							<th>{{ trans('general.actions') }}</th>
 						</tr>
 					</thead>
@@ -55,38 +54,29 @@
 									<a class="long-texts" href="{{ route('church.show', $item->id) }}">{{ $item->code }}</a>
 								</td>
 								<td>
-									@if(isset($item->subregion->demarcation->parent) && isset($item->subregion->demarcation->parent->parent))
-										<a class="long-texts" href="{{ route('demarcations.show', [$item->subregion->demarcation->parent->parent->type, $item->subregion->demarcation->parent->parent->id]) }}">{{ $item->subregion->demarcation->parent->parent->name }}</a>
+									@if(trim($item->region) != "")
+										<a class="long-texts" href="{{ route('demarcations.show', ['Region', $item->region_id]) }}">{{ $item->region }}</a>
 									@else
 										<span class="badge badge-warning badge-sm">Not Set</span>
 									@endif
 								</td>
 								<td>
-									@if(isset($item->subregion) && isset($item->subregion->demarcation))
-										<a class="long-texts" href="{{ route('demarcations.show', [$item->subregion->demarcation->type, $item->subregion->demarcation->id]) }}">{{ $item->subregion->demarcation->name }}</a>
+									@if(trim($item->sub_region) != "")
+										<a class="long-texts" href="{{ route('demarcations.show', ['Sub Region', $item->sub_region_id]) }}">{{ $item->sub_region }}</a>
 									@else
 										<span class="badge badge-warning badge-sm">Not Set</span>
 									@endif
 								</td>
 								<td class="long-texts">
-									<el-tooltip content="{{ !empty($item->phone) ? $item->phone : trans('general.na') }}"
-										effect="dark"
-										placement="top">
-										<span>{{ !empty($item->email) ? $item->email : trans('general.na') }}</span>
-									</el-tooltip>
-								</td>
-								<td class="">
-									@if (user()->can('update-church-main'))
-										{{ Form::enabledGroup($item->id, $item->name, $item->enabled) }}
+									@if(trim($item->pastor) != "")
+										<a href="{{route('church.pastors.show',$item->pastor_id)}}">
+											<small class="badge badge-pill badge-primary">{{ $item->rank }}</small>
+											{{ $item->pastor }}
+										</a>
 									@else
-										@if ($item->enabled)
-											<badge rounded type="success" class="mw-60 d-inline-block">{{ trans('general.yes') }}</badge>
-										@else
-											<badge rounded type="danger" class="mw-60 d-inline-block">{{ trans('general.no') }}</badge>
-										@endif
+										<span class="badge badge-warning badge-sm">Not Set</span>
 									@endif
 								</td>
-
 								<td class="text-center">
 									<div class="dropdown">
 										<a class="btn btn-neutral btn-sm text-light items-align-center py-2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

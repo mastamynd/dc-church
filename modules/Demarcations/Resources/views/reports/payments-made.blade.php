@@ -1,6 +1,15 @@
 @extends('layouts.admin')
 
 @section('title', trans_choice('demarcations::general.payments_made', 1))
+<?php
+	$fullURL = request()->fullUrl();
+	$hasQ = count(explode('?', $fullURL)) > 1;		
+
+?>
+@section('new_button')
+	<a href="{{ $fullURL.($hasQ ? '&' : '?') }}export" class="btn btn-white btn-sm">{{ trans('general.export') }}</a>
+	<a href="{{ route('demarcations.payments.pending') }}" class="btn btn-success btn-sm">Make Payments</a>
+@endsection
 
 @section('content')
 	@if ($payments->count() || request()->get('search', false))
@@ -13,37 +22,40 @@
 					'class' => 'mb-0'
 				]) !!}
 					<div class="align-items-center" v-if="!bulk_action.show">
-						<x-search-string model="Modules\Church\Models\PaymentDivision" />
+						<x-search-string model="Modules\Church\Models\PaymentMadeView" />
 					</div>
 				{!! Form::close() !!}
 			</div>
-
 			<div class="table-responsive custom">
 				<table class="table table-flush table-hover">
 					<thead class="thead-light">
 						<tr class="table-head-line">
-							<th>@sortablelink('church.name', trans('demarcations::general.name'))</th>
-							<th>To Pay</th>
-							<th>Paid</th>
-							<th>Pending Amount</th>
-							<th>Month</th>
-							<th>Year</th>
-							<th>Payment Date</th>
-							<th>Type</th>
+							<th>@sortablelink('church_name', 'Church')</th>
+							<th>@sortablelink('type', 'Type')</th>
+							<th>@sortablelink('name', 'Name')</th>
+							<th>@sortablelink('to_pay', 'Payable')</th>
+							<th>@sortablelink('paid', 'Paid')</th>
+							<th>@sortablelink('paid', 'Pending')</th>
+							<th>@sortablelink('month', 'Month')</th>
+							<th>@sortablelink('year', 'Year')</th>
+							<th>@sortablelink('payment_date', 'Date')</th>
+							<th>@sortablelink('cheque_number', 'Cheque')</th>
 						</tr>
 					</thead>
 					<tbody>
 						@foreach ($payments as $item)
 							@php($payment_date = \Carbon\Carbon::parse($item->payment_date))
 							<tr class="align-items-center border-top-1">
+								<td>{{ $item->church_name }}</td>
+								<td>{{ $item->type }}</td>
 								<td>{{ $item->name }}</td>
-								<td>@money($item->amount, setting('default.currency'), true)</td>
+								<td>@money($item->to_pay, setting('default.currency'), true)</td>
 								<td>@money($item->paid, setting('default.currency'), true)</td>
-								<td>@money(($item->amount-$item->paid), setting('default.currency'), true)</td>
-								<td>{{ $payment_date->format('F') }}</td>
-								<td>{{ $payment_date->format('Y') }}</td>
-								<td>{{ $payment_date->format('d, F Y') }}</td>
-								<td>{{ ucwords(implode(' ', (explode('_', $item->type)))) }}</td>
+								<td>@money(($item->to_pay-$item->paid), setting('default.currency'), true)</td>
+								<td>{{ $item->month }}</td>
+								<td>{{ $item->year }}</td>
+								<td>{{ $item->payment_date }}</td>
+								<td>{{ $item->cheque_number }}</td>
 							</tr>
 						@endforeach
 					</tbody>

@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Modules\Church\Export\ChurchesExport;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\ChurchHistory;
+use Modules\Church\Models\ChurchView;
 use Modules\Demarcations\Models\Demarcation;
 
 class Main extends Controller
@@ -20,7 +21,7 @@ class Main extends Controller
      */
     public function index()
     {
-        $churches = Church::with('pastors')->orderBy('id', 'desc')->collect();
+        $churches = ChurchView::withTrashed()->collect();
         return $this->response('church::churches.index', compact('churches'));
     }
 
@@ -164,5 +165,20 @@ class Main extends Controller
 
     public function fetch_demarcations($search){
 
+    }
+
+    public function stop_history(Request $request, $id){
+        $h = ChurchHistory::find($id);
+
+        if($request->has('delete') && $request->delete == 1){
+			$h->forceDelete();
+		}
+		else{
+			$h->delete();
+		}
+
+        flash('Church history changed!')->error();
+
+		return redirect()->back();
     }
 }

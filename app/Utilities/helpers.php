@@ -174,5 +174,5 @@ if (!function_exists('running_in_queue')) {
 
 function getPastorHistoryChurh($id){
     $history = PastorHistory::find($id);
-    return Church::find($history->church_id ?? 0);
+    return Church::find($history->church_id) ?? -1;
 }

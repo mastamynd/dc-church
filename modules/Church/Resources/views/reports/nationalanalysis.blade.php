@@ -75,6 +75,16 @@
                     <td>{{ number_format($item['total_amount'],2) }}</td>
                 </tr>
                 @endforeach
+                <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                    <td>Totals</td>
+                    <td>{{  number_format($totals['churches_count'],0)}}</td>
+                    <td>{{ number_format($totals['remitting_churches'],0)}}</td>
+                    @foreach($columns as $column)
+                        <td>{{ number_format($totals[$column], 2) }}</td>
+                    @endforeach
+                    
+                    <td>{{ number_format($totals['total_amount'], 2) }}</td>
+                </tr>
             </tbody>
         </table>
     </div>

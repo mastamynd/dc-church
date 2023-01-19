@@ -54,7 +54,7 @@ class Demarcation extends Model
         $db_prefix = DB::getTablePrefix();
         $paid = PaymentDivision::join('pastors as p', 'p.id', 'payment_divisions.contact_id')->join('contacts as co', 'p.contact_id', 'co.id')
         ->join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('bill_id')
-        ->selectRaw($db_prefix.'c.name, '.$db_prefix.'co.id as pastor_id, '.$db_prefix.'co.name as pastor, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id) as pd_ids');
+        ->selectRaw($db_prefix.'c.name, '.$db_prefix.'co.id as pastor_id, '.$db_prefix.'co.name as pastor, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id SEPARATOR "-") as pd_ids');
         if($this->type == "Region"){
             $paid = $paid->where('regional_id', $this->id);
         }
@@ -72,7 +72,7 @@ class Demarcation extends Model
     public function pending_payments($type="pastors_fund"){
         $db_prefix = DB::getTablePrefix();
         $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('bill_id')
-        ->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id) as pd_ids');
+        ->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id SEPARATOR "-") as pd_ids');
         if($this->type == "Region"){
             $paid = $paid->where('regional_id', $this->id);
         }
@@ -90,7 +90,7 @@ class Demarcation extends Model
     public function other_pending_payments($type){
         $db_prefix = DB::getTablePrefix();
         $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('bill_id')
-            ->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id) as pd_ids')
+            ->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id SEPARATOR "-") as pd_ids')
             ->where('regional_id', $this->id)->where('type', $type)->first();
 
         return $paid;
@@ -98,7 +98,7 @@ class Demarcation extends Model
 
     public function paid_rows(){
         $db_prefix = DB::getTablePrefix();
-        $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNotNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id) as pd_ids');
+        $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNotNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id SEPARATOR "-") as pd_ids');
         if($this->type == "Region"){
             $paid = $paid->where('regional_id', $this->id)->where('type', 'region');
         }
@@ -113,7 +113,7 @@ class Demarcation extends Model
 
     public function other_paid_rows($type){
         $db_prefix = DB::getTablePrefix();
-        $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNotNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id) as pd_ids')
+        $paid = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNotNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id SEPARATOR "-") as pd_ids')
             ->where('regional_id', $this->id)->where('type', $type)->first();
 
         return $paid;
@@ -121,7 +121,7 @@ class Demarcation extends Model
 
     public function received_amount_rows(){
         $db_prefix = DB::getTablePrefix();
-        $received = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id) as pd_ids');
+        $received = PaymentDivision::join('churches as c', 'c.id', 'payment_divisions.church_id')->whereNull('payment_date')->selectRaw('name, SUM(amount) as amount, month, year, GROUP_CONCAT('.$db_prefix.'payment_divisions.id SEPARATOR "-") as pd_ids');
         if($this->type == "Region"){
             $received = $received->where('regional_id', $this->id)->where('type', 'region');
         }

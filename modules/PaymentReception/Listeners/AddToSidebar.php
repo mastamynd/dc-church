@@ -30,6 +30,9 @@ class AddToSidebar
 			if($user->can('read-payment-reception-main')){
 				$sub->route('payment-reception.index', trans_choice('payment-reception::general.received_tithes', 2), [], 20, []);
 			}
+			if($user->can('read-payment-reception-main')){
+				$sub->route('payment-reception.workflow', trans_choice('payment-reception::general.workflow', 2), [], 30, []);
+			}
 		}, 21, [
 			'title' => trans('payment-reception::general.title'),
 			'icon'  =>'fas fa-hand-holding-usd'

@@ -24,4 +24,7 @@ Route::admin('demarcations', function () {
     Route::post('delete/{id}', 'Main@destroy')->name('delete');
 
     Route::get('payments-made', 'Main@payments_made')->name('payments-made');
+
+    Route::get('pending-payments', 'Main@pending_payments')->name('payments.pending');
+    Route::get('pending-distribution/{div?}/{id?}', 'Main@get_pending_items_by_dem')->name('payments.distribution');
 });

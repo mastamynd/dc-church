@@ -214,6 +214,11 @@
 													@if(trim($h->deleted_at) != "") 
 														{{ $h->deleted_at }}
 													@else 
+														@can('update-church-main')
+															<small class="btn btn-transparent btn-sm text-danger mh-2" data-target="#stop-dem-history-modal" data-toggle="modal" data-history="{{ $h->id }}">
+																<i class="fas fa-stop"></i>
+															</small>
+														@endcan
 														<small class="badge badge-success">CURRENT</small>
 													@endif
 												</td>
@@ -298,6 +303,32 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 					<div class="form-group form-group-lg">
 						<div class="alert alert-danger">
 							<i class="fas fa-exclamation-triangle fa-2x pull-left float-left"></i> Are you sure that you want to update this pastors history?
+						</div>
+					</div>
+					<div class="form-group">
+						<input type="checkbox" name="delete" value="1" /> Delete this history <strong>completely</strong>.
+					</div>
+				</div>
+				<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+					<span class="btn btn-white" data-dismiss="modal">Close</span>
+					<button type="submit" class="btn btn-danger">UPDATE</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade show" id="stop-dem-history-modal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="{{ route('church.dem_stop_history') }}" method="post">
+				@csrf
+				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+					Remove Church From Sub Region
+				</div>
+				<div class="modal-body">
+					<div class="form-group form-group-lg">
+						<div class="alert alert-danger">
+							<i class="fas fa-exclamation-triangle fa-2x pull-left float-left"></i> Are you sure that you want to update this church`s history?
 						</div>
 					</div>
 					<div class="form-group">
@@ -454,13 +485,21 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 				$(this)[0].selectize.destroy();
 			}
 			selectizerNow(this);
+		});
 
-			$("#stop-history-modal").on("shown.bs.modal", function (e){ 
-				var hID = $(e.relatedTarget).data('history');
+		$("#stop-history-modal").on("shown.bs.modal", function (e){ 
+			var hID = $(e.relatedTarget).data('history');
 
-				$(this).find('form').attr('action', "{{ route('church.pastor_stop_history') }}/"+hID);
-				$(this).find('form').prop('action', "{{ route('church.pastor_stop_history') }}/"+hID);
-			});
+			$(this).find('form').attr('action', "{{ route('church.pastor_stop_history') }}/"+hID);
+			$(this).find('form').prop('action', "{{ route('church.pastor_stop_history') }}/"+hID);
+		});
+
+
+		$("#stop-dem-history-modal").on("shown.bs.modal", function (e){ 
+			var hID = $(e.relatedTarget).data('history');
+
+			$(this).find('form').attr('action', "{{ route('church.dem_stop_history') }}/"+hID);
+			$(this).find('form').prop('action', "{{ route('church.dem_stop_history') }}/"+hID);
 		});
 	});
 </script>

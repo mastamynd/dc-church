@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,14 +7,26 @@
     <title>Print {{trans('church::general.yearly_report').' '. $year}} </title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
-        table{
+        table {
             border: none !important;
             border-collapse: collapse;
+            font-size: 12pt !important;
         }
 
-        table th, table td{
-            border: 1px solid #000;
-        } 
+        table th,
+        table td {
+            background-color: transparent !important;
+            border: 1px solid #000 !important;
+            color: #000;
+            font-size: 12px !important;
+            padding: 5px !important;
+        }
+
+        .card-header {
+            border: none !important;
+            background-color: transparent;
+            font-size: 13px !important;
+        }
     </style>
 
 </head>
@@ -90,6 +101,23 @@
 
 
                         @endforeach
+                        <tr>
+                            <td>Totals</td>
+                            <td>-</td>
+                            <td>{{number_format($types['total']['january'],2)}}</td>
+                            <td>{{number_format($types['total']['february'],2)}}</td>
+                            <td>{{number_format($types['total']['march'],2)}}</td>
+                            <td>{{number_format($types['total']['april'],2)}}</td>
+                            <td>{{number_format($types['total']['may'],2)}}</td>
+                            <td>{{number_format($types['total']['june'],2)}}</td>
+                            <td>{{number_format($types['total']['july'],2)}}</td>
+                            <td>{{number_format($types['total']['august'],2)}}</td>
+                            <td>{{number_format($types['total']['september'],2)}}</td>
+                            <td>{{number_format($types['total']['october'],2)}}</td>
+                            <td>{{number_format($types['total']['november'],2)}}</td>
+                            <td>{{number_format($types['total']['december'],2)}}</td>
+                            <td>{{number_format($types['total']['totals'],2)}}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

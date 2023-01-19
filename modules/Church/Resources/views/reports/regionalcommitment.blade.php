@@ -72,6 +72,13 @@
                     <td>{{ $item['prev_commitment_perc'] }} %</td>
                 </tr>
                 @endforeach
+                <tr class="align-items-center border-top-1 {{$item['name'] == 'TOTAL' ? 'text-bold' : ''}}">
+                    <td>Totals</td>
+                    <td>{{ number_format($totals['churches_count'],0)}}</td>
+                    <td>{{ number_format($totals['current_remitting_churches'],0)}}</td>
+                    <td>{{ round($totals['current_commitment_perc'],2)}} %</td>
+                    <td>{{ number_format($totals['prev_commitment_perc'],2) }} %</td>
+                </tr>
             </tbody>
         </table>
     </div>

@@ -107,7 +107,7 @@ class Main extends Controller
 			
 		}
 
-		return redirect()->route('payment-reception.view-tithe', $payment->id);
+		return redirect()->route('payment-reception.index');
 	}
 
 	public function post_multiple_payments(Request $request){
@@ -120,6 +120,52 @@ class Main extends Controller
 
 	public function post_payment($id, $internal = false){
 		$payment = PaymentReception::find($id);
+
+		$church = Church::find($payment->church_id);
+
+		if($payment->total <=0){
+			$payment->status = 'pending_issue';
+			$payment->save();
+			flash('Payment for '.$church->name.' has no value!')->important()->error();
+			return redirect()->route('payment-reception.view-tithe', $id);
+		}
+		
+		if(!isset($church->subregion->church_id)){
+			$payment->status = 'pending_issue';
+			$payment->save();
+			flash('No Sub-Region has been assigned to the church '.$church->name.'!')->important()->error();
+			return redirect()->route('payment-reception.view-tithe', $id);
+		}	
+
+		if($church->pastors->count() == 0){
+			$payment->status = 'pending_issue';
+			$payment->save();
+			flash('No Pastors add to the church '.$church->name.'!')->important()->error();
+			return redirect()->route('payment-reception.view-tithe', $id);
+		}	
+
+		foreach($church->pastors as $pastor){
+			$payment->status = 'pending_issue';
+			$payment->save();
+			if(in_array($pastor->rank, ['Select Rank...'])){
+				flash('Pastor`s rank not set in church '.$church->name.'!')->important()->error();
+				return redirect()->route('payment-reception.view-tithe', $id);
+			}
+		}
+
+		if($church->senior_pastor->count() == 1){
+			$payment->status = 'pending_issue';
+			$payment->save();
+			flash('Church '.$church->name.' missing Senior Pastor Details!')->important()->error();
+			return redirect()->route('payment-reception.view-tithe', $id);
+		}
+
+		if($church->senior_pastor->count() > 1){
+			$payment->status = 'pending_issue';
+			$payment->save();
+			flash('Church '.$church->name.' more than 1 Senior Pastor configured!')->important()->error();
+			return redirect()->route('payment-reception.view-tithe', $id);
+		}
 
 		if($payment->status == "Completed"){
 			flash('Tithe has already been submitted!')->important()->error();
@@ -140,7 +186,8 @@ class Main extends Controller
 		return redirect()->route('payment-reception.view-tithe', $id);
 	}
 
-	public function create_invoice($payment){
+	public function create_invoice($payment){	
+		$church = Church::find($payment->church_id);
 		$ITEMS = $payment->items;
 		$invoice_items = setting('church.payment_divisions');
 		$invoice_items = json_decode($invoice_items, true);
@@ -187,7 +234,6 @@ class Main extends Controller
 			];
 			foreach($invoice_items as $rowD){
 				$distributedAmount = $INVTOTAL*(floatval($rowD['percentage'])/100);
-				$church = Church::find($payment->church_id);
 				$sub_region = isset($church->subregion) ? $church->subregion->demarcation_id : 0;
 
 				$subregDem = Demarcation::find($sub_region);

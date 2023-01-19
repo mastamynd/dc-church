@@ -20,6 +20,7 @@ Route::admin('church', function () {
     Route::post('church/{id}', 'Main@update')->name('update');
     Route::get('churches/export', 'Main@export')->name('export');
     Route::post('church/assign-subregion/{id}', 'Demarcation@assign')->name('assign_subregion');
+    Route::post('church/stop_history/{id?}', 'Main@stop_history')->name('dem_stop_history');
     Route::get('church/fetch-demarcations/{id}/{search?}', 'Demarcation@fetch_demarcations')->name('fetch_demarcations');
     
     
@@ -50,8 +51,8 @@ Route::admin('church', function () {
 
     // Report Routes
     Route::get('report/regionalSummaryIndex','Reports\RegionalSummary@paymentDivisionSummaryIndex')->name('paymentDivisionSummaryIndex');
-    Route::get('report/regional/PaymentDivisionSummary/{year}','Reports\RegionalSummary@regionalPaymentDivisionSummary')->name('regionalPaymentDivisionSummary');
-    Route::get('report/subRegionPaymentDivisionSummary/{year?}','Reports\RegionalSummary@subRegionPaymentDivisionSummary')->name('subRegionPaymentDivisionSummary');
+    Route::get('report/regional/PaymentDivisionSummary/{year}/{region_id?}','Reports\RegionalSummary@regionalPaymentDivisionSummary')->name('regionalPaymentDivisionSummary');
+    Route::get('report/subRegionPaymentDivisionSummary/{year?}/{region_id?}/{sub_region_id?}','Reports\RegionalSummary@subRegionPaymentDivisionSummary')->name('subRegionPaymentDivisionSummary');
 
     Route::get('report/yearly/returns/record','Reports\YearReturnRecords@reportIndex')->name('yearly-returns-records');
 
@@ -69,11 +70,13 @@ Route::admin('church', function () {
 
     Route::get('report/ContributionToHQ','Reports\ContributionToHQ@reportIndex')->name('contribution-to-hq');
 
+    Route::get('get/Sub-regions-By-RegionID','Reports\RegionalSummary@getSubregionsByRegionID')->name('getSubregionsByRegionID');
+
     // --------------------print---------------------
     Route::get('report/yearly/returns/record/print-report/{year}','Reports\YearReturnRecords@printReport')->name('yearly-returns-records-print');
     Route::get('report/tithe-comparison/print-Report/{fromYear} - {toYear}','Reports\TitheComparison@printReport')->name('tithe-comparison-print');
-    Route::get('report/payment-Division-Summary-Index/print-Report/{year}','Reports\RegionalSummary@paymentDivisionSummaryIndexPrintReport')->name('payment-Division-Summary-Index-Print');
-    Route::get('report/regional-Payment-Division-Summary/print-Report/{year}','Reports\RegionalSummary@regionalPaymentDivisionSummaryPrintReport')->name('regional-Payment-Division-Summary-Print');
+    Route::get('report/payment-Division-Summary-Index/print-Report/{year}/{region_id?}/{sub_region_id?}','Reports\RegionalSummary@paymentDivisionSummaryIndexPrintReport')->name('payment-Division-Summary-Index-Print');
+    Route::get('report/regional-Payment-Division-Summary/print-Report/{year}/{region_id?}','Reports\RegionalSummary@regionalPaymentDivisionSummaryPrintReport')->name('regional-Payment-Division-Summary-Print');
     Route::get('report/sub-Region-Payment-Division-Summary/print-Report/{year}/region/{regional_id}/sub/{sub_regional_id}','Reports\RegionalSummary@subRegionPaymentDivisionSummaryPrintReport')->name('sub-Region-Payment-Division-Summary-Print');
 
     Route::get('report/Regional-Commitment/Print/{year}','Reports\RegionalCommitment@PrintReport')->name('Regional-Commitment-Print');
@@ -82,6 +85,10 @@ Route::admin('church', function () {
     Route::get('report/contribution-graph-print/{year}','Reports\ContributionGraph@printReport')->name('contribution-graph-print');
 
     Route::get('report/comparison-table-print/{year}','Reports\ComparisonTables@PrintReports')->name('comparison-table-print');
+
+    // -------------------------------export Excels---------------------------
+    Route::get('report/yearly/returns/record/export/Excel/{year}','Reports\YearReturnRecords@exportExcelReport')->name('yearly-returns-record-export');
+
 
 
 });

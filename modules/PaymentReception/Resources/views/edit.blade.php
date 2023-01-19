@@ -278,7 +278,7 @@
 										<i class=""></i>
 									</span>
 								</div>
-								<input type="number" min="0" value="${data.amount || 0}" step="any" name="data[${idd}][amount]" class="form-control" placeholder="Enter {{ trans_choice('general.amount', 1) }}..." />
+								<input type="number" min="0" value="${data.amount || 0}" step="1" name="data[${idd}][amount]" class="form-control" placeholder="Enter {{ trans_choice('general.amount', 1) }}..." />
 							</div>
 						</div>
 					</td>
@@ -290,7 +290,7 @@
 										<i class=""></i>
 									</span>
 								</div>
-								<input type="number" min="0" value="${data.topup || 0}" step="any" name="data[${idd}][topup]" class="form-control" placeholder="Enter {{ trans_choice('payment-reception::general.topup', 1) }}..." />
+								<input type="number" min="0" value="${data.topup || 0}" step="1" name="data[${idd}][topup]" class="form-control" placeholder="Enter {{ trans_choice('payment-reception::general.topup', 1) }}..." />
 							</div>
 						</div>
 					</td>
