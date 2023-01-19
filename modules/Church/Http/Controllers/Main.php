@@ -5,12 +5,14 @@ namespace Modules\Church\Http\Controllers;
 use App\Abstracts\Http\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\Church\Export\ChurchesExport;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\ChurchHistory;
 use Modules\Church\Models\ChurchView;
 use Modules\Demarcations\Models\Demarcation;
+use Modules\PaymentReception\Models\PaymentReception;
 
 class Main extends Controller
 {
@@ -89,17 +91,21 @@ class Main extends Controller
      */
     public function show($id)
     {
+        $tableRefix = DB::getTablePrefix();
         $church = Church::find($id);
-
         // return json_encode($church->subregion);
-
         $subRegion = Demarcation::join('church_histories', 'church_histories.demarcation_id', 'demarcations.id')->whereNull('church_histories.deleted_at')
             ->where('church_histories.church_id', $id)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
         $region = Demarcation::join('demarcation_histories', 'demarcation_histories.parent_id', 'demarcations.id')->whereNull('demarcation_histories.deleted_at')
             ->where('demarcation_histories.demarcation_id', $subRegion->id ?? 0)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
     
         $subregions = Demarcation::subregion()->orderBy('name', 'asc')->get();
-        return $this->response('church::churches.show', compact('church', 'subregions', 'subRegion', 'region'));
+
+        $statements = PaymentReception::join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
+            ->selectRaw($tableRefix.'payment_receptions.id, month, SUM(amount) as amount, payer_name, '.$tableRefix.'payment_receptions.created_at')->where('church_id', $id)
+            ->groupBy('month')->groupBy('year')->get();
+
+        return $this->response('church::churches.show', compact('church', 'subregions', 'subRegion', 'region', 'statements'));
     }
 
     /**

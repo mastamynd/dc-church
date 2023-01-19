@@ -241,6 +241,7 @@
 										<thead class="thead-light">
 											<tr class="table-head-line">
 												<th class="">{{ trans_choice('general.numbers', 1) }}</th>
+												<th class="">{{ trans_choice('general.month', 1) }}</th>
 												<th class="">{{ trans_choice('general.amount', 1) }}</th>
 												<th class="">{{ trans('payment-reception::general.payment_by') }}</th>
 												<th class="">{{ trans('general.date') }}</th>
@@ -248,16 +249,17 @@
 											</tr>
 										</thead>
 										<tbody>
-											@foreach ($church->received_moneys as $money)
+											@foreach ($statements as $money)
 												<tr>
 													<td>{{ $loop->iteration }}</td>
-													<td>@money($money->total, 'KES', true)</td>
+													<td>{{ $money->month }}</td>
+													<td>@money($money->amount, 'KES', true)</td>
 													<td>{{ $money->payer_name }}</td>
 													<td>{{ $money->created_at }}</td>
 													<td><a href="{{ route('payment-reception.view-tithe', $money->id) }}"><i class="fas fa-eye"></i> View</a></td>
 												</tr>
 											@endforeach
-											@if($church->received_moneys->count() == 0)
+											@if($statements->count() == 0)
 												<tr class="row align-items-center border-top-1 tr-py">
 													<td colspan="5 text-muted">No records found.</td>
 												</tr>

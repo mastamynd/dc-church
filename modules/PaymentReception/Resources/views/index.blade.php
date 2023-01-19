@@ -35,7 +35,7 @@
 							<th>@sortablelink('church.name', trans('payment-reception::general.church'))</th>
 							<th>@sortablelink('church.code', trans('church::general.code'))</th>
 							<th>@sortablelink('payment_mode', trans('payment-reception::general.payment_mode'))</th>
-							<th>@sortablelink('payer_name', trans('payment-reception::general.payment_by'))</th>
+							<th>@sortablelink('payer_name', 'Month')</th>
 							<th>@sortablelink('amount', trans('general.amount'))</th>
 							<th>@sortablelink('created_at', trans('general.date'))</th>
 							<th>@sortablelink('status', 'Status')</th>
@@ -51,8 +51,8 @@
 								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->name }}</a></td>
 								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->code }}</a></td>
 								<td>{{ $item->payment_mode }}</td>
-								<td>{{ $item->payer_name }}</td>
-								<td>@money($item->total, setting('default.currency'), true)</td>
+								<td>{{ ucfirst($item->month) }}</td>
+								<td>@money($item->amount, setting('default.currency'), true)</td>
 								<td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s') }}</td>
 								<td>{{ $item->status }}</td>
 								<td class="text-center">
