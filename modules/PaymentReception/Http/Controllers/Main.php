@@ -25,7 +25,7 @@ class Main extends Controller
 
 		$payments = PaymentReception::with('church')->join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
 				->selectRaw($tableRefix.'payment_receptions.id, church_id, month, payment_mode, SUM(amount) as amount, payer_name, status, '.$tableRefix.'payment_receptions.created_at')
-				->groupBy('church_id','month','year')->orderBy('status', 'asc')->collect();
+				->groupBy('church_id','month','year')->orderBy('created_at', 'desc')->orderBy('status', 'asc')->collect();
 
 		// return response()->json($payments, 200);
 
@@ -98,7 +98,7 @@ class Main extends Controller
 		$payment = intval($id) > 0 ? PaymentReception::find($id) : PaymentReception::create($dataArr);
 
 		foreach($rows as $k=>$row){
-			$previousReceptionsIDs = PaymentReception::where('church_id', $dataArr['church_id'])->select('id')->get()->pluck('id');
+			$previousReceptionsIDs = PaymentReception::where('church_id', $dataArr['church_id'])->select('id')->get()->pluck('id')->toArray();
 			$idsTocheck = array_diff($previousReceptionsIDs, [$payment->id]);
 			$before = PaymentReceptionItems::where('month', $row['month']);
 			
@@ -107,9 +107,12 @@ class Main extends Controller
 			}
 
 			$before = $before->where('year', $row['year'])->whereIn('payment_reception_id', $idsTocheck)->get();
-
-			$existsBefore[] = $before;
+			if($before->count() > 0){
+				$existsBefore[] = $before;
+			}
 		}
+
+		// return json_encode($existsBefore);
 
 		if(count($existsBefore) > 0){
 			flash('Payment for similar period exists')->important()->error();
