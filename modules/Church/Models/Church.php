@@ -5,6 +5,7 @@ namespace Modules\Church\Models;
 use App\Abstracts\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\PaymentReception\Models\PaymentReception;
+use Modules\PaymentReception\Models\PaymentReceptionItems;
 
 class Church extends Model
 {
@@ -38,5 +39,9 @@ class Church extends Model
 
     public function received_moneys(){
         return $this->hasMany(PaymentReception::class, 'church_id')->orderBy('created_at', 'desc');
+    }
+
+    public function received_money_items(){
+        return $this->hasManyThrough(PaymentReceptionItems::class, PaymentReception::class);
     }
 }

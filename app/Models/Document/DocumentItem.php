@@ -8,6 +8,7 @@ use Bkwld\Cloner\Cloneable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\Church\Models\PaymentDivision;
 
 class DocumentItem extends Model
 {
@@ -75,6 +76,10 @@ class DocumentItem extends Model
     public function item()
     {
         return $this->belongsTo('App\Models\Common\Item')->withDefault(['name' => trans('general.na')]);
+    }
+
+    public function pyamnent_division(){
+        return $this->hasMany(PaymentDivision::class, 'bill_item_id');
     }
 
     public function taxes()
