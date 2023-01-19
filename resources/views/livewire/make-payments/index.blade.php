@@ -1,4 +1,9 @@
 <div>
+	<div wire:loading class="card" style="width: 100%">
+		<div class="card-body">
+			<div class="alert alert-default text-info"><i class="fas fa-spin fa-spinner"></i> Please wait as we load your data...</div>
+		</div>
+	</div>
 	<!-- Main page with lists -->
 	@if ($page1 === null && $page2 === null)
 		<div class="card">
@@ -33,7 +38,7 @@
 						</h2>
 					</div>
 					@if ($hasPayAll)
-						<input type="text" class="form-control form-control-sm" placeholder="Cheque Number..." wire:model='chequeNumbers.All' style="width: 250px" />		
+						<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model='chequeNumbers.All' style="width: 250px" />		
 					@endif
 					<div class="pt-1">
 						<span class="badge badge-dark badge-pill">@money($grandTotal, setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,7 +64,7 @@
 							<div class="title p-2 border-bottom d-flex justify-content-between" style="cursor: pointer" wire:click="toggleAccordion('{{ $regName }}')">
 								<div style="width: 300px"><h4>{{ $reg }}</h4></div>
 								@if ($hasPayReg)
-									<input type="text" class="form-control form-control-sm" placeholder="Cheque Number..." wire:model='chequeNumbers.{{ $reg }}' style="width: 250px" />								
+									<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model='chequeNumbers.{{ $reg }}' style="width: 250px" />								
 								@endif
 								<div class="pt-1">
 									<span class="badge badge-dark badge-pill">@money($items['total'], setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -73,7 +78,7 @@
 										<div class="title p-2 border-bottom d-flex justify-content-between" style="cursor: pointer" wire:click="toggleAccordion('{{ $subRegName }}')">
 											<div style="width: 300px"><h5>{{ $sub }}</h5></div>
 											@if ($hasPaySub)
-												<input type="text" class="form-control form-control-sm" placeholder="Cheque Number..." wire:model='chequeNumbers.{{ $reg.$sub }}' style="width: 250px" />
+												<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model='chequeNumbers.{{ $reg.$sub }}' style="width: 250px" />
 											@endif
 											<div class="pt-1">
 												<span class="badge badge-default badge-pill">@money($mms['total'], setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;

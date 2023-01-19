@@ -83,7 +83,7 @@ class Index extends Component
                     $this->toggleAll[$br->region->name.$br->subregion->name] = true;
                 }
 
-                $this->theTotals[$br->region->name.$br->subregion->name][$br->id] = floatval($br->amount);
+                $this->theTotals[$br->region->name.$br->subregion->name][$br->id] = round(floatval($br->amount),1);
 
                 $this->selectedList[$br->region->name.$br->subregion->name][$br->id] = true;
                 $theData[$br->region->name]["items"][$br->subregion->name]["items"][] = $br;
@@ -109,8 +109,8 @@ class Index extends Component
                     }
 
                     if($this->selectedList[$r.$s][$br['id']]){
-                        $theData[$r]['items'][$s]['total']+=floatval($br['amount']);
-                        $theData[$r]['total']+=floatval($br['amount']);
+                        $theData[$r]['items'][$s]['total']+=round(floatval($br['amount']),1);
+                        $theData[$r]['total']+=round(floatval($br['amount']),1);
                         $this->grandTotal += round(floatval($br['amount']),1);
                     }
                     $theData[$r]["items"][$s]["items"][] = $br;
