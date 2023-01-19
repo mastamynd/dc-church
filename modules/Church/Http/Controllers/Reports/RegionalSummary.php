@@ -127,16 +127,16 @@ class RegionalSummary extends Controller
                 }
                 $region_report[$type]['total'] = array_sum($region_report[$type]);
                 $region_report[$type]['name'] = $value;
-                if (in_array($type,['pastor_fund','pastors_fund'])) {
-                    $total = [];
-                    foreach ($months as $month) {
-                        $total[$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->sum($month);
-                    };
-                    $total['total'] = array_sum($total);
-                    $total['name'] = "TOTAL";
-                    $region_report['total'] = $total;
-                }
+               
             }
+            $total = [];
+            foreach ($months as $month) {
+                $total[$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->sum($month);
+            };
+            $total['total'] = array_sum($total);
+            $total['name'] = "TOTAL";
+            $region_report['total'] = $total;
+
             $subs = DemarcationHistory::where('parent_id', $region->id)->get();
             $region_report['sub_regions'] = [];
             foreach ($subs as $sub) {
@@ -150,18 +150,17 @@ class RegionalSummary extends Controller
                     }
                     $sub_report[$type]['total']= array_sum($sub_report[$type]);
                     $sub_report[$type]['name'] = $value;
-                    if (in_array($type,['pastor_fund','pastors_fund'])) {
-                        $total_ = [];
-                        foreach ($months as $month) {
-                            $total_[$month] = PaymentDivision::where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
-                            
-                        };
-                        $total_['total'] = array_sum($total_);
-                        $total_['name'] = "TOTAL";
-                        $sub_report['total'] = $total_;
-                        
-                    }
+                    
                 }
+                $total_ = [];
+                foreach ($months as $month) {
+                    $total_[$month] = PaymentDivision::where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
+                    
+                };
+                $total_['total'] = array_sum($total_);
+                $total_['name'] = "TOTAL";
+                $sub_report['total'] = $total_;
+
                 // return response()->json($sub_report);
                 $sub_data = ModelsDemarcation::find($sub->demarcation_id);
                 if(isset($sub_data->name)){
@@ -317,16 +316,16 @@ class RegionalSummary extends Controller
                 }
                 $region_report[$type]['total'] = array_sum($region_report[$type]);
                 $region_report[$type]['name'] = $value;
-                if (in_array($type,['pastor_fund','pastors_fund'])) {
-                    $total = [];
-                    foreach ($months as $month) {
-                        $total[$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->sum($month);
-                    };
-                    $total['total'] = array_sum($total);
-                    $total['name'] = "TOTAL";
-                    $region_report['total'] = $total;
-                }
+               
             }
+            $total = [];
+            foreach ($months as $month) {
+                $total[$month] = PaymentDivision::where('year', $year)->where('regional_id', $region->id)->sum($month);
+            };
+            $total['total'] = array_sum($total);
+            $total['name'] = "TOTAL";
+            $region_report['total'] = $total;
+
             $subs = DemarcationHistory::where('parent_id', $region->id)->get();
             $region_report['sub_regions'] = [];
             foreach ($subs as $sub) {
@@ -341,18 +340,20 @@ class RegionalSummary extends Controller
                     $sub_report[$type]['total']= array_sum($sub_report[$type]);
                     $sub_report[$type]['name'] = $value;
                     if (in_array($type,['pastor_fund','pastors_fund'])) {
-                        $total_ = [];
-                        foreach ($months as $month) {
-                            $total_[$month] = PaymentDivision::where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
-                            
-                        };
-                        $total_['total'] = array_sum($total_);
-                        $total_['name'] = "TOTAL";
-                        $sub_report['total'] = $total_;
+                        
                         
                     }
                     // return response()->json($sub_report);
                 }
+                $total_ = [];
+                foreach ($months as $month) {
+                    $total_[$month] = PaymentDivision::where('year', $year)->where('sub_regional_id', $sub->demarcation_id)->sum($month);
+                    
+                };
+                $total_['total'] = array_sum($total_);
+                $total_['name'] = "TOTAL";
+                $sub_report['total'] = $total_;
+                
                 $sub_data = ModelsDemarcation::find($sub->demarcation_id);
                 $region_report['sub_regions'][$sub_data->name] = $sub_report;
             }

@@ -32,7 +32,7 @@ class NationalAnalysis extends Controller
             $totals['remitting_churches'] = $totals['remitting_churches'] + $region['remitting_churches'];
 
             isset($totals['churches_count'])  ? '' : $totals['churches_count'] = 0;
-            $totals['churches_count'] = $totals['churches_count'] = $region['churches_count'];
+            $totals['churches_count'] = $totals['churches_count'] + $region['churches_count'];
         }
         $selected_years = range(2000, date('Y'));
         return view('church::reports.nationalanalysis',compact('selected_years','year','columns','regions','totals'));
@@ -67,7 +67,7 @@ class NationalAnalysis extends Controller
             $totals['remitting_churches'] = $totals['remitting_churches'] + $region['remitting_churches'];
 
             isset($totals['churches_count'])  ? '' : $totals['churches_count'] = 0;
-            $totals['churches_count'] = $totals['churches_count'] = $region['churches_count'];
+            $totals['churches_count'] = $totals['churches_count'] + $region['churches_count'];
         }
         
         return view('church::reports.print.nationalAnalysis',compact('year','columns','regions','totals'));
