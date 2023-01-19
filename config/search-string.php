@@ -451,13 +451,14 @@ return [
 
     ],
 
-    Modules\Church\Models\Church::class => [
+    Modules\Church\Models\ChurchView::class => [
         'columns' => [
             'id',
             'name' => ['searchable' => true],
             'code' => ['searchable' => true],
-            'founded_on' => ['date' => true],
-            'enabled' => ['boolean' => true]
+            'pastor' => ['searchable' => true],
+            'region' => ['searchable' => true],
+            'sub_region' => ['searchable' => true],
         ]
     ],
 
@@ -488,6 +489,17 @@ return [
             'year'  => ['searchable' => true],
         ]
     ],
+    Modules\Church\Models\PaymentMadeView::class => [
+        'columns' => [
+            'type_id',
+            'month'  => ['searchable' => true],
+            'year'  => ['searchable' => true],
+            'name'  => ['searchable' => true],
+            'type'  => ['searchable' => true],
+            'cheque_number'  => ['searchable' => true],
+            'payment_date' => ['date'=>'date', 'date' => true]
+        ]
+    ],
     Modules\PaymentReception\Models\PaymentReception::class => [
         'columns' => [
             'id',
@@ -498,6 +510,7 @@ return [
                 'values' => [
                     'COMPLETED' => 'COMPLETED',
                     'PENDING' => 'PENDING',
+                    'pending_issue' => 'POSTING ISSUE'
                 ],
             ],
             'payer_name' => ['searchable' => true, 'key'=>'user'],

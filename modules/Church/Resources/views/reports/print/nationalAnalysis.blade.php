@@ -11,7 +11,7 @@
  
         table{
             border: none !important;
-            border-collapse: collapse;
+            border-collapse: separate !important; border-spacing:0 !important;
             font-size: 12pt !important;
         }
 

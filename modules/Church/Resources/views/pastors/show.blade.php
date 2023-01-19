@@ -47,9 +47,13 @@
 			<li class="list-group-item border-0 border-top-1">
 				<div class="font-weight-600">{{ trans('church::general.name') }}</div>
 				<div>
-					<small class="long-texts" title="{{ getPastorHistoryChurh($pastor->history()->id ?? 0)->name ?? 'Not Set' }}">
-					{{ getPastorHistoryChurh($pastor->history()->id ?? 0)->name ?? 'Not Set' }}
-					</small>
+					@if ($pastor->history() && isset($pastor->history()->id))
+						<small class="long-texts" title="{{ getPastorHistoryChurh($pastor->history()->id ?? 0)->name ?? 'Not Set' }}">
+							{{ getPastorHistoryChurh($pastor->history()->id ?? 0)->name ?? 'Not Set' }}
+						</small>
+					@else
+						Not Set
+					@endif
 				</div>
 			</li>
 			@stack('pastor_church_end')
