@@ -58,10 +58,9 @@
 
                 <div class="detail" style="text-align: right;">
                     <span class="detail-record">Delivarance Church International</span> <br>
-                    <span class="detail-record">P.O BOX 12345</span> <br>
-                    <span class="detail-record">00200 Nairobi</span><br>
-                    <span class="detail-record">Phone : 07123456789</span><br>
-                    <span class="detail-record">Email : Delivarance.Church@gmail.com</span>
+                    <span class="detail-record">P.O BOX 10315</span> <br>
+                    <span class="detail-record">Phone : 0715201101 or 0700278440</span><br>
+                    <span class="detail-record">Email : acounts@deliverancechurch.international</span>
 
                 </div>
             </div>
