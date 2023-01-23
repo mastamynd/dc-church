@@ -95,7 +95,7 @@
                             <td>{{ number_format($item->october, 2)}}</td>
                             <td>{{ number_format($item->november, 2)}}</td>
                             <td>{{ number_format($item->december, 2)}}</td>
-                            <td>{{ number_format($item->total, 2)}}</td>
+                            <td>{{number_format($item->getTotalAmount(),2)}}</td>
                         </tr>
 
 
