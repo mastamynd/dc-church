@@ -417,6 +417,8 @@ class RegionalSummary extends Controller
 
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals'] + $church->getTotalAmount() : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['total']['totals'] = $church->getTotalAmount();
 
+            
+
             $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['name'] = $division[$church->type];
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches']) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'] = [];
             array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'],$church);
