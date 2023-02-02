@@ -193,9 +193,10 @@ class RegionalSummary extends Controller
         $remiting = $churches->pluck('id')->toArray();
 
         $churches_none = Church::whereNotIn('id',$remiting)->join('church_histories as xch','xch.church_id','churches.id')->whereNull('xch.deleted_at')->join('demarcation_histories as xdh','xdh.demarcation_id','xch.demarcation_id')->whereNull('xch.deleted_at')->join('demarcations as subr','subr.id','xch.demarcation_id')->join('demarcations as reg','reg.id','xdh.parent_id')->leftJoin('demarcation_overseers as dem_oversee','dem_oversee.demarcation_id','reg.id')->leftJoin('pastors as pst','pst.id','dem_oversee.pastor_id')->leftJoin('contacts as con','con.id','pst.contact_id')->leftJoin('demarcation_overseers as sub_over','sub_over.demarcation_id','subr.id')->leftJoin('pastors as subpst','subpst.id','sub_over.pastor_id')->leftJoin('contacts as subcon','subcon.id','subpst.contact_id')->selectRaw('1dt_churches.*,1dt_xch.demarcation_id as sub_regional_id,1dt_xdh.parent_id as regional_id,1dt_subr.name as subregion_name,1dt_reg.name as region_name,1dt_con.name as regional_overseer_name,1dt_subcon.name as subregional_overseer_name');
-        $churches_none = $regional_id > 0 ? $churches_none->where('regional_id', $regional_id) : $churches_none; 
-        $churches_none =  $sub_regional_id > 0 ? $churches_none->where('sub_regional_id', $sub_regional_id) : $churches_none;
-        $churches_none = $churches_none->orderBy('regional_id','asc')->get();
+        
+        $churches_none = $regional_id > 0 ? $churches_none->where('xdh.parent_id', $regional_id) : $churches_none; 
+        $churches_none =  $sub_regional_id > 0 ? $churches_none->where('xch.demarcation_id', $sub_regional_id) : $churches_none;
+        $churches_none = $churches_none->get();
 
         $response = [];
         
