@@ -29,7 +29,6 @@
             font-size: 13px !important;
         }
     </style>
-
 </head>
 
 <body onload="window.print()" class="p-3">
