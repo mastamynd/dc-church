@@ -448,7 +448,7 @@ class Main extends Controller
 		return redirect()->back();
 	}
 
-	public function reverse_post($id){
+	public function reverse($id){
 		$payment = PaymentReception::find($id);
 		$document = Document::where('parent_id', $payment->id)->first();
 

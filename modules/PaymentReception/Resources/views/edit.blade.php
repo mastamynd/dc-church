@@ -9,6 +9,11 @@
 				{{ trans('payment-reception::general.post') }}
 			</span>
 		@endif
+		@if(isset($paymentReception->status) && $paymentReception->status == "Completed")
+			<span class="btn btn-danger btn-sm" data-target="#reverse-posting-modal" data-toggle="modal">
+				Reverse Posting
+			</span>
+		@endif
 	@endcan
 @endsection
 
@@ -407,6 +412,27 @@
 					<div class="modal-footer border-top" style="background-color: #f8f9fe;">
 						<span class="btn btn-white" data-dismiss="modal">Close</span>
 						<button type="submit" class="btn btn-success">YES, APPROVE</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade show" id="reverse-posting-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form action="{{ route('payment-reception.reverse-tithe', $paymentReception->id ?? 'create') }}"  method="post">
+					@csrf
+					<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+						Reverse Posting
+					</div>
+					<div class="modal-body">
+						<div class="alert alert-info">
+							<i class="fas fa-info-circle float-left fa-2x mr-2 mb-2"></i> Are you sure that you want to reverse this tithe posting?
+						</div>
+					</div>
+					<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+						<span class="btn btn-white" data-dismiss="modal">Close</span>
+						<button type="submit" class="btn btn-success">YES, REVERSE</button>
 					</div>
 				</form>
 			</div>
