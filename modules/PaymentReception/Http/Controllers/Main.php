@@ -448,6 +448,21 @@ class Main extends Controller
 		return redirect()->back();
 	}
 
+	public function reverse_post($id){
+		$payment = PaymentReception::find($id);
+		$document = Document::where('parent_id', $payment->id)->first();
+
+		PaymentDivision::where('invoice_id', $document->id)->delete();
+
+		$document->delete();
+
+		$payment->status = "Draft";
+		$payment->save();
+
+		flash('The posting was reversed!')->error()->important();
+		return redirect()->back();
+	}
+
 	public function workflow(){
 		return $this->response('payment-reception::payment-workflow');
 	}
