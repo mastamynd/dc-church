@@ -406,6 +406,14 @@ class RegionalSummary extends Controller
             $churches = $churches->where('sub_regional_id', $sub_regional_id);
         }
         $churches = $churches->orderBy('regional_id','asc')->orderBy('amount','Desc')->get();
+
+        $remiting = $churches->pluck('id')->toArray();
+
+        $churches_none = Church::whereNotIn('churches.id',$remiting)->join('church_histories as xch','xch.church_id','churches.id')->whereNull('xch.deleted_at')->join('demarcation_histories as xdh','xdh.demarcation_id','xch.demarcation_id')->whereNull('xch.deleted_at')->join('demarcations as subr','subr.id','xch.demarcation_id')->join('demarcations as reg','reg.id','xdh.parent_id')->leftJoin('demarcation_overseers as dem_oversee','dem_oversee.demarcation_id','reg.id')->leftJoin('pastors as pst','pst.id','dem_oversee.pastor_id')->leftJoin('contacts as con','con.id','pst.contact_id')->leftJoin('demarcation_overseers as sub_over','sub_over.demarcation_id','subr.id')->leftJoin('pastors as subpst','subpst.id','sub_over.pastor_id')->leftJoin('contacts as subcon','subcon.id','subpst.contact_id')->leftJoin('pastor_histories as pash','pash.church_id','churches.id')->whereNull('pash.deleted_at')->leftJoin('pastors as chpast','chpast.id','pash.pastor_id')->leftJoin('contacts as chcon','chcon.id','chpast.contact_id')->selectRaw('1dt_churches.*,1dt_xch.demarcation_id as sub_regional_id,1dt_xdh.parent_id as regional_id,1dt_subr.name as subregion_name,1dt_reg.name as region_name,1dt_con.name as regional_overseer_name,1dt_subcon.name as subregional_overseer_name,1dt_chcon.name as pastor_name');
+        
+        $churches_none = $regional_id > 0 ? $churches_none->where('xdh.parent_id', $regional_id) : $churches_none; 
+        $churches_none =  $sub_regional_id > 0 ? $churches_none->where('xch.demarcation_id', $sub_regional_id) : $churches_none;
+        $churches_none = $churches_none->get();
         
         $response = [];
         $divisions = setting('church.payment_divisions');
@@ -455,6 +463,27 @@ class RegionalSummary extends Controller
             isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches']) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'] = [];
             array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'],$church);
             $response[$church->region_name]['sub-region'][$church->subregion_name]['overseer'] = $church->subregional_overseer_name;
+        }
+        foreach($churches_none as $church){
+            foreach($division as $key=>$type){
+                isset($response[$church->region_name]) ? '' : $response[$church->region_name] = [];
+                $response[$church->region_name]['overseer'] = $church->regional_overseer_name;
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name] = [];
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key] = [];
+                $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['name'] = $type;
+                foreach($months as $month){
+
+                    isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month]) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month]= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month] + 0 : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month] = 0;
+                }
+    
+    
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals'] + 0 : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals'] = 0;
+    
+    
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['churches']) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['churches'] = [];
+                array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['churches'],$church);
+                $response[$church->region_name]['sub-region'][$church->subregion_name]['overseer'] = $church->subregional_overseer_name;
+            }
         }
         // return response()->json($response);
         // return $this->response('church::reports.paymentsummary',compact('response','takeyear','regional_id','sub_regional_id'));
