@@ -16,3 +16,4 @@ yarn-error.log
 storage/logs/laravel.log
 composer.lock
 composer.json
+.env

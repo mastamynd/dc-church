@@ -29,7 +29,6 @@
             font-size: 13px !important;
         }
     </style>
-
 </head>
 
 <body onload="window.print()" class="p-3">
@@ -42,7 +41,7 @@
 
                 <div class="detail" style="text-align: right;">
                     <span class="detail-record">Delivarance Church International</span> <br>
-                    <span class="detail-record">P.O BOX 10315</span> <br>
+                    <span class="detail-record">P.O BOX 10315 - 00100 Nairobi</span> <br>
                     
                     <span class="detail-record">Phone : 0715201101 or 0700278440</span><br>
                     <span class="detail-record">Email : acounts@deliverancechurch.international</span>

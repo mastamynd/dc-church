@@ -48,8 +48,8 @@
 								<td>
 									{{ Form::bulkActionGroup($item->id, $item->name) }}
 								</td>
-								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->name }}</a></td>
-								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->code }}</a></td>
+								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->name ?? '-' }}</a></td>
+								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->code ?? '-' }}</a></td>
 								<td>{{ $item->payment_mode }}</td>
 								<td>{{ ucfirst($item->month) }}</td>
 								<td>@money($item->amount, setting('default.currency'), true)</td>

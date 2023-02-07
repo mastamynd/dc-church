@@ -105,6 +105,8 @@ class Main extends Controller
             ->selectRaw($tableRefix.'payment_receptions.id, month, SUM(amount) as amount, payer_name, '.$tableRefix.'payment_receptions.created_at')->where('church_id', $id)
             ->groupBy('month')->groupBy('year')->get();
 
+        // return json_encode($church);
+
         return $this->response('church::churches.show', compact('church', 'subregions', 'subRegion', 'region', 'statements'));
     }
 
