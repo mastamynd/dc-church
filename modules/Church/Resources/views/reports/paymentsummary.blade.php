@@ -63,21 +63,21 @@
                     @foreach($types['churches'] as $item)
 
                     <tr class="align-items-center border-top-1">
-                        <td>{{$item['church_name']}}</td>
-                        <td>{{$item->pastor_name}}</td>
-                        <td>{{number_format($item->january,2)}}</td>
-                        <td>{{number_format($item->february,2)}}</td>
-                        <td>{{number_format($item->march,2)}}</td>
-                        <td>{{number_format($item->april,2)}}</td>
-                        <td>{{number_format($item->may,2)}}</td>
-                        <td>{{number_format($item->june,2)}}</td>
-                        <td>{{number_format($item->july,2)}}</td>
-                        <td>{{number_format($item->august,2)}}</td>
-                        <td>{{number_format($item->september,2)}}</td>
-                        <td>{{number_format($item->october,2)}}</td>
-                        <td>{{number_format($item->november,2)}}</td>
-                        <td>{{number_format($item->december,2)}}</td>
-                        <td>{{number_format($item->getTotalAmount(),2)}}</td>
+                        <td>{{$item['church_name'] ?? $item->name}}</td>
+                        <td>{{$item->pastor_name ?? ''}}</td>
+                        <td>{{number_format($item->january ?? 0,2)}}</td>
+                        <td>{{number_format($item->february ?? 0,2)}}</td>
+                        <td>{{number_format($item->march ?? 0,2)}}</td>
+                        <td>{{number_format($item->april ?? 0,2)}}</td>
+                        <td>{{number_format($item->may ?? 0,2)}}</td>
+                        <td>{{number_format($item->june ?? 0,2)}}</td>
+                        <td>{{number_format($item->july ?? 0,2)}}</td>
+                        <td>{{number_format($item->august ?? 0,2)}}</td>
+                        <td>{{number_format($item->september ?? 0,2)}}</td>
+                        <td>{{number_format($item->october ?? 0,2)}}</td>
+                        <td>{{number_format($item->november ?? 0,2)}}</td>
+                        <td>{{number_format($item->december ?? 0,2)}}</td>
+                        <td>{{ isset($item->january) ? number_format($item->getTotalAmount(),2) : 0}}</td>
                     </tr>
                     @endforeach
                     <tr>
