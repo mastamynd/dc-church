@@ -51,7 +51,7 @@
 								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->name ?? '-' }}</a></td>
 								<td><a href="{{ route('payment-reception.view-tithe', $item->id) }}">{{ $item->church->code ?? '-' }}</a></td>
 								<td>{{ $item->payment_mode }}</td>
-								<td>{{ ucfirst($item->month) }}</td>
+								<td>{{ ucfirst($item->month) }} <small>(Week-{{ $item->week }})</small></td>
 								<td>@money($item->amount, setting('default.currency'), true)</td>
 								<td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d H:i:s') }}</td>
 								<td>{{ $item->status }}</td>
@@ -140,6 +140,10 @@
 				$(this).find('form').attr('action', urll);
 				$(this).find('form').prop('action', urll);
 			});
+
+			$('[type="submit"]').on('click', function(){
+				$(this).hide();
+			});	
 		});
 		</script>
 		<div class="modal fade show" id="delete-tithe-modal"  role="dialog">

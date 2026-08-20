@@ -487,6 +487,10 @@
 			$('#trigger-posting-details-form-submit').on('click', function(){
 				$('#posting-details-form').find('button[type="submit"]').trigger('click');
 			});
+
+			$('[type="submit"]').on('click', function(){
+				$(this).hide();
+			});
 		});
 
 		$('#flash-overlay-modal').modal();

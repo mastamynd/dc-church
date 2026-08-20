@@ -20,7 +20,9 @@ use App\Http\Requests\Banking\Transaction as TransRequest;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\Church\Models\Church;
+use Modules\Church\Models\ChurchHistory;
 use Modules\Church\Models\PaymentMadeView;
+use Modules\Demarcations\Exports\DemarcationExport;
 use Modules\Demarcations\Exports\PaymentsMadeExport;
 
 class Main extends Controller
@@ -33,30 +35,49 @@ class Main extends Controller
 	public function region_index()
 	{
 		$type = 'region';
-		$demarcations = Demarcation::where('type', 'Region')->collect();
-		return $this->response('demarcations::index', compact('demarcations', 'type'));
-	}
-
-	public function subregion_index(){
-		$type = 'subregion';
-		$demarcations = Demarcation::where('type', 'Sub Region')->collect();
+		$demarcations = Demarcation::with('parent')->leftJoin('demarcation_overseers as do', function ($query) {
+			$query->on('do.demarcation_id', 'demarcations.id');
+			$query->whereNull('do.deleted_at');
+		})->leftJoin('pastors as p', function ($query) {
+			$query->on('p.id', 'do.pastor_id');
+		})->leftJoin('contacts as c', function ($query) {
+			$query->on('c.id', 'p.contact_id');
+		})->where('demarcations.type', 'Region')->select(['demarcations.*', 'c.name as dname', 'c.phone'])->collect();
 
 		// return response()->json($demarcations, 200);
 
 		return $this->response('demarcations::index', compact('demarcations', 'type'));
 	}
 
-	public function getNextDemarcationCode($type, $increment=false){
+	public function subregion_index()
+	{
+		$type = 'subregion';
+		$demarcations = Demarcation::with('parent')->leftJoin('demarcation_overseers as do', function ($query) {
+			$query->on('do.demarcation_id', 'demarcations.id');
+			$query->whereNull('do.deleted_at');
+		})->leftJoin('pastors as p', function ($query) {
+			$query->on('p.id', 'do.pastor_id');
+		})->leftJoin('contacts as c', function ($query) {
+			$query->on('c.id', 'p.contact_id');
+		})->where('demarcations.type', 'Sub Region')->select(['demarcations.*', 'c.name as dname', 'c.phone'])->collect();
+
+		// return response()->json($demarcations, 200);
+
+		return $this->response('demarcations::index', compact('demarcations', 'type'));
+	}
+
+	public function getNextDemarcationCode($type, $increment = false)
+	{
 		$demAutoIncStr = $type == "region" ? 'region_code_number' : 'subregion_code_number';
 		$demPrefixStr = $type == "region" ? 'region_prefix' : 'subregion_prefix';
 
-		$demPrefix = setting('church.'.$demPrefixStr);
+		$demPrefix = setting('church.' . $demPrefixStr);
 		$demarcationAutoInc = setting($demAutoIncStr);
 
-		$possible_next_code = $demPrefix.$demarcationAutoInc;
+		$possible_next_code = $demPrefix . $demarcationAutoInc;
 
-		if($increment){
-			setting([$demAutoIncStr => $demarcationAutoInc+1])->save();
+		if ($increment) {
+			setting([$demAutoIncStr => $demarcationAutoInc + 1])->save();
 		}
 
 		return $possible_next_code;
@@ -82,23 +103,23 @@ class Main extends Controller
 	 *
 	 * @param Request $request
 	 * @return Response
-	*/
+	 */
 	public function store(Request $request, $type)
 	{
 		$possible_next_code = $this->getNextDemarcationCode($type, true);
-		$request->merge(['code'=>$possible_next_code]);
+		$request->merge(['code' => $possible_next_code]);
 
 		// return json_encode($request->all());
 
 		$demarcation = Demarcation::create($request->all());
 
-		if($type == 'subregion'){
+		if ($type == 'subregion') {
 			DemarcationHistory::create([
 				'demarcation_id' => $demarcation->id,
 				'parent_id' => $request->region_id
 			]);
 		}
-		flash(ucwords($type).' has been created!')->success();
+		flash(ucwords($type) . ' has been created!')->success();
 		return redirect()->back();
 	}
 
@@ -136,7 +157,7 @@ class Main extends Controller
 
 		// return response()->json($demarcation, 200);
 
-		return view('demarcations::edit', compact('demarcation', 'regions', 'type','possible_next_code'));
+		return view('demarcations::edit', compact('demarcation', 'regions', 'type', 'possible_next_code'));
 	}
 
 	/**
@@ -153,7 +174,7 @@ class Main extends Controller
 
 		// return response()->json($demarcation, 200);
 
-		if($demarcation->type == "Sub Region" && (!isset($demarcation->parent) ? 0 : $demarcation->parent->parent_id != $request->region_id)){
+		if ($demarcation->type == "Sub Region" && (!isset($demarcation->parent) ? 0 : $demarcation->parent->parent_id != $request->region_id)) {
 			DemarcationHistory::where('demarcation_id', $demarcation->id)->delete();
 
 			DemarcationHistory::create([
@@ -173,7 +194,7 @@ class Main extends Controller
 	 */
 	public function set_overseer(Request $request, $id)
 	{
-		DemarcationOverseer::where('id', $id)->delete();
+		DemarcationOverseer::where('demarcation_id', $id)->delete();
 		DemarcationOverseer::create([
 			'demarcation_id' => $id,
 			'pastor_id' => $request->pastor_id
@@ -182,25 +203,50 @@ class Main extends Controller
 		return redirect()->back();
 	}
 
-	public function destroy($id){
+	public function stop_overseer(Request $request, $id=false)
+	{
+		// return response()->json($request->all());
+		if($request->has('delete') && $request->delete == 1){
+			DemarcationOverseer::where('id', $id)->forceDelete();
+		}
+		else{
+			DemarcationOverseer::where('id', $id)->delete();
+		}
+		flash("Overseer History Updated")->success();
+		return redirect()->back();
+	}
+
+	public function destroy($id)
+	{
 		$demarcation = Demarcation::find($id);
 		$type = $demarcation->type;
 		$demarcation->delete();
 		DemarcationHistory::where('demarcation_id', $id)->delete();
 		DemarcationOverseer::where('demarcation_id', $id)->delete();
-		
 
-		flash($type." was deleted successfully")->success();
+
+		flash($type . " was deleted successfully")->success();
 		return redirect()->back();
 	}
 
-	public function export(){
-		$data = Demarcation::with('overseer.pastor', 'subregions', 'subregions.demarcation', 'subregions.demarcation.overseer.pastor', 'subregions.demarcation.children.church', 'subregions.demarcation.children.church.senior_pastor')->get();
+	public function export(Request $request)
+	{
+		$type = $request->type == 'region' ? "Region" : 'Sub Region';
 
-		return response()->json($data, 200);
+		$demarcations = Demarcation::with('parent')->leftJoin('demarcation_overseers as do', function ($query) {
+			$query->on('do.demarcation_id', 'demarcations.id');
+			$query->whereNull('do.deleted_at');
+		})->leftJoin('pastors as p', function ($query) {
+			$query->on('p.id', 'do.pastor_id');
+		})->leftJoin('contacts as c', function ($query) {
+			$query->on('c.id', 'p.contact_id');
+		})->where('demarcations.type',  $type)->select(['demarcations.*', 'c.name as dname', 'c.phone'])->collect();
+
+		return Excel::download(new DemarcationExport($demarcations, $type), $request->type . '-list.xlsx');
 	}
 
-	public function make_payments(Request $request, $region){
+	public function make_payments(Request $request, $region)
+	{
 		// return response()->json($request->all(), 200);
 
 		$items = $request->items;
@@ -212,11 +258,11 @@ class Main extends Controller
 
 		$DATAS = [];
 
-		foreach($items as $type=>$DD){
-			foreach($DD as $demID=>$data){
+		foreach ($items as $type => $DD) {
+			foreach ($DD as $demID => $data) {
 				$itemName = Demarcation::find($demID);
 				$CNNxtID = setting('bill.number_next');
-				$DocNo = 'BILL-'.str_pad($CNNxtID,5,"0",STR_PAD_LEFT);
+				$DocNo = 'BILL-' . str_pad($CNNxtID, 5, "0", STR_PAD_LEFT);
 				$newData = [
 					'contact_id' => $theCONTACT->id,
 					'company_id' => company_id(),
@@ -224,7 +270,7 @@ class Main extends Controller
 					'currency_rate' => 1,
 					'order_number' => $time,
 					'contact_country' => 'KE',
-					'contact_name' => ($type == 'sub_region' ? $itemName->name : $itemName->name).' - '.ucwords((implode(' ', (explode('_', $type))))),
+					'contact_name' => ($type == 'sub_region' ? $itemName->name : $itemName->name) . ' - ' . ucwords((implode(' ', (explode('_', $type))))),
 					'contact_email' => $theCONTACT->email,
 					'parent_id' => 0,
 					'status' => 'received',
@@ -244,39 +290,39 @@ class Main extends Controller
 
 				$BILLL = Document::create($newData);
 				$CNNxtID += 1;
-				setting(['bill.number_next'=> $CNNxtID])->save();
+				setting(['bill.number_next' => $CNNxtID])->save();
 
 				$BILLZ[$type] = $BILLL;
 
-				foreach($data as $dt=>$dd){
+				foreach ($data as $dt => $dd) {
 					$dts = explode('-', $dt);
 
-					if(!isset($DATAS[$type])){
+					if (!isset($DATAS[$type])) {
 						$DATAS[$type] = [];
 					}
-					
-					$distributionItem = Item::where('name', $itemName->name.' Payment Line')->first();
-					if(!isset($distributionItem->id)){
+
+					$distributionItem = Item::where('name', $itemName->name . ' Payment Line')->first();
+					if (!isset($distributionItem->id)) {
 						$distributionItem = Item::create([
 							'company_id' => company_id(),
-							'name' => $itemName->name.' Payment Line',
-							'sku' => $itemName->name.' Payment Line',
-							'description' => $itemName->name.' Payment Line',
+							'name' => $itemName->name . ' Payment Line',
+							'sku' => $itemName->name . ' Payment Line',
+							'description' => $itemName->name . ' Payment Line',
 							'quantity' => 1,
 							'sale_price' => 0,
 							'purchase_price' => 0,
-							'created_from' => 'core::ui', 
+							'created_from' => 'core::ui',
 							'created_by' => user()->id
 						]);
 					}
 
-					if(!isset($BILLITEMS[$distributionItem->name])){
-						$BILLITEMS[$distributionItem->name] = ['name'=>$distributionItem->name, 'id'=>$distributionItem->id, 'total'=>0, 'description'=>[], 'items'=>[]];
+					if (!isset($BILLITEMS[$distributionItem->name])) {
+						$BILLITEMS[$distributionItem->name] = ['name' => $distributionItem->name, 'id' => $distributionItem->id, 'total' => 0, 'description' => [], 'items' => []];
 					}
-		
+
 					$BILL = $BILLZ[$type];
 
-					foreach($dts as $c){
+					foreach ($dts as $c) {
 						$c = intval($c);
 						$div = PaymentDivision::find($c);
 						$church = Church::find($div->church_id);
@@ -289,7 +335,7 @@ class Main extends Controller
 
 				$PESA = 0;
 
-				foreach($BILLITEMS as $itt){
+				foreach ($BILLITEMS as $itt) {
 					$itemArrayData = [
 						'company_id' => company_id(),
 						'item_id' => $itt['id'],
@@ -297,8 +343,8 @@ class Main extends Controller
 						'description' => implode(', ', $itt['description']),
 						'type' => 'bill',
 						'quantity' => 1,
-						'price' => $itt['total'],		
-						'total' => $itt['total'],	
+						'price' => $itt['total'],
+						'total' => $itt['total'],
 						'document_id' => $BILL->id,
 						'updated_at' => Carbon::now(),
 						'created_by' => auth()->user()->id,
@@ -309,28 +355,28 @@ class Main extends Controller
 
 					PaymentDivision::whereIn('id', $itt['items'])->update(['bill_item_id' => $newDocItem->id]);
 
-					$PESA+=$itt['total'];
+					$PESA += $itt['total'];
 				}
 
 
 				$totals = ['sub_total', 'total'];
 
-				foreach($totals as $in=>$tt){
+				foreach ($totals as $in => $tt) {
 					$totalArr = [
-						'company_id' => company_id(), 
-						'type' => 'bill', 
-						'document_id' => $BILL->id, 
-						'code' => $tt, 
-						'name' => 'bills.'.$tt, 
-						'amount' => $PESA, 
-						'sort_order' => $in+1,
+						'company_id' => company_id(),
+						'type' => 'bill',
+						'document_id' => $BILL->id,
+						'code' => $tt,
+						'name' => 'bills.' . $tt,
+						'amount' => $PESA,
+						'sort_order' => $in + 1,
 						'created_from' => 'core::ui',
 						'created_by' => auth()->user()->id,
 					];
 					DocumentTotal::create($totalArr);
 				}
 
-				if(isset($BILLZ[$type])){
+				if (isset($BILLZ[$type])) {
 					$BILL = $BILLZ[$type];
 					$BILL->amount = $PESA;
 					$BILL->save();
@@ -344,29 +390,30 @@ class Main extends Controller
 		return redirect()->back();
 	}
 
-	public function mark_paid(Request $request){
+	public function mark_paid(Request $request)
+	{
 		// return response()->json($request->all());
 
 		$paymentModes = [
-			"Cash"=>"offline-payments.cash.1",
-			"Bank Transfer"=>"offline-payments.bank_transfer.2",
+			"Cash" => "offline-payments.cash.1",
+			"Bank Transfer" => "offline-payments.bank_transfer.2",
 			"M-PESA" => "offline-payments.m_pesa.3",
 			"Cheque" => "offline-payments.cheque.4"
 		];
 
 
-		foreach($request->bills as $id){
+		foreach ($request->bills as $id) {
 
 			$bill = Document::find($id);
 
-			if(!isset($bill->id)){
+			if (!isset($bill->id)) {
 				continue;
 			}
 
 			$div = PaymentDivision::where('bill_id', $bill->id)->first();
 
 
-			if(!isset($div->id)){
+			if (!isset($div->id)) {
 				flash("Missing Payment Division")->error();
 				continue;
 			}
@@ -386,10 +433,10 @@ class Main extends Controller
 				'type' => 'expense',
 				'account_id' => 1,
 				'paid_at' => $bill->due_at,
-				'amount'=> abs($bill->amount_due),
+				'amount' => abs($bill->amount_due),
 				'currency_code' => 'KES',
 				'currency_rate' => 1,
-				'document_id'=> null,
+				'document_id' => null,
 				'contact_id' => $bill->contact_id,
 				'description' => $bill->description,
 				'category_id' => 4,
@@ -397,7 +444,7 @@ class Main extends Controller
 				'reference' => $bill->order_number,
 				'parent_id' => 0,
 				'created_from' => 'core::ui',
-				'created_by'=> \Auth::user()->id,
+				'created_by' => \Auth::user()->id,
 				'do_not_fire_event' => true
 			];
 
@@ -412,24 +459,64 @@ class Main extends Controller
 		return redirect()->back();
 	}
 
-	public function payments_made(Request $request){
+	public function payments_made(Request $request)
+	{
 		$dbprefix = DB::getTablePrefix();
-		$payments = PaymentMadeView::withTrashed()->collect();
+		// $payments = PaymentMadeView::withTrashed()
+		// ->orderBy('regional_id', 'asc')->orderBy('sub_regional_id', 'asc')->orderByRaw("FIELD(type, 'region') DESC")
+		// ->orderBy("type","asc")->collect();
 
-		if($request->has('export')){
-			return Excel::download(new PaymentsMadeExport($payments), 'payments-list.xlsx');
-		}
-		
-		return $this->response('demarcations::reports.payments-made', compact('payments'));
+		// if($request->has('export')){
+		// 	return Excel::download(new PaymentsMadeExport($payments), 'payments-list.xlsx');
+		// }
+
+
+		$regions = Demarcation::with('overseer.pastor.contact')->region()->orderBy('name', 'asc')->get();
+		// return json_encode($regions);
+		return $this->response('demarcations::reports.payments-made', compact('regions'));
 	}
 
-	public function pending_payments(){
+	public function payment_distribution(Request $request, $type, $type_id)
+	{
+		$type = strtolower($type);
+		$demarcation = Demarcation::with('children')->where('id', $type_id)->first();
+
+		if ($type == "region") {
+			$children = DemarcationHistory::with('demarcation.overseer.pastor')->where('parent_id', $type_id)->get();
+		} else {
+			$children = ChurchHistory::with('church.senior_pastor.pastor')->where('demarcation_id', $type_id)->get();
+		}
+
+		$paymentList = PaymentDivision::with('region', 'subregion')->selectRaw('SUM(COALESCE(amount, 0)) as amount, type, cheque_number, payment_date')
+			->whereNotNull('payment_date')->where($type == 'region' ? 'regional_id' : 'sub_regional_id',  $type_id)->groupBy('type', 'cheque_number')->get();
+
+		return $this->response('demarcations::reports.payments-made-show', compact('type', 'demarcation', 'children', 'paymentList'));
+	}
+
+	public function view_cheque_number_list(Request $request, $cheque_number, $type)
+	{
+		$paymentList = PaymentDivision::leftJoin('pastor_histories as ph', function($join){
+			$join->on('ph.church_id', 'payment_divisions.church_id');
+			$join->where('ph.rank', 'Senior');
+			$join->whereNull('ph.deleted_at');
+		})
+		->leftJoin('pastors as p', 'p.id', 'ph.pastor_id')
+		->leftJoin('contacts as c', 'c.id', 'p.contact_id')
+		->with('church.senior_pastor.pastor.contact', 'pastor.contact', 'region', 'subregion')
+		->select(['payment_divisions.*', 'c.name'])
+		->where('payment_divisions.type', $type)->where('cheque_number', $cheque_number)->get();
+		
+		return $this->response('demarcations::reports.payment-made-division-list', compact('paymentList', 'cheque_number'));
+	}
+
+	public function pending_payments()
+	{
 		$divisions = setting('church.payment_divisions');
 		$divisions = json_decode($divisions);
-		
+
 		$regions = Demarcation::region()->with('subregions.demarcation');
 
-		if(request()->has('region')){
+		if (request()->has('region')) {
 			$regions = $regions->where('id', request()->region);
 		}
 
@@ -442,20 +529,21 @@ class Main extends Controller
 		return $this->response('demarcations::payments', compact('divisions', 'regions', 'allregs'));
 	}
 
-	public function get_pending_items_by_dem($div, $id){
+	public function get_pending_items_by_dem($div, $id)
+	{
 		$payments = PaymentDivision::with(['church.senior_pastor.pastor.contact', 'subregion', 'pastor'])->whereNull('payment_date')->where('regional_id', $id)->where('type', $div)
 			->selectRaw('id,church_id,regional_id,sub_regional_id,month,year,amount,contact_id')->get();
 
 		$dataConfiged = [];
 
-		foreach($payments as $pay){
-			if(!isset($dataConfiged[$pay->sub_regional_id])){
+		foreach ($payments as $pay) {
+			if (!isset($dataConfiged[$pay->sub_regional_id])) {
 				$dataConfiged[$pay->sub_regional_id] = [];
 			}
 
-			$dataConfiged[$pay->sub_regional_id][] = $pay; 
+			$dataConfiged[$pay->sub_regional_id][] = $pay;
 		}
 
-		return response()->json(["data"=>$dataConfiged], 200,);
+		return response()->json(["data" => $dataConfiged], 200,);
 	}
 }

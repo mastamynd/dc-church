@@ -304,9 +304,9 @@
 												<div class="card" style="margin-bottom: 5px !important">
 													<div id="accordion-histories-header-{{ $loop->iteration }}" data-toggle="collapse" data-target="#accordion-histories-body-{{ $loop->iteration }}" aria-expanded="false" aria-controls="accordion-histories-body-{{ $loop->iteration }}" class="card-header collapsed">
 														<h4 class="mb-0" style="width: 100%">
-															<small class="badge bg-light badge-pill text-small">{{ $item->demarcation->type }}</small>
-															{{ $item->demarcation->name }}
-															<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($item->demarcation->amounts('received') - $item->demarcation->amounts('paid'), setting('default.currency'), true)</div>
+															<small class="badge bg-light badge-pill text-small">{{ $item->demarcation->type ?? 'N/A' }}</small>
+															{{ $item->demarcation->name ?? 'N/A' }}
+															<div style="float: right;	margin-right: 50px;" class="pull-right badge badge-success badge-pill">@money($item->demarcation ? ($item->demarcation->amounts('received') - $item->demarcation->amounts('paid')) : 0, setting('default.currency'), true)</div>
 														</h4>
 													</div> 
 													<div id="accordion-histories-body-{{ $loop->iteration }}" aria-labelledby="accordion-histories-header-{{ $loop->iteration }}" class="hide collapse" style="">
@@ -316,8 +316,8 @@
 																	<tr class="table-head-line">
 																		<th colspan="1%">
 																			<div class="custom-control custom-checkbox">
-																				<input checked="true" type="checkbox" class="custom-control-input toggle-amount-to-pay-cbx" id="bulk-action-sub_dem-{{ $item->demarcation->id }}">
-																				<label class="custom-control-label"  for="bulk-action-sub_dem-{{ $item->demarcation->id }}"></label>
+																				<input checked="true" type="checkbox" class="custom-control-input toggle-amount-to-pay-cbx" id="bulk-action-sub_dem-{{ $item->demarcation ? $item->demarcation->id : 0 }}">
+																				<label class="custom-control-label"  for="bulk-action-sub_dem-{{ $item->demarcation ? $item->demarcation->id : 0 }}"></label>
 																			</div>
 																		</th>
 																		<th class="">{{ trans_choice('church::general.title', 1) }}</th>
@@ -328,7 +328,7 @@
 																</thead> 
 																<tbody>
 																	@php($HTOTAL = 0)
-																	@foreach($item->demarcation->pending_payments('sub_region') as $pd)
+																	@foreach($item->demarcation ? $item->demarcation->pending_payments('sub_region') : [] as $pd)
 																		@php($AMOUNTTOPAY+=$pd->amount ?? 0)
 																		@php($HTOTAL+=$pd->amount ?? 0)
 																		<tr class="align-items-center border-top-1 tr-py">
@@ -377,8 +377,8 @@
 																		<tr class="table-head-line">
 																			<th colspan="1%">	
 																				<div class="custom-control custom-checkbox">
-																					<input checked="true" type="checkbox" class="custom-control-input toggle-amount-to-pay-cbx" id="bulk-{{ $rowD['code'] }}-{{ $item->demarcation->id }}">
-																					<label class="custom-control-label" for="bulk-{{ $rowD['code'] }}-{{ $item->demarcation->id }}"></label>
+																					<input checked="true" type="checkbox" class="custom-control-input toggle-amount-to-pay-cbx" id="bulk-{{ $rowD['code'] }}-{{ $item->demarcation ? $item->demarcation->id : 0 }}">
+																					<label class="custom-control-label" for="bulk-{{ $rowD['code'] }}-{{ $item->demarcation ? $item->demarcation->id : 0 }}"></label>
 																				</div>																				
 																			</th>
 																			@if ($rowD['code'] == 'pastors_fund')
@@ -460,6 +460,11 @@
 														@if(trim($r->deleted_at) != "") 
 															{{ $r->deleted_at }}
 														@else 
+															@can('update-demarcations-main')
+																<small class="btn btn-transparent btn-sm text-danger mh-2" data-target="#stop-history-modal" data-toggle="modal" data-history="{{ $r->id }}">
+																	<i class="fas fa-stop"></i>
+																</small>
+															@endcan
 															<small class="badge badge-success">CURRENT</small>
 														@endif
 													</td>
@@ -488,7 +493,8 @@
 											</tr>
 										</thead>
 										<tbody>
-												@foreach ($demarcation->children as $item)
+											@foreach ($demarcation->children as $item)
+												@if(isset($item->demarcation->name))
 													<tr class="border-top-1 tr-py">
 														<td>
 															@if (!$isSubRegion)
@@ -514,13 +520,13 @@
 														
 														<td>{{ !$isSubRegion ? $item->demarcation->children->count() : $item->church->pastors->count() }}</td>
 													</tr>
-												@endforeach
-												@if($demarcation->children->count() == 0)
-												<tr class="align-items-center border-top-1 tr-py">
-													<td colspan="4" class="text-muted">No records found.</td>
-												</tr>
-												@endif
-												
+												@endif	
+											@endforeach
+											@if($demarcation->children->count() == 0)
+											<tr class="align-items-center border-top-1 tr-py">
+												<td colspan="4" class="text-muted">No records found.</td>
+											</tr>
+											@endif
 										</tbody>
 									</table>
 								</div>
@@ -533,13 +539,29 @@
 										<table class="table table-flush table-hover" id="tbl-subregion_history">
 											<thead class="thead-light">
 												<tr class="table-head-line">
-													<th class="">{{ trans_choice('general.name', 1) }}</th>
+													<th class="">{{ trans('Region') }}</th>
 													<th class="">{{ trans_choice('demarcations::general.code', 1) }}</th>
-													<th class="">{{ trans_choice('demarcations::general.overseer', 1) }}</th>
-													<th class="">{{ trans_choice('demarcations::general.church', 2) }}</th>
+													<th class="">{{ trans('From') }}</th>
+													<th class="">{{ trans('To') }}</th>
 												</tr>
 											</thead>
 											<tbody>
+												@foreach ($demarcation->history as $history)
+													@if ($history->parent)
+													<tr>
+														<td>{{ $history->parent->name ?? '-' }}</td>
+														<td>{{ $history->parent->code ?? '-' }}</td>
+														<td>{{ $history->created }}</td>
+														<td>
+															@if(trim($history->deleted_at) != "") 
+																{{ $history->deleted_at }}
+															@else 
+																<small class="badge badge-success">CURRENT</small>
+															@endif
+														</td>
+													</tr>
+													@endif
+												@endforeach
 												<tr class="align-items-center border-top-1 tr-py">
 													<td colspan="5 text-muted">No records found.</td>
 												</tr>
@@ -666,6 +688,32 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		</div>
 	</div>
 </div>
+<div class="modal fade show" id="stop-history-modal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="{{ route('church.pastor_stop_history') }}" method="post">
+				@csrf
+				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+					<h4>Update Demarcation Overseer Details</h4>
+				</div>
+				<div class="modal-body">
+					<div class="form-group form-group-lg">
+						<div class="alert alert-danger">
+							<i class="fas fa-exclamation-triangle fa-2x pull-left float-left"></i> Are you sure that you want to update overseer history?
+						</div>
+					</div>
+					<div class="form-group">
+						<input type="checkbox" name="delete" value="1" /> Delete this history <strong>completely</strong>.
+					</div>
+				</div>
+				<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+					<span class="btn btn-white" data-dismiss="modal">Close</span>
+					<button type="submit" class="btn btn-danger">UPDATE</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
 <script type="text/javascript">
 	var selectizerNow = function(tis){
 		var $url = $(tis).data('url');
@@ -781,6 +829,13 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 				$('.amount-to-pay').text('KSH'+numberWithCommas(TOPAY.toFixed(2)));
 			});
 		}
+
+		$("#stop-history-modal").on("shown.bs.modal", function (e){ 
+			var hID = $(e.relatedTarget).data('history');
+
+			$(this).find('form').attr('action', "{{ route('demarcations.stop_overseer') }}/"+hID);
+			$(this).find('form').prop('action', "{{ route('demarcations.stop_overseer') }}/"+hID);
+		});
 
 		$('.table-head-line').find('[type="checkbox"]').on('change', function(){
 			var table = $(this).parents('table');

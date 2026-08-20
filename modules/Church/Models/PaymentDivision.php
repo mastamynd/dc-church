@@ -11,7 +11,7 @@ use Modules\Demarcations\Models\Demarcation as ModelsDemarcation;
 
 class PaymentDivision extends Model
 {
-	protected $fillable = ['church_id', 'regional_id', 'sub_regional_id', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'contact_id', 'transaction_id', 'type', 'amount', 'invoice_id', 'invoice_item_id', 'bill_id', 'bill_item_id', 'payment_date', 'month', 'year'];
+	protected $fillable = ['church_id', 'regional_id', 'sub_regional_id', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'contact_id', 'transaction_id', 'type', 'amount', 'topup', 'invoice_id', 'invoice_item_id', 'bill_id', 'bill_item_id', 'payment_date', 'month', 'year'];
 	// protected $table = "view_payment_division_by_type";
 
 	public function bill(){

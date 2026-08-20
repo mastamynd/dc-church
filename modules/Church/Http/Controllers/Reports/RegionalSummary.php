@@ -64,7 +64,12 @@ class RegionalSummary extends Controller
                     $count = $count->where('year', $takeyear);
                     $count = $region_id > 0 ? $count->where('regional_id',$region_id) : $count;
                     $count = $sub_region_id > 0 ? $count->where('sub_regional_id',$sub_region_id) : $count;
-                    $total[$month] = $count->sum($month) ;
+
+                    $hasTopUp = PaymentDivision::where('month', $month)->where('year', $takeyear)->where('type', $type);
+                    $hasTopUp = $region_id > 0 ? $hasTopUp->where('regional_id',$region_id) : $hasTopUp;
+                    $hasTopUp = $sub_region_id > 0 ? $hasTopUp->where('sub_regional_id',$sub_region_id) : $hasTopUp;
+
+                    $total[$month] = $count->sum($month) + $hasTopUp->sum('topup');
                     
                 };
                 $total['total'] = array_sum($total);
@@ -79,7 +84,11 @@ class RegionalSummary extends Controller
                 $count_m = $region_id > 0 ? $count_m->where('regional_id',$region_id) : $count_m;
                 $count_m = $sub_region_id > 0 ? $count_m->where('sub_regional_id',$sub_region_id) : $count_m;
 
-                $month_record[$month] = $count_m->sum($month);
+                $hasTopUp = PaymentDivision::where('month', $month)->where('year', $takeyear)->where('type', $type);
+                $hasTopUp = $region_id > 0 ? $hasTopUp->where('regional_id',$region_id) : $hasTopUp;
+                $hasTopUp = $sub_region_id > 0 ? $hasTopUp->where('sub_regional_id',$sub_region_id) : $hasTopUp;
+
+                $month_record[$month] = $count_m->sum($month) + $hasTopUp->sum('topup');
                 
             };
             $month_record['total'] = array_sum($month_record);
@@ -137,7 +146,7 @@ class RegionalSummary extends Controller
             $total['name'] = "TOTAL";
             $region_report['total'] = $total;
 
-            $subs = DemarcationHistory::where('parent_id', $region->id)->get();
+            $subs = DemarcationHistory::where('parent_id', $region->id)->whereNull('deleted_at')->get();
             $region_report['sub_regions'] = [];
             foreach ($subs as $sub) {
                 // return response()->json($sub);
@@ -184,19 +193,28 @@ class RegionalSummary extends Controller
         $takeyear = $year == 0 ? date('Y') : $year;
         $regional_id = isset($request->regional_id) ? $request->regional_id : $region_id;
         $sub_regional_id = isset($request->sub_regional_id) ? $request->sub_regional_id : $sub_region_id;
-        $churches = PaymentDivisionView::where('year',$takeyear);
+        $churches = PaymentDivisionView::where('year',$takeyear)->leftJoin('pastor_histories as pash','pash.church_id','view_payment_division_by_type.church_id')->whereNull('pash.deleted_at')->where('pash.rank','Senior')->leftJoin('pastors as chpast','chpast.id','pash.pastor_id')->leftJoin('contacts as chcon','chcon.id','chpast.contact_id')->selectRaw('1dt_view_payment_division_by_type.*,1dt_chcon.name as senior_pastor_name');
         $regional_id = isset($request->regional_id) ? $request->regional_id : $region_id;
         $sub_regional_id = isset($request->sub_regional_id) ? $request->sub_regional_id : $sub_region_id;
         $churches = $regional_id > 0 ? $churches->where('regional_id', $regional_id) : $churches; 
         $churches = $sub_regional_id > 0 ? $churches->where('sub_regional_id', $sub_regional_id) : $churches;
         $churches = $churches->orderBy('regional_id','asc')->orderBy('amount','Desc')->get();
-        $remiting = $churches->pluck('id')->toArray();
+        $remiting = $churches->pluck('church_id')->toArray();
 
-        $churches_none = Church::whereNotIn('churches.id',$remiting)->join('church_histories as xch','xch.church_id','churches.id')->whereNull('xch.deleted_at')->join('demarcation_histories as xdh','xdh.demarcation_id','xch.demarcation_id')->whereNull('xch.deleted_at')->join('demarcations as subr','subr.id','xch.demarcation_id')->join('demarcations as reg','reg.id','xdh.parent_id')->leftJoin('demarcation_overseers as dem_oversee','dem_oversee.demarcation_id','reg.id')->leftJoin('pastors as pst','pst.id','dem_oversee.pastor_id')->leftJoin('contacts as con','con.id','pst.contact_id')->leftJoin('demarcation_overseers as sub_over','sub_over.demarcation_id','subr.id')->leftJoin('pastors as subpst','subpst.id','sub_over.pastor_id')->leftJoin('contacts as subcon','subcon.id','subpst.contact_id')->selectRaw('1dt_churches.*,1dt_xch.demarcation_id as sub_regional_id,1dt_xdh.parent_id as regional_id,1dt_subr.name as subregion_name,1dt_reg.name as region_name,1dt_con.name as regional_overseer_name,1dt_subcon.name as subregional_overseer_name');
+        $churches_none = Church::whereNotIn('churches.id',$remiting)->join('church_histories as xch','xch.church_id','churches.id')
+        ->whereNull('xch.deleted_at')->join('demarcation_histories as xdh','xdh.demarcation_id','xch.demarcation_id')
+        ->whereNull('xdh.deleted_at')->join('demarcations as subr','subr.id','xch.demarcation_id')
+        ->join('demarcations as reg','reg.id','xdh.parent_id')->leftJoin('demarcation_overseers as dem_oversee','dem_oversee.demarcation_id','reg.id')->whereNull('dem_oversee.deleted_at')
+        ->leftJoin('pastors as pst','pst.id','dem_oversee.pastor_id')->leftJoin('contacts as con','con.id','pst.contact_id')
+        ->leftJoin('demarcation_overseers as sub_over','sub_over.demarcation_id','subr.id')->whereNull('sub_over.deleted_at')->leftJoin('pastors as subpst','subpst.id','sub_over.pastor_id')
+        ->leftJoin('contacts as subcon','subcon.id','subpst.contact_id')->leftJoin('pastor_histories as pash','pash.church_id','churches.id')
+        ->whereNull('pash.deleted_at')->leftJoin('pastors as chpast','chpast.id','pash.pastor_id')->leftJoin('contacts as chcon','chcon.id','chpast.contact_id')
+        ->selectRaw('1dt_churches.*,1dt_xch.demarcation_id as sub_regional_id,1dt_xdh.parent_id as regional_id,1dt_subr.name as subregion_name,1dt_reg.name as region_name,1dt_con.name as regional_overseer_name,1dt_subcon.name as subregional_overseer_name,1dt_chcon.name as pastor_name');
         
         $churches_none = $regional_id > 0 ? $churches_none->where('xdh.parent_id', $regional_id) : $churches_none; 
         $churches_none =  $sub_regional_id > 0 ? $churches_none->where('xch.demarcation_id', $sub_regional_id) : $churches_none;
-        $churches_none = $churches_none->get();
+        
+        // return response()->json($churches_none);
 
         $response = [];
         
@@ -249,8 +267,9 @@ class RegionalSummary extends Controller
             
             
         }
-        foreach($churches_none as $church){
-            foreach($division as $key=>$type){
+        foreach($division as $key=>$type){
+            $none_church_data = $key == 'pastors_fund' ? $churches_none->get() : $churches_none->groupBy('id')->get();
+            foreach($none_church_data as $church){
                 isset($response[$church->region_name]) ? '' : $response[$church->region_name] = [];
                 $response[$church->region_name]['overseer'] = $church->regional_overseer_name;
                 isset($response[$church->region_name]['sub-region'][$church->subregion_name]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name] = [];
@@ -301,7 +320,12 @@ class RegionalSummary extends Controller
                     $count = $count->where('year', $takeyear);
                     $count = $regional_id > 0 ? $count->where('regional_id',$regional_id) : $count;
                     $count = $sub_regional_id > 0 ? $count->where('sub_regional_id',$sub_regional_id) : $count;
-                    $total[$month] = $count->sum($month) ;
+                    
+                    $hasTopUp = PaymentDivision::where('month', $month)->where('year', $takeyear)->where('type', $type);
+                    $hasTopUp = $region_id > 0 ? $hasTopUp->where('regional_id',$region_id) : $hasTopUp;
+                    $hasTopUp = $sub_region_id > 0 ? $hasTopUp->where('sub_regional_id',$sub_region_id) : $hasTopUp;
+
+                    $total[$month] = $count->sum($month) + $hasTopUp->sum('topup');
                     
                 };
                 $total['total'] = array_sum($total);
@@ -314,7 +338,12 @@ class RegionalSummary extends Controller
                 $count_m = $count_m->where('year', $takeyear)->where('type', $type);
                 $count_m = $regional_id > 0 ? $count_m->where('regional_id',$regional_id) : $count_m;
                 $count_m = $sub_regional_id > 0 ? $count_m->where('sub_regional_id',$sub_regional_id) : $count_m;
-                $month_record[$month] = $count_m->sum($month);
+                
+                $hasTopUp = PaymentDivision::where('month', $month)->where('year', $takeyear)->where('type', $type);
+                $hasTopUp = $region_id > 0 ? $hasTopUp->where('regional_id',$region_id) : $hasTopUp;
+                $hasTopUp = $sub_region_id > 0 ? $hasTopUp->where('sub_regional_id',$sub_region_id) : $hasTopUp;
+
+                $month_record[$month] = $count_m->sum($month) + $hasTopUp->sum('topup');
             };
             $month_record['total'] = array_sum($month_record);
             $month_record['name'] = $value;
@@ -358,7 +387,7 @@ class RegionalSummary extends Controller
             $total['name'] = "TOTAL";
             $region_report['total'] = $total;
 
-            $subs = DemarcationHistory::where('parent_id', $region->id)->get();
+            $subs = DemarcationHistory::where('parent_id', $region->id)->whereNull('deleted_at')->get();
             $region_report['sub_regions'] = [];
             foreach ($subs as $sub) {
                 // return response()->json($sub);
@@ -397,7 +426,7 @@ class RegionalSummary extends Controller
     public function subRegionPaymentDivisionSummaryPrintReport($year,$regional_id,$sub_regional_id)
     {
         $takeyear = $year == 0 ? date('Y') : $year;
-        $churches = PaymentDivisionView::where('year',$takeyear);
+        $churches = PaymentDivisionView::where('year',$takeyear)->leftJoin('pastor_histories as pash','pash.church_id','view_payment_division_by_type.church_id')->whereNull('pash.deleted_at')->where('pash.rank','Senior')->leftJoin('pastors as chpast','chpast.id','pash.pastor_id')->leftJoin('contacts as chcon','chcon.id','chpast.contact_id')->selectRaw('1dt_view_payment_division_by_type.*,1dt_chcon.name as senior_pastor_name');
       
         if($regional_id > 0){
             $churches = $churches->where('regional_id', $regional_id);
@@ -406,6 +435,14 @@ class RegionalSummary extends Controller
             $churches = $churches->where('sub_regional_id', $sub_regional_id);
         }
         $churches = $churches->orderBy('regional_id','asc')->orderBy('amount','Desc')->get();
+
+        $remiting = $churches->pluck('church_id')->toArray();
+
+        $churches_none = Church::whereNotIn('churches.id',$remiting)->join('church_histories as xch','xch.church_id','churches.id')->whereNull('xch.deleted_at')->join('demarcation_histories as xdh','xdh.demarcation_id','xch.demarcation_id')->whereNull('xch.deleted_at')->join('demarcations as subr','subr.id','xch.demarcation_id')->join('demarcations as reg','reg.id','xdh.parent_id')->leftJoin('demarcation_overseers as dem_oversee','dem_oversee.demarcation_id','reg.id')->whereNull('dem_oversee.deleted_at')->leftJoin('pastors as pst','pst.id','dem_oversee.pastor_id')->leftJoin('contacts as con','con.id','pst.contact_id')->leftJoin('demarcation_overseers as sub_over','sub_over.demarcation_id','subr.id')->whereNull('sub_over.deleted_at')->leftJoin('pastors as subpst','subpst.id','sub_over.pastor_id')->leftJoin('contacts as subcon','subcon.id','subpst.contact_id')->leftJoin('pastor_histories as pash','pash.church_id','churches.id')->whereNull('pash.deleted_at')->leftJoin('pastors as chpast','chpast.id','pash.pastor_id')->leftJoin('contacts as chcon','chcon.id','chpast.contact_id')->selectRaw('1dt_churches.*,1dt_xch.demarcation_id as sub_regional_id,1dt_xdh.parent_id as regional_id,1dt_subr.name as subregion_name,1dt_reg.name as region_name,1dt_con.name as regional_overseer_name,1dt_subcon.name as subregional_overseer_name,1dt_chcon.name as pastor_name');
+        
+        $churches_none = $regional_id > 0 ? $churches_none->where('xdh.parent_id', $regional_id) : $churches_none; 
+        $churches_none =  $sub_regional_id > 0 ? $churches_none->where('xch.demarcation_id', $sub_regional_id) : $churches_none;
+       
         
         $response = [];
         $divisions = setting('church.payment_divisions');
@@ -456,12 +493,35 @@ class RegionalSummary extends Controller
             array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$church->type]['churches'],$church);
             $response[$church->region_name]['sub-region'][$church->subregion_name]['overseer'] = $church->subregional_overseer_name;
         }
+        foreach($division as $key=>$type){
+            $none_church_data = $key == 'pastors_fund' ? $churches_none->get() : $churches_none->groupBy('id')->get();
+            foreach($none_church_data as $church){
+                isset($response[$church->region_name]) ? '' : $response[$church->region_name] = [];
+                $response[$church->region_name]['overseer'] = $church->regional_overseer_name;
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name] = [];
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key] = [];
+                $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['name'] = $type;
+                foreach($months as $month){
+
+                    isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month]) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month]= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month] + 0 : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total'][$month] = 0;
+                }
+    
+    
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals']) ? $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals']= $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals'] + 0 : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['total']['totals'] = 0;
+    
+    
+                isset($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['churches']) ? '' : $response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['churches'] = [];
+                array_push($response[$church->region_name]['sub-region'][$church->subregion_name]['types'][$key]['churches'],$church);
+                $response[$church->region_name]['sub-region'][$church->subregion_name]['overseer'] = $church->subregional_overseer_name;
+            }
+        }
         // return response()->json($response);
         // return $this->response('church::reports.paymentsummary',compact('response','takeyear','regional_id','sub_regional_id'));
         return $this->response('church::reports.print.paymentSummary',compact('response','takeyear','regional_id','year','sub_regional_id'));
     }
+    
     public function getSubregionsByRegionID(Request $request){
-        $subs = DemarcationHistory::where('parent_id', $request->region_id)->with('demarcation')->get()->sortBy('demarcation.name',SORT_REGULAR,false)->values();
+        $subs = DemarcationHistory::where('parent_id', $request->region_id)->whereNull('deleted_at')->with('demarcation')->get()->sortBy('demarcation.name',SORT_REGULAR,false)->values();
         return response()->json($subs);
     }
 }

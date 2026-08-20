@@ -208,7 +208,7 @@
 											@foreach ($church->history as $h)
 											<tr>
 												<td>{{ $loop->iteration }}</td>
-												<td>{{ $h->demarcation->name }}</td>
+												<td>{{ $h->demarcation ? $h->demarcation->name : '' }}</td>
 												<td>{{ $h->created_at }}</td>
 												<td>
 													@if(trim($h->deleted_at) != "") 
@@ -242,10 +242,19 @@
 											<tr class="table-head-line">
 												<th class="">{{ trans_choice('general.numbers', 1) }}</th>
 												<th class="">{{ trans_choice('general.month', 1) }}</th>
+												<th class="">{{ trans_choice('general.year', 1) }}
+													<span class="btn btn-sm btn-transparent text-info" data-target="#year-changer-modal" data-toggle="modal">
+														<i class="fas fa-filter"></i>
+													</span>
+												</th>
 												<th class="">{{ trans_choice('general.amount', 1) }}</th>
 												<th class="">{{ trans('payment-reception::general.payment_by') }}</th>
 												<th class="">{{ trans('general.date') }}</th>
-												<th class=""></th>
+												<th class="">
+													<span class="btn btn-sm btn-transparent" id="download-statements">
+														<i class="fas fa-download"></i>
+													</span>
+												</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -253,6 +262,7 @@
 												<tr>
 													<td>{{ $loop->iteration }}</td>
 													<td>{{ $money->month }}</td>
+													<td>{{ $money->year }}</td>
 													<td>@money($money->amount, 'KES', true)</td>
 													<td>{{ $money->payer_name }}</td>
 													<td>{{ $money->created_at }}</td>
@@ -314,6 +324,32 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 				<div class="modal-footer border-top" style="background-color: #f8f9fe;">
 					<span class="btn btn-white" data-dismiss="modal">Close</span>
 					<button type="submit" class="btn btn-danger">UPDATE</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade show" id="year-changer-modal" role="dialog">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="" method="get">
+				<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+					{{ trans('Filter Statements By Year') }}
+				</div>
+				<div class="modal-body">
+					<div class="form-group form-group-lg">
+						<label class="control-label">Year</label>
+						<select class="form-control" name="year">
+							<option value="all">All Years</option>
+								@for($y=2022; $y<=date('Y'); $y++)
+							<option value="{{ $y }}">{{ $y }}</option>
+							@endfor
+						</select>
+					</div>
+				</div>
+				<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+					<span class="btn btn-white" data-dismiss="modal">Close</span>
+					<button type="submit" class="btn btn-danger">Filter</button>
 				</div>
 			</form>
 		</div>
@@ -481,6 +517,37 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 		}
 	}
 
+	function convertTableToCSV(tableId, fileName) {
+		const table = document.getElementById(tableId);
+		const rows = Array.from(table.querySelectorAll('tr'));
+
+		// Function to clean up the cell data and escape special characters
+		const cleanCellData = (data) => {
+			const cleanedData = data.replace(/"/g, '""'); // Escape double quotes
+			return `"${cleanedData}"`; // Enclose cell data in double quotes
+		};
+
+		// Convert each row to CSV format
+		const csvRows = rows.map((row) => {
+			const cells = Array.from(row.querySelectorAll('th, td'));
+			const csvRow = cells.map((cell) => cleanCellData(cell.textContent)).join(',');
+			return csvRow;
+		});
+
+		// Join rows with line breaks to form the final CSV content
+		const csvContent = csvRows.join('\n');
+
+		// Create a download link
+		const downloadLink = document.createElement('a');
+		downloadLink.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent));
+		downloadLink.setAttribute('download', fileName);
+
+		// Append the link to the document body and trigger the download
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
+	}
+
 	$(function(){
 		$(this).find('.selectize-field').each(function() {
 			if ($(this)[0].selectize) {
@@ -496,6 +563,12 @@ crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 			$(this).find('form').prop('action', "{{ route('church.pastor_stop_history') }}/"+hID);
 		});
 
+		$("#download-statements").on('click', function(){
+			const tableId = 'tbl-church_statements'; // Replace with the actual ID of your HTML table
+			const filename = '{{ $church->name }}-statements.csv';
+			const csvContent = convertTableToCSV(tableId, filename);
+			console.log(csvContent)
+		});
 
 		$("#stop-dem-history-modal").on("shown.bs.modal", function (e){ 
 			var hID = $(e.relatedTarget).data('history');

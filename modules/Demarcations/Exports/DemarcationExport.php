@@ -1,36 +1,30 @@
 <?php
-namespace Modules\Demarcations\Export;
+namespace Modules\Demarcations\Exports;
 
-use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Modules\Church\Models\Pastor;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 
-class DemarcationExport implements FromCollection, WithHeadings
+
+class DemarcationExport implements FromView
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
-    public function collection()
-    {
-        $db_prefix = DB::getTablePrefix();
-        return Pastor::join('contacts as c', 'c.id', 'pastors.contact_id')
-        ->leftJoin('pastor_histories as ph', function($join){
-            $join->on('ph.pastor_id', 'pastors.id');
-            $join->whereNull('ph.deleted_at');
-        })
-				->leftJoin('churches as ch', 'ch.id', 'ph.church_id')
-        ->select('c.name', DB::raw($db_prefix.'ch.name as chruch'), 'pastors.id_or_passport', 'pastors.phone', 'pastors.gender')->collect();
-    }
+	/**
+	* @return \Illuminate\Support\Collection
+	*/
+	public $data;
+	public $type;
 
-    public function headings(): array
-    {
-        return [
-            'Pastor',
-            'Church',
-            'ID/Passport',
-            'Phone',
-			'Gender'
-        ];
-    }
+	public function __construct($data, $type)
+	{
+		$this->data = $data;
+		$this->type = $type;
+	}
+
+	public function view(): View
+	{
+		$demarcations = $this->data;
+		$type = $this->type;
+		return view('demarcations::reports.demarcations-export', compact('demarcations', 'type'));
+	}
 }
+
+

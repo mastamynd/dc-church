@@ -9,6 +9,11 @@
 				{{ trans('payment-reception::general.post') }}
 			</span>
 		@endif
+		@if(isset($paymentReception->status) && $paymentReception->status == "Completed")
+			<span class="btn btn-danger btn-sm" data-target="#reverse-posting-modal" data-toggle="modal">
+				Reverse Posting
+			</span>
+		@endif
 	@endcan
 @endsection
 
@@ -139,7 +144,6 @@
 							<tr class="table-head-line">
 								<th colspan="2">{{ trans('general.year') }}</th>
 								<th colspan="2">{{ trans('general.month') }}</th>
-								<th colspan="2">{{ trans('payment-reception::general.week') }}</th>
 								<th colspan="2">{{ trans('general.amount') }}</th>
 								<th colspan="2">{{ trans('payment-reception::general.top_up') }}</th>
 								<th colspan="1"></th>
@@ -259,22 +263,6 @@
 							<div class="input-group input-group-merge">
 								<div class="input-group-prepend">
 									<span class="input-group-text">
-										<i class="fas fa-calendar"></i>
-									</span>
-								</div>
-								<select class="form-control selectize-field" name="data[${idd}][week]" placeholder="{{ trans_choice('payment-reception::general.week', 1) }}">
-									@foreach($weeks as $wk)
-										<option value="{{ $wk }}" ${ '{{ $wk }}' ==  selectedWeek ? 'selected' : '' } >{{ $wk }}</option>
-									@endforeach
-								</select>
-							</div>
-						</div>
-					</td>
-					<td colspan="2">
-						<div class="no-gutters">
-							<div class="input-group input-group-merge">
-								<div class="input-group-prepend">
-									<span class="input-group-text">
 										<i class=""></i>
 									</span>
 								</div>
@@ -295,6 +283,7 @@
 						</div>
 					</td>
 					<td colspan="1 pt-2">
+						<input type="hidden" name="data[${idd}][week]" value="1" />
 						@if(isset($paymentReception->status) && $paymentReception->status != "Completed")
 						<span class="btn btn-sm text-danger btn-transparent remove-td">
 							<i class="fas fa-trash"></i>
@@ -407,6 +396,27 @@
 					<div class="modal-footer border-top" style="background-color: #f8f9fe;">
 						<span class="btn btn-white" data-dismiss="modal">Close</span>
 						<button type="submit" class="btn btn-success">YES, APPROVE</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade show" id="reverse-posting-modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form action="{{ route('payment-reception.reverse-tithe', $paymentReception->id ?? 'create') }}"  method="post">
+					@csrf
+					<div class="modal-header border-bottom" style="background-color: #f8f9fe;">
+						Reverse Posting
+					</div>
+					<div class="modal-body">
+						<div class="alert alert-info">
+							<i class="fas fa-info-circle float-left fa-2x mr-2 mb-2"></i> Are you sure that you want to reverse this tithe posting?
+						</div>
+					</div>
+					<div class="modal-footer border-top" style="background-color: #f8f9fe;">
+						<span class="btn btn-white" data-dismiss="modal">Close</span>
+						<button type="submit" class="btn btn-success">YES, REVERSE</button>
 					</div>
 				</form>
 			</div>

@@ -39,6 +39,8 @@
 					<th class="">{{trans('general.enabled')}}</th>
 					<th class="">{{trans('general.phone')}}</th>
 					<th class="">{{trans('church::general.gender')}}</th>
+					<th class="">Region</th>
+					<th class="">Sub-Region</th>
 					<th class="">#</th>
 				</tr>
 			</thead>
@@ -54,7 +56,8 @@
 					<td class="">{{ Form::enabledGroup($item->id, $item->name, $item->enabled) }}</td>
 					<td class="">{{$item->phone}}</td>
 					<td class="">{{$item->gender}}</td>
-
+					<td class="">{{$item->region}}</td>
+					<td class="">{{$item->sub_region}}</td>
 					<td class="">
 						<div class="dropdown">
 							<a class="btn btn-neutral btn-sm text-light items-align-center py-2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

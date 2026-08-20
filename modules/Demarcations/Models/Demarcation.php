@@ -17,7 +17,7 @@ class Demarcation extends Model
 
     protected $fillable = ['name', 'code', 'type','enabled'];
 
-	protected $appends = ['churches_count', 'demarcation_count'];
+	protected $appends = ['churches_count', 'demarcation_count', 'received', 'paid'];
 
     public function history(): HasMany
     {
@@ -31,6 +31,19 @@ class Demarcation extends Model
         else{
             return $this->hasMany(ChurchHistory::class, 'demarcation_id')->orderBy('created_at', 'desc');
         }
+    }
+
+    public function getReceivedAttribute(){
+        $type = strtolower($this->type);
+        $payment = PaymentDivision::where($type == 'region' ? 'regional_id' : 'sub_regional_id', $this->id)->selectRaw('SUM(amount+topup) as amount')->first();
+        return $payment->amount;
+    }
+
+    public function getPaidAttribute(){
+        $type = strtolower($this->type);
+        $payment = PaymentDivision::where($type == 'region' ? 'regional_id' : 'sub_regional_id', $this->id)
+            ->selectRaw('SUM(amount+topup) as amount')->whereNotNull('payment_date')->first();
+        return $payment->amount;
     }
 
     public function amounts($type, $other=false){
@@ -168,7 +181,7 @@ class Demarcation extends Model
 	}
 
 	public function getDemarcationCountAttribute(){
-		return $this->history->count() ?? 0;
+		return $this->children->count() ?? 0;
 	}
 
     public function overseer(){

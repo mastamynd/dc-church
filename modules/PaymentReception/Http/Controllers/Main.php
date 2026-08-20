@@ -13,8 +13,11 @@ use Modules\Demarcations\Models\Demarcation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\PaymentDivision;
+use Modules\PaymentReception\Export\PaymentReceptionExport;
 use Modules\PaymentReception\Models\PaymentReception;
 use Modules\PaymentReception\Models\PaymentReceptionItems;
 
@@ -22,10 +25,13 @@ class Main extends Controller
 {
 	public function paymentIndex(){
 		$tableRefix = DB::getTablePrefix();
-
-		$payments = PaymentReception::with('church')->join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
-				->selectRaw($tableRefix.'payment_receptions.id, church_id, month, payment_mode, SUM(amount) as amount, payer_name, status, '.$tableRefix.'payment_receptions.created_at')
-				->groupBy('church_id','month','year')->orderBy('created_at', 'desc')->orderBy('status', 'asc')->collect();
+		if(request()->has('remove_duplicates')){
+			return $this->remove_duplicates();
+		}
+		$payments = PaymentReception::with('church')
+				->join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
+				->selectRaw($tableRefix.'payment_receptions.id, church_id, week, month, payment_mode, SUM(amount) as amount, payer_name, status, '.$tableRefix.'payment_receptions.created_at')
+				->groupBy('church_id','week','month','year')->orderBy('created_at', 'desc')->orderBy('status', 'asc')->collect();
 
 		// return response()->json($payments, 200);
 
@@ -193,8 +199,12 @@ class Main extends Controller
 			return redirect()->route('payment-reception.view-tithe', $id);
 		}
 
-		if($payment->status == "Completed"){
+		$hasInvoice = Document::where('parent_id', $payment->id)->count();
+
+		if($payment->status == "Completed" || $hasInvoice > 0){
 			flash('Tithe has already been submitted!')->important()->error();
+			$payment->status = 'Completed';
+			$payment->save();
 			return redirect()->route('payment-reception.view-tithe', $id);
 		}
 
@@ -258,6 +268,7 @@ class Main extends Controller
 				1 => ['Senior'=>100],
 				2 => ['Senior'=>60, 'Assistant'=>40]
 			];
+			
 			foreach($invoice_items as $rowD){
 				$distributedAmount = $INVTOTAL*(floatval($rowD['percentage'])/100);
 				$sub_region = isset($church->subregion) ? $church->subregion->demarcation_id : 0;
@@ -267,17 +278,26 @@ class Main extends Controller
 				$regionID = $subregDem->parent->parent_id ?? 0;
 
 				if($rowD['code'] == 'pastors_fund'){
-					$distributedAmount+=floatval($itm->topup ?? 0);
+					$theTopUp = floatval($itm->topup ?? 0);
 					$pastors = $church->pastors ?? [];
 					$noCount = count($pastors);
 
 					$split = $splitCriteria[$noCount] ?? ['Senior'=>40, 'Assistant'=>60];
 
 					$splitAmounts = [];
+					$topUpAmounts = [];
 
 					foreach($split as $s=>$p){
 						$splitAmounts[$s] = $p/100*$distributedAmount;
+						if($theTopUp != 0){
+							$topUpAmounts[$s] = $p/100*$theTopUp;
+						}
+						else{
+							$topUpAmounts[$s] = 0;
+						}
 					}
+
+					// return $topUpAmounts;
 
 					foreach($pastors as $pastor){
 						$PASTOR = $pastor->pastor;
@@ -300,18 +320,22 @@ class Main extends Controller
 						}
 
 						$paymentBracketAmount = $splitAmounts[$pastor->rank];
-
+						
+						$pTopUpBracketAmount = $topUpAmounts[$pastor->rank];
 						if($noCount == 1){
 							$price = $distributedAmount;
+							$pTopUp = $theTopUp;
 						}
 						else
 						{
 							if($pastor->rank == 'Senior'){
 								$price = $paymentBracketAmount; 
+								$pTopUp = $pTopUpBracketAmount;
 							}
 							else{
 								$otherRanks = $noCount-1;
 								$price = $paymentBracketAmount/$otherRanks;
+								$pTopUp = $pTopUpBracketAmount/$otherRanks;
 							}
 						}
 
@@ -322,6 +346,7 @@ class Main extends Controller
 							'description' => $pastorItem->description,
 							'type' => 'invoice',
 							'price' => $price,		
+							'topup' => $pTopUp,
 							'total' => $price,	
 							'quantity' => 1,
 							'document_id' => $CN->id,
@@ -338,6 +363,7 @@ class Main extends Controller
 							'contact_id' => $pastor->pastor_id,
 							'type' => $rowD['code'],
 							'amount' => $price,
+							'topup' => $pTopUp,
 							'invoice_id' => $CN->id,
 							'invoice_item_id' => $newDocItem->id,
 							'year' => $itm->year,
@@ -443,12 +469,146 @@ class Main extends Controller
 			flash('The Tithe has already been posted! Cannot Delete!!')->error()->important();
 			return redirect()->back();
 		}
+		
+		$document = Document::where('parent_id', $payment->id)->first();
+		PaymentDivision::where('invoice_id', $document->id)->delete();
 
+		$document->delete();
 		$payment->delete();
+		return redirect()->back();
+	}
+
+	public function reverse($id){
+		$payment = PaymentReception::find($id);
+		$document = Document::where('parent_id', $payment->id)->first();
+
+		PaymentDivision::where('invoice_id', $document->id)->delete();
+
+		$document->delete();
+
+		$payment->status = "Draft";
+		$payment->save();
+
+		flash('The posting was reversed!')->error()->important();
 		return redirect()->back();
 	}
 
 	public function workflow(){
 		return $this->response('payment-reception::payment-workflow');
+	}
+
+	public function export_payment_form(Request $request){
+		$regionalData = PaymentDivision::with('region')->whereNull('payment_date')->whereNull('deleted_at')->whereIn('type', ['region']);		
+		$subRegionalData = PaymentDivision::with('region','subregion')->whereNull('payment_date')->whereNull('deleted_at')->whereIn('type', ['sub_region']);
+		$pastorsFundData = PaymentDivision::with('subregion')->whereNull('payment_date')->whereNull('deleted_at')->whereIn('type', ['pastors_fund']);
+		$DCSFundData = PaymentDivision::with('subregion')->whereNull('payment_date')->whereNull('deleted_at')->whereIn('type', ['dc_secretariate']);
+		$CTHFundData = PaymentDivision::with('subregion')->whereNull('payment_date')->whereNull('deleted_at')->whereIn('type', ['contribution_to_hq']);
+		
+		if($request->has('region')){
+			$hasTitle = true;
+			$regionalData = $regionalData->where('regional_id', $request->region);
+			$subRegionalData = $subRegionalData->where('regional_id', $request->region);
+			$pastorsFundData = $pastorsFundData->where('regional_id', $request->region);
+			$DCSFundData = $DCSFundData->where('regional_id', $request->region);
+			$CTHFundData = $CTHFundData->where('regional_id', $request->region);
+		}
+
+		if($request->has('month')){
+			$regionalData = $regionalData->where('month', $request->month);
+			$subRegionalData = $subRegionalData->where('month', $request->month);
+			$pastorsFundData = $pastorsFundData->where('month', $request->month);
+			$DCSFundData = $DCSFundData->where('month', $request->month);
+			$CTHFundData = $CTHFundData->where('month', $request->month);
+		}
+
+		if($request->has('year')){
+			$regionalData = $regionalData->where('year', $request->year);
+			$subRegionalData = $subRegionalData->where('year', $request->year);
+			$pastorsFundData = $pastorsFundData->where('year', $request->year);
+			$DCSFundData = $DCSFundData->where('year', $request->year);
+			$CTHFundData = $CTHFundData->where('year', $request->year);
+		}
+
+		$regionalData = $regionalData->selectRaw('regional_id, SUM(amount) as amount, type')->groupBy('regional_id')->get();
+		$subRegionalData = $subRegionalData->selectRaw('regional_id, sub_regional_id, SUM(amount) as amount, type')->groupBy('sub_regional_id')->orderBy('regional_id')->get();
+		$pastorsFundData = $pastorsFundData->selectRaw('regional_id, contact_id, SUM(amount+topup) as amount, type')->first();
+		$DCSFundData = $DCSFundData->selectRaw('regional_id, contact_id, SUM(amount) as amount, type')->first();
+		$CTHFundData = $CTHFundData->selectRaw('regional_id, contact_id, SUM(amount) as amount, type')->first();
+
+		// return response()->json($subRegionalData);
+
+		$demarcations = ["regions"=>[], 'sub_regions'=>[]];
+
+		$existingRegions = [];
+
+		foreach($regionalData as $rd){
+			$existingRegions[] = $rd->regional_id;
+			$demarcations["regions"][] = $rd;
+		}
+
+		$orphanSubs = [];
+
+		foreach($subRegionalData as $rd){
+			if(!in_array($rd->regional_id, $existingRegions)){
+				if(!isset($orphanSubs[$rd->region->name])){
+					$orphanSubs[$rd->region->name] = [];
+				}
+				$orphanSubs[$rd->region->name][] = $rd; 
+			}
+			else{
+				if(!isset($demarcations['sub_regions'][$rd->regional_id])){
+					$demarcations['sub_regions'][$rd->regional_id] = [];
+				}
+				$demarcations['sub_regions'][$rd->regional_id][] = $rd;
+			}
+		}
+
+		$demarcations['orphan_subs'] = $orphanSubs;
+
+		$demarcations['pastors_fund'] = $pastorsFundData;
+		$demarcations['dc_secretariate'] = $DCSFundData;
+		$demarcations['contribution_to_hq'] = $CTHFundData;
+
+		// return response()->json($demarcations);
+		
+
+		$title = isset($hasTitle) ? $regionalData[0]->region->name." Payments" : "All Payments";
+
+		return Excel::download(new PaymentReceptionExport($demarcations, $title), 'payment-list.xlsx');;
+	}
+
+	public function remove_duplicates(){
+		$payment_reception = PaymentReception::whereNull('deleted_at')->select('id')->pluck('id');
+		$invoices = Document::whereIn('parent_id', $payment_reception)->selectRaw('count(id) as duplicates, parent_id, GROUP_CONCAT(id) as invoices_id')->groupBy('parent_id')->get();
+		$hasBeenTraversed = [];
+		$toDeleteInvoice = [];
+		foreach($invoices as $inv){
+			$invoice_ids = explode(',', $inv->invoices_id);
+			foreach($invoice_ids as $id){
+				if(!in_array($inv->parent_id, $hasBeenTraversed)){
+					$hasBeenTraversed[] = $inv->parent_id;
+				}
+				else{
+					$toDeleteInvoice[] = $id;
+				}
+			}
+		}
+
+		Document::whereIn('id', $toDeleteInvoice)->delete();
+		PaymentDivision::whereIn('invoice_id', $toDeleteInvoice)->delete();
+
+		return json_encode([$toDeleteInvoice, $invoices]);
+	}
+
+	public function sortIssuePending(){
+		$receptions = PaymentReception::where('status', 'pending_issue')->get();
+		foreach($receptions as $reception){
+			$hasInvoice = Document::where('parent_id', $reception->id)->count();
+
+			if($hasInvoice > 0){
+				$reception->status = "Completed";
+				$reception->save();
+			}
+		}
 	}
 }

@@ -4,6 +4,7 @@
 namespace App\Http\Livewire\MakePayments;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Modules\Church\Models\PaymentDivision;
 
@@ -24,6 +25,8 @@ class Index extends Component
     public $theTotals = [];
 
     public $breakdown = [];
+
+    public $toDisplay;
 
     public $toggleAll = [];
     public $selectedItems = [];
@@ -76,21 +79,26 @@ class Index extends Component
                     $theData[$br->region->name] = ["total"=>0, "items"=>[]];
                 }
 
-                if(!isset($theData[$br->region->name]['items'][$br->subregion->name])){
-                    $this->accordion[$br->subregion->name.'-subregion'] = true;
-                    $this->selectedList[$br->region->name.$br->subregion->name] = [];
-                    $theData[$br->region->name]["items"][$br->subregion->name] = ["total"=>0, "items"=>[]];
-                    $this->toggleAll[$br->region->name.$br->subregion->name] = true;
+                $sub_regName = $br->subregion->name ?? 'All';
+
+                if(!isset($theData[$br->region->name]['items'][$sub_regName])){
+                    $this->accordion[$sub_regName.'-subregion'] = true;
+                    $this->selectedList[$br->region->name.$sub_regName] = [];
+                    $theData[$br->region->name]["items"][$sub_regName] = ["total"=>0, "items"=>[]];
+                    $this->toggleAll[$br->region->name.$sub_regName] = true;
                 }
 
-                $this->theTotals[$br->region->name.$br->subregion->name][$br->id] = round(floatval($br->amount),1);
+                $this->theTotals[$br->region->name.$sub_regName][$br->id] = round(floatval($br->amount+$br->topup),1);
 
-                $this->selectedList[$br->region->name.$br->subregion->name][$br->id] = true;
-                $theData[$br->region->name]["items"][$br->subregion->name]["items"][] = $br;
+                $this->selectedList[$br->region->name.$sub_regName][$br->id] = true;
+                $theData[$br->region->name]["items"][$sub_regName]["items"][] = $br;
             }
         }
 
         $this->breakdown = $theData;
+
+        $this->toDisplay = $theData;
+
         $this->calculateTotals();
     }
 
@@ -109,9 +117,9 @@ class Index extends Component
                     }
 
                     if($this->selectedList[$r.$s][$br['id']]){
-                        $theData[$r]['items'][$s]['total']+=round(floatval($br['amount']),1);
-                        $theData[$r]['total']+=round(floatval($br['amount']),1);
-                        $this->grandTotal += round(floatval($br['amount']),1);
+                        $theData[$r]['items'][$s]['total']+=round(floatval($br['amount'])+floatval($br['topup']),1);
+                        $theData[$r]['total']+=round(floatval($br['amount'])+floatval($br['topup']),1);
+                        $this->grandTotal += round(floatval($br['amount'])+floatval($br['topup']),1);
                     }
                     $theData[$r]["items"][$s]["items"][] = $br;
                 }    
@@ -140,7 +148,7 @@ class Index extends Component
         $divisions = setting('church.payment_divisions');
         $divisions = json_decode($divisions, true);
 
-        $paymentsList = PaymentDivision::selectRaw('SUM(amount) as total, type')->whereNull('payment_date');
+        $paymentsList = PaymentDivision::selectRaw('SUM(amount+topup) as total, type')->whereNull('payment_date');
 
         if ($this->region) {
             $paymentsList = $paymentsList->where('regional_id', $this->region);
@@ -185,10 +193,10 @@ class Index extends Component
             $this->errors_there['cheques'] = false;
             $this->showErrors = false;
         }
-
         foreach($this->chequeNumbers as $c=>$d){
+            $theChequeNumber = $d;
             $getIDs = [];
-            if(trim($d) != ""){
+            if(trim($theChequeNumber) != ""){
                 if($c=="All"){
                     foreach($this->selectedList as $rs=>$id){
                         foreach($id as $i=>$d){
@@ -201,7 +209,7 @@ class Index extends Component
                         'payment_date' => Carbon::now(),
                         'bill_id' => 10,
                         'bill_item_id' => 10,
-                        'cheque_number' => $d
+                        'cheque_number' => $theChequeNumber
                     ]);
                 }
                 else{
@@ -218,7 +226,7 @@ class Index extends Component
                                     'payment_date' => Carbon::now(),
                                     'bill_id' => 10,
                                     'bill_item_id' => 10,
-                                    'cheque_number' => $d
+                                    'cheque_number' => $theChequeNumber
                                 ]);
                             }
                         }
@@ -235,7 +243,7 @@ class Index extends Component
                                     'payment_date' => Carbon::now(),
                                     'bill_id' => 10,
                                     'bill_item_id' => 10,
-                                    'cheque_number' => $d
+                                    'cheque_number' => $theChequeNumber
                                 ]);
                             }
                         }

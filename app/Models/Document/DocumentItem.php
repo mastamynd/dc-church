@@ -28,6 +28,7 @@ class DocumentItem extends Model
         'quantity',
         'price',
         'total',
+        'topup',
         'tax',
         'discount_rate',
         'discount_type',

@@ -37,6 +37,8 @@
 							<th>@sortablelink('region', trans_choice('church::general.region', 1))</th>
 							<th>@sortablelink('sub_region', trans_choice('church::general.subregion', 1))</th>
 							<th>@sortablelink('pastor', trans_choice('church::general.pastor', 1))</th>
+							<th>@sortablelink('id_or_passport', 'ID/NO')</th>
+							<th>@sortablelink('phone', 'Phone')</th>
 							<th>{{ trans('general.actions') }}</th>
 						</tr>
 					</thead>
@@ -72,6 +74,24 @@
 										<a href="{{route('church.pastors.show',$item->pastor_id)}}">
 											<small class="badge badge-pill badge-primary">{{ $item->rank }}</small>
 											{{ $item->pastor }}
+										</a>
+									@else
+										<span class="badge badge-warning badge-sm">Not Set</span>
+									@endif
+								</td>
+								<td class="long-texts">
+									@if(trim($item->id_or_passport) != "")
+										<a href="{{route('church.pastors.show',$item->pastor_id)}}">
+											{{ $item->id_or_passport }}
+										</a>
+									@else
+										<span class="badge badge-warning badge-sm">Not Set</span>
+									@endif
+								</td>
+								<td class="long-texts">
+									@if(trim($item->phone) != "")
+										<a href="{{route('church.pastors.show',$item->pastor_id)}}">
+											{{ $item->phone }}
 										</a>
 									@else
 										<span class="badge badge-warning badge-sm">Not Set</span>

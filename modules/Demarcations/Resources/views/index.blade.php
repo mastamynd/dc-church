@@ -8,7 +8,13 @@
 	@can('create-demarcations-main')
 		<a href="{{ route('demarcations.create', $type) }}" class="btn btn-success btn-sm">{{ trans('general.add_new') }}</a>
 	@endcan
-	<a href="{{ route('demarcations.export', request()->input()) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a>
+	<?php
+		$inputs = request()->input();
+		$others = ["type" => !$isSubRegion ? 'region' : 'sub_region'];
+		$inputs = array_merge($inputs, $others);
+
+	?>
+	<a href="{{ route('demarcations.export', $inputs) }}" class="btn btn-white btn-sm">{{ trans('general.export') }}</a>
 @endsection
 
 @section('content')
@@ -35,11 +41,13 @@
 							<th>{{ Form::bulkActionAllGroup() }}</th>
 							<th>@sortablelink('name', trans('general.name'))</th>
 							<th>@sortablelink('code', trans('demarcations::general.code'))</th>
-							{{-- @if ($type == "subregion")
+							@if ($type == "subregion")
 								<th>@sortablelink('code', trans_choice('demarcations::general.region', 1))</th>
-							@endif --}}
+							@endif
 							<th class="text-right">@sortablelink('subregion', trans_choice((!$isSubRegion ? 'demarcations::general.subregion' : 'demarcations::general.church'), 2))</th>
 							<th>@sortablelink('enabled', trans('general.enabled'))</th>
+							<th>{{ trans('Overseer') }}</th>
+							<th>{{ trans('Contact') }}</th>
 							<th>{{ trans('general.actions') }}</th>
 						</tr>
 					</thead>
@@ -56,11 +64,11 @@
 								<td>
 									<a class="long-texts" href="{{ route('demarcations.show', [$type, $item->id]) }}">{{ $item->code }}</a>
 								</td>
-								{{-- @if ($type == "subregion")
+								@if ($type == "subregion")
 									<td>
-										<a href="{{ route('demarcations.show', [$item->parent->parent_id, $item->parent->parent_id]) }}">{{ $item->parent_id }}</a>
+										<a href="{{ route('demarcations.show', ['region', $item->parent->parent_id ?? '']) }}">{{ $item->parent->parent->name ?? '' }}</a>
 									</td>
-								@endif --}}
+								@endif
 								<td class="text-right">
 									{{ $item->children->count() }}
 									{{-- {{ number_format(!$isSubRegion ? $item->children->count() : $item->churches(true)) }} --}}
@@ -76,6 +84,8 @@
 										@endif
 									@endif
 								</td>
+								<td class="">{{ $item->dname ?? '-' }}</td>
+								<td class="">{{ $item->phone ?? '-' }}</td>
 								<td class="text-center">
 									<div class="dropdown">
 										<a class="btn btn-neutral btn-sm text-light items-align-center py-2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -126,6 +136,7 @@
 		});
 	});
 	</script>
+
 	<div class="modal fade show" id="delete-demarcation-modal"  role="dialog">
 		<div class="modal-dialog">
 			<div class="modal-content">

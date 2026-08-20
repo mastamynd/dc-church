@@ -36,8 +36,18 @@ class Pastor extends Controller
 				$join->on('ph.pastor_id','pastors.id');
 				$join->whereNull('ph.deleted_at');
 			})->leftJoin('churches as ch', function($join){
-				$join->on( 'ch.id', 'ph.church_id');
+				$join->on('ch.id', 'ph.church_id');
 				$join->whereNull('ch.deleted_at');
+			})->leftJoin('church_histories as chh', function($join){
+				$join->on('ch.id', 'chh.church_id');
+				$join->whereNull('chh.deleted_at');
+			})->leftJoin('demarcation_histories as dh', function($join){
+				$join->on('chh.demarcation_id', 'dh.demarcation_id');
+				$join->whereNull('dh.deleted_at');
+			})->leftJoin('demarcations as dS', function($join){
+				$join->on('dS.id', 'chh.demarcation_id');
+			})->leftJoin('demarcations as dR', function($join){
+				$join->on('dR.id', 'dh.parent_id');
 			});
 
 		if($request->has('search')){
@@ -50,8 +60,9 @@ class Pastor extends Controller
 			$pastors = $pastors->orWhere('pastors.phone', 'LIKE', '%'.$request->search.'%');
 		}
 
-		$pastors = $pastors->select('pastors.id', 'pastors.phone', 'pastors.id_or_passport', 'pastors.ukumbozi_number', 'c.name', DB::raw($db_prefix.'ch.name as church'), 'pastors.enabled', 'pastors.gender')
-			->orderBy('id', 'desc')->collect();
+		$pastors = $pastors->select('pastors.id', 'pastors.phone', 'pastors.id_or_passport', 'pastors.ukumbozi_number', 'c.name', DB::raw($db_prefix.'ch.name as church'), 
+			'pastors.enabled', 'pastors.gender', DB::raw($db_prefix.'dR.name as region'), DB::raw($db_prefix.'dS.name as sub_region'))
+			->orderBy('pastors.id', 'desc')->collect();
 
 		// return response()->json($pastors);
 		return $this->response('church::pastors/index', compact('pastors'));
@@ -112,7 +123,7 @@ class Pastor extends Controller
 	{
 		$pastor = ModelsPastor::with(['contact', 'rank', 'rank_history'])->where('id', $id)->first();
 		$history = PastorHistory::where('pastor_id', $id)->collect();
-		$statements = PaymentDivision::select('amount', 'year', 'month')->where('contact_id', $id)->orderBy('id', 'desc')->collect();
+		$statements = PaymentDivision::select('amount', 'year', 'month')->where('contact_id', $id)->orderBy('payment_date', 'asc')->collect();
 		return view('church::pastors/show', compact('pastor', 'history', 'statements'));
 	}
 

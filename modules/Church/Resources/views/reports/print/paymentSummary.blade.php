@@ -81,8 +81,8 @@
                         @foreach($types['churches'] as $item)
 
                         <tr class="align-items-center border-top-1">
-                            <td>{{$item['church_name']}}</td>
-                            <td>{{$item->pastor_name}}</td>
+                            <td>{{$item['church_name'] ?? $item->name}}</td>
+                            <td>{{$item->pastor_name ?? $item->senior_pastor_name}}</td>
                             <td>{{ number_format($item->january, 2)}}</td>
                             <td>{{ number_format($item->february, 2)}}</td>
                             <td>{{ number_format($item->march, 2)}}</td>
@@ -95,7 +95,7 @@
                             <td>{{ number_format($item->october, 2)}}</td>
                             <td>{{ number_format($item->november, 2)}}</td>
                             <td>{{ number_format($item->december, 2)}}</td>
-                            <td>{{number_format($item->getTotalAmount(),2)}}</td>
+                            <td>{{isset($item->january) ? number_format($item->getTotalAmount(),2) : 0}}</td>
                         </tr>
 
 

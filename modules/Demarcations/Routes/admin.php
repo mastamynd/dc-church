@@ -11,6 +11,15 @@ use Illuminate\Support\Facades\Route;
 Route::admin('demarcations', function () {
     Route::get('region', 'Main@region_index')->name('region.index');
     Route::get('subregion', 'Main@subregion_index')->name('subregion.index');
+    
+    Route::get('payment-made-show/{type}/{type_id}', 'Main@payment_distribution')->name('payment-made-show');
+    Route::get('cheque-number-list/{cheque_number}/{type}', 'Main@view_cheque_number_list')->name('cheque-number-list');
+
+    Route::post('pay-cheque-numbers', 'Payments@pay_cheque_numbers')->name('pay-cheque-numbers');
+    Route::get('sub-region-list/fetch/{reg?}', 'Payments@sub_region_list')->name('sub-region-list');
+    Route::get('payment-distribution/list/{type}/{reg?}', 'Payments@payment_distribution_list')->name('payment-distribution-list');
+    Route::get('make-payments-new', 'Payments@payment_index')->name('make-payments-new');
+
     Route::get('{type}/create', 'Main@create')->name('create');
     Route::get('{type}/{id}', 'Main@show')->name('show');
     Route::get('{type}/{id}/edit', 'Main@edit')->name('edit');
@@ -21,7 +30,9 @@ Route::admin('demarcations', function () {
 
     Route::post('make-payments/{region}', 'Main@make_payments')->name('make-payments');
     Route::post('mark-bill-paid', 'Main@mark_paid')->name('mark-bill-paid');
-    Route::post('delete/{id}', 'Main@destroy')->name('delete');
+    Route::post('delete/{id?}', 'Main@destroy')->name('delete');
+    Route::post('stop_overseer/{id?}', 'Main@stop_overseer')->name('stop_overseer');
+    
 
     Route::get('payments-made', 'Main@payments_made')->name('payments-made');
 

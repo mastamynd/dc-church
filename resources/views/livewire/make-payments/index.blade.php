@@ -8,7 +8,7 @@
 	@if ($page1 === null && $page2 === null)
 		<div class="card">
 			<div class="card-header">
-				<h2 class="card-title">Make Payments</h2>
+				<h2 class="card-title" style="width:100%">Make Payments <a href="{{ route('payment-reception.export-payment-form') }}{{ $region !== null ? '?region='.$region : '' }}" class="btn btn-success" style="float:right">Export</a></h2>
 			</div>
 			<div class="card-body">
 				<ul class="list-group list-group-flush">
@@ -26,7 +26,6 @@
 			</div>
 		</div>
 	@endif
-
 	@if ($page1 !== null && $page2 === null)
 		<div class="card">
 			<div class="card-header">
@@ -38,7 +37,7 @@
 						</h2>
 					</div>
 					@if ($hasPayAll)
-						<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model='chequeNumbers.All' style="width: 250px" />		
+						<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.lazy='chequeNumbers.All' style="width: 250px" />		
 					@endif
 					<div class="pt-1">
 						<span class="badge badge-dark badge-pill">@money($grandTotal, setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -54,7 +53,6 @@
 					<div class="text-danger p-1 {{ isset($errors_there['cheques']) && $errors_there['cheques'] ? '' : 'd-none' }}">*Missing Cheque details.</div> 
 				</div>
 			@endif
-		
 
 			<div class="card-body" style="background-color: #f3f3f3; padding-left: 0px !important; padding-right: 0px !important">
 				<ul class="list-group list-group-flush p-2 mb-1" style="background-color: #fdfdfd; border-radius: 1px">
@@ -64,7 +62,7 @@
 							<div class="title p-2 border-bottom d-flex justify-content-between" style="cursor: pointer" wire:click="toggleAccordion('{{ $regName }}')">
 								<div style="width: 300px"><h4>{{ $reg }}</h4></div>
 								@if ($hasPayReg)
-									<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model='chequeNumbers.{{ $reg }}' style="width: 250px" />								
+									<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.lazy='chequeNumbers.{{ $reg }}' style="width: 250px" />								
 								@endif
 								<div class="pt-1">
 									<span class="badge badge-dark badge-pill">@money($items['total'], setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -78,7 +76,7 @@
 										<div class="title p-2 border-bottom d-flex justify-content-between" style="cursor: pointer" wire:click="toggleAccordion('{{ $subRegName }}')">
 											<div style="width: 300px"><h5>{{ $sub }}</h5></div>
 											@if ($hasPaySub)
-												<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model='chequeNumbers.{{ $reg.$sub }}' style="width: 250px" />
+												<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.lazy='chequeNumbers.{{ $reg.$sub }}' style="width: 250px" />
 											@endif
 											<div class="pt-1">
 												<span class="badge badge-default badge-pill">@money($mms['total'], setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -108,7 +106,7 @@
 												<tbody>
 													@php($TOTALS = 0)
 													@foreach ($mms['items'] as $k => $v)
-														@php($TOTALS += floatval($v["amount"]))
+														@php($TOTALS += floatval($v["amount"])+(floatval($v["topup"] ?? 0)))
 														<tr>
 															<td>
 																<input type="checkbox" wire:key="{{ $v["id"] }}" name="breakdown" wire:click='toggleSelected("{{ $reg.$sub }}", "{{ $v['id'] }}")' 
@@ -122,7 +120,7 @@
 																<td>{{ $v["region"] ? $v["region"]["name"] : 'n/a' }}</td>
 															@endif
 															<td>{{ $v["subregion"] ? $v["subregion"]["name"] : 'n/a' }}</td>
-															<td>@money($v["amount"], setting('default.currency'), true)</td>
+															<td>@money(floatval($v["amount"])+(floatval($v["topup"] ?? 0)), setting('default.currency'), true)</td>
 															<td>{{ $v["month"] }}</td>
 															<td>{{ $v["year"] }}</td>
 														</tr>
@@ -186,3 +184,7 @@
 		</div>
 	</div>
 </div>
+
+{{-- <div class="alert alert-info">
+	<i class="fas fa-information-circle"></i> Module under maintenance 
+</div> --}}

@@ -6,11 +6,13 @@
 	@php($keys = array_keys(json_decode(json_encode($divisions), true)))
 	@php(sort($keys))
 	<form class="row">
+		<div class="col-md-1">
+		</div>
 		<div class="col-md-4">
 			<div class="form-group form-group-sm">
 				<label class="form-label">Region</label>					
 				@php($nReg = request()->has('region') ? request()->region : null)
-				<select name="region" placeholder="Select Region..." class="form-control form-control-sm selectize-field">
+				<select name="region" placeholder="Select Region..." class="form-control form-control selectize-field">
 					<option value="">Select Region...</option>
 					@foreach ($allregs as $rr)
 						<option value="{{ $rr->id }}" {{ $nReg == $rr->id ? 'selected' : '' }}>{{ $rr->name }}</option>
@@ -25,9 +27,7 @@
 			</div>
 		</div>
 	</form>
-
 	<livewire:make-payments.index :region="$nReg" />
-
 @endsection
 
 @push('scripts_start')

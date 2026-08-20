@@ -64,7 +64,7 @@
 
                     <tr class="align-items-center border-top-1">
                         <td>{{$item['church_name'] ?? $item->name}}</td>
-                        <td>{{$item->pastor_name ?? ''}}</td>
+                        <td>{{$item->pastor_name ?? $item->senior_pastor_name}}</td>
                         <td>{{number_format($item->january ?? 0,2)}}</td>
                         <td>{{number_format($item->february ?? 0,2)}}</td>
                         <td>{{number_format($item->march ?? 0,2)}}</td>

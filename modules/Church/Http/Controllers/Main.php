@@ -94,6 +94,11 @@ class Main extends Controller
         $tableRefix = DB::getTablePrefix();
         $church = Church::find($id);
         // return json_encode($church->subregion);
+        $year = "all";
+        if(request()->has('year')){
+            $year = request()->year;
+        }
+
         $subRegion = Demarcation::join('church_histories', 'church_histories.demarcation_id', 'demarcations.id')->whereNull('church_histories.deleted_at')
             ->where('church_histories.church_id', $id)->select('demarcations.id', 'demarcations.name', 'demarcations.type')->first();
         $region = Demarcation::join('demarcation_histories', 'demarcation_histories.parent_id', 'demarcations.id')->whereNull('demarcation_histories.deleted_at')
@@ -102,8 +107,13 @@ class Main extends Controller
         $subregions = Demarcation::subregion()->orderBy('name', 'asc')->get();
 
         $statements = PaymentReception::join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
-            ->selectRaw($tableRefix.'payment_receptions.id, month, SUM(amount) as amount, payer_name, '.$tableRefix.'payment_receptions.created_at')->where('church_id', $id)
-            ->groupBy('month')->groupBy('year')->get();
+            ->selectRaw($tableRefix.'payment_receptions.id, month, year, SUM(amount) as amount, payer_name, '.$tableRefix.'payment_receptions.created_at')->where('church_id', $id);
+        
+        if($year != "all"){
+            $statements = $statements->where('year', $year);
+        }
+        
+        $statements = $statements->orderByRaw("STR_TO_DATE(CONCAT('01 ', month, ' ', year), '%d %M %Y')")->groupBy('month')->groupBy('year')->get();
 
         // return json_encode($church);
 

@@ -2,6 +2,8 @@
 	<thead class="thead-light">
 		<tr class="table-head-line">
 			<th>Church</th>
+			<th>Region</th>
+			<th>Sub Region</th>
 			<th>Type</th>
 			<th>Name</th>
 			<th>Payable</th>
@@ -15,9 +17,10 @@
 	</thead>
 	<tbody>
 		@foreach ($payments as $item)
-			@php($payment_date = \Carbon\Carbon::parse($item->payment_date))
 			<tr class="align-items-center border-top-1">
 				<td>{{ $item->church_name }}</td>
+				<td>{{ $item->region }}</td>
+				<td>{{ $item->sub_region }}</td>
 				<td>{{ $item->type }}</td>
 				<td>{{ $item->name }}</td>
 				<td>{{ $item->to_pay }}</td>
