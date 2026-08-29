@@ -21,3 +21,4 @@ composer.json
 composer.json
 .env
 >>>>>>> c5c0b6607e1db496a2cd5bcf564c464b908ff9ff
+public/*.sql
