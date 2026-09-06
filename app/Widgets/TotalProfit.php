@@ -4,7 +4,6 @@ namespace App\Widgets;
 
 use App\Abstracts\Widget;
 use App\Models\Banking\Transaction;
-use App\Models\Document\Document;
 
 class TotalProfit extends Widget
 {
@@ -16,60 +15,36 @@ class TotalProfit extends Widget
 
     public function show()
     {
-        $current_income = $open_invoice = $overdue_invoice = 0;
-        $current_expenses = $open_bill = $overdue_bill = 0;
+        $data = $this->remember('totals', function () {
+            $current_income = $this->sumConvertedToDefault($this->applyFilters(Transaction::income()->isNotTransfer()));
+            $current_expenses = $this->sumConvertedToDefault($this->applyFilters(Transaction::expense()->isNotTransfer()));
 
-        $this->applyFilters(Transaction::isNotTransfer())->each(function ($transaction) use (&$current_income, &$current_expenses) {
-            $amount = $transaction->getAmountConvertedToDefault();
+            [$open_invoice, $overdue_invoice] = $this->documentOpenAndOverdue('invoice');
+            [$open_bill, $overdue_bill] = $this->documentOpenAndOverdue('bill');
 
-            if ($transaction->type == 'income') {
-                $current_income += $amount;
-            } else {
-                $current_expenses += $amount;
+            $current = $current_income - $current_expenses;
+            $open = $open_invoice - $open_bill;
+            $overdue = $overdue_invoice - $overdue_bill;
+
+            $progress = 100;
+
+            if (!empty($open) && !empty($overdue)) {
+                $progress = (int) ($open * 100) / ($open + $overdue);
             }
+
+            return [
+                'grand' => $current + $open + $overdue,
+                'open' => $open,
+                'overdue' => $overdue,
+                'progress' => $progress,
+            ];
         });
 
-        $this->applyFilters(
-            Document::invoice()->with('transactions')->accrued()->notPaid(),
-            ['date_field' => 'created_at']
-        )->each(
-            function ($invoice) use (&$open_invoice, &$overdue_invoice) {
-                list($open_tmp, $overdue_tmp) = $this->calculateDocumentTotals($invoice);
-
-                $open_invoice += $open_tmp;
-                $overdue_invoice += $overdue_tmp;
-            }
-        );
-
-        $this->applyFilters(
-            Document::bill()->with('transactions')->accrued()->notPaid(),
-            ['date_field' => 'created_at']
-        )->each(
-            function ($bill) use (&$open_bill, &$overdue_bill) {
-                list($open_tmp, $overdue_tmp) = $this->calculateDocumentTotals($bill);
-
-                $open_bill += $open_tmp;
-                $overdue_bill += $overdue_tmp;
-            }
-        );
-
-        $current = $current_income - $current_expenses;
-        $open = $open_invoice - $open_bill;
-        $overdue = $overdue_invoice - $overdue_bill;
-
-        $grand = $current + $open + $overdue;
-
-        $progress = 100;
-
-        if (!empty($open) && !empty($overdue)) {
-            $progress = (int) ($open * 100) / ($open + $overdue);
-        }
-
         $totals = [
-            'grand'         => money($grand, setting('default.currency'), true),
-            'open'          => money($open, setting('default.currency'), true),
-            'overdue'       => money($overdue, setting('default.currency'), true),
-            'progress'      => $progress,
+            'grand'         => money($data['grand'], setting('default.currency'), true),
+            'open'          => money($data['open'], setting('default.currency'), true),
+            'overdue'       => money($data['overdue'], setting('default.currency'), true),
+            'progress'      => $data['progress'],
         ];
 
         return $this->view('widgets.total_profit', [

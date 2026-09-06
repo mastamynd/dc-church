@@ -2,8 +2,12 @@
 
 namespace App\Abstracts;
 
+use App\Models\Banking\Transaction;
+use App\Models\Document\Document;
 use App\Traits\Charts;
 use App\Utilities\Date;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 abstract class Widget
 {
@@ -88,5 +92,85 @@ abstract class Widget
         }
 
         return [$open, $overdue];
+    }
+
+    /**
+     * Cache computed widget data for the active company and date range.
+     *
+     * @param  mixed  $ttl
+     * @return mixed
+     */
+    protected function remember(string $key, \Closure $callback, $ttl = 60)
+    {
+        return Cache::remember($this->cacheKey($key), $ttl, $callback);
+    }
+
+    protected function cacheKey(string $key): string
+    {
+        return implode('.', [
+            'widgets',
+            company_id(),
+            str_replace('\\', '_', static::class),
+            $key,
+            request('start_date'),
+            request('end_date'),
+        ]);
+    }
+
+    protected function rawTable(string $table): string
+    {
+        return DB::getTablePrefix() . $table;
+    }
+
+    /**
+     * Sum amounts converted to the default currency in SQL.
+     */
+    protected function sumConvertedToDefault($query, ?string $table = null): float
+    {
+        $model = $query->getModel();
+        $table = $table ?: $model->getConnection()->getTablePrefix() . $model->getTable();
+
+        return (float) $query->sum(DB::raw($table . '.amount / NULLIF(' . $table . '.currency_rate, 0)'));
+    }
+
+    /**
+     * Open vs overdue document totals without hydrating models.
+     *
+     * @return array{0: float, 1: float}
+     */
+    protected function documentOpenAndOverdue(string $type): array
+    {
+        $today = Date::today()->toDateString();
+        $documentTable = (new Document())->getTable();
+        $transactionTable = (new Transaction())->getTable();
+        $documentTableRaw = DB::getTablePrefix() . $documentTable;
+        $transactionTableRaw = DB::getTablePrefix() . $transactionTable;
+
+        $documents = $type === 'invoice'
+            ? Document::invoice()->accrued()->notPaid()
+            : Document::bill()->accrued()->notPaid();
+
+        $documents = $this->applyFilters($documents, ['date_field' => $documentTable . '.created_at']);
+
+        $paid = Transaction::query()
+            ->selectRaw('document_id, SUM(' . $transactionTableRaw . '.amount / NULLIF(' . $transactionTableRaw . '.currency_rate, 0)) as total')
+            ->whereIn('document_id', (clone $documents)->select($documentTable . '.id'))
+            ->groupBy('document_id');
+
+        $paidAlias = DB::getTablePrefix() . 'paid';
+
+        $row = $documents
+            ->leftJoinSub($paid, 'paid', 'paid.document_id', '=', $documentTable . '.id')
+            ->selectRaw(
+                'COALESCE(SUM(CASE WHEN ' . $documentTableRaw . '.due_at > ? THEN GREATEST(' . $documentTableRaw . '.amount / NULLIF(' . $documentTableRaw . '.currency_rate, 0) - COALESCE(' . $paidAlias . '.total, 0), 0) ELSE 0 END), 0) as open_total,
+                 COALESCE(SUM(CASE WHEN ' . $documentTableRaw . '.due_at <= ? THEN GREATEST(' . $documentTableRaw . '.amount / NULLIF(' . $documentTableRaw . '.currency_rate, 0) - COALESCE(' . $paidAlias . '.total, 0), 0) ELSE 0 END), 0) as overdue_total',
+                [$today, $today]
+            )
+            ->first();
+
+        return [
+            (float) ($row->open_total ?? 0),
+            (float) ($row->overdue_total ?? 0),
+        ];
     }
 }

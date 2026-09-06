@@ -28,6 +28,8 @@ class Main extends Provider
         $this->loadViewComponents();
         $this->loadTranslations();
         $this->loadMigrations();
+        $this->app['router']->pushMiddlewareToGroup('common', \Modules\Church\Http\Middleware\SeedDashboardWidgets::class);
+        $this->app['router']->pushMiddlewareToGroup('admin', \Modules\Church\Http\Middleware\SeedDashboardWidgets::class);
         //$this->loadConfig();
     }
 

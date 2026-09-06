@@ -44,7 +44,17 @@
 					</thead>
 					<tbody>
 						@foreach ($payments as $item)
-							<tr class="align-items-center border-top-1 hoverable-row" data-tithe='{{ json_encode($item) }}'>
+							@php
+								$tithePayload = [
+									'id' => $item->id,
+									'amount' => (float) $item->amount,
+									'church' => [
+										'name' => $item->church->name ?? '',
+										'code' => $item->church->code ?? '',
+									],
+								];
+							@endphp
+							<tr class="align-items-center border-top-1 hoverable-row" data-tithe="{{ e(json_encode($tithePayload)) }}">
 								<td>
 									{{ Form::bulkActionGroup($item->id, $item->name) }}
 								</td>
@@ -124,12 +134,12 @@
 				postingFor.empty();
 				var strReceipt = $(`<div class="row"></div>`);
 				$('.hoverable-row').find('.custom-control-input:checked').each(function(){
-					var tithe = $(this).parents('.hoverable-row').data('tithe');
-
-					console.log(tithe)
+					var tithe = $(this).parents('.hoverable-row').data('tithe') || {};
+					var church = tithe.church || {};
+					var amount = Number(tithe.amount || 0);
 
 					var val = $(this).val();
-					strReceipt.append(`<div class="m-1 p-2 float-right" style="font-size: 12px"><input type="checkbox" name="ids[]" checked value="${val}" /> ${ tithe.church.name } ${ tithe.church.code } - Ksh${ tithe.total.toFixed(2) }</div>`)
+					strReceipt.append(`<div class="m-1 p-2 float-right" style="font-size: 12px"><input type="checkbox" name="ids[]" checked value="${val}" /> ${ church.name || '' } ${ church.code || '' } - Ksh${amount.toFixed(2)}</div>`)
 				});
 
 				postingFor.append(strReceipt);

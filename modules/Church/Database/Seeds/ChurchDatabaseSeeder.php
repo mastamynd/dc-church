@@ -16,7 +16,8 @@ class ChurchDatabaseSeeder extends Seeder
     {
         Model::unguard();
 
-        // $this->call("OthersTableSeeder");
+        $this->call(Permissions::class);
+        $this->call(Dashboards::class);
 
         Model::reguard();
     }

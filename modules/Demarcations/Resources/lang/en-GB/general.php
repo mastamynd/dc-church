@@ -27,5 +27,17 @@ return [
     'subregion_search'     => 'Sub Region',
     'empty_page'        => 'There are no records in the system.|There are no sub-regions in the system.',
     'no_records' => 'No Records Available.',
-    'tithe' => 'Tithe'
+    'tithe' => 'Tithe',
+    'bank' => 'Bank|Banks',
+    'banks' => 'Bank|Banks',
+    'paybill' => 'Paybill Number',
+    'account_number' => 'Account Number',
+    'region_banks' => 'Region Bank Detail|Region Bank Details',
+    'subregion_banks' => 'Sub Region Bank Detail|Sub Region Bank Details',
+    'import_banking' => 'Import Banking Details',
+    'export_banking' => 'Export Banking Details',
+    'bank_in_use' => 'This bank is assigned to a region or sub-region and cannot be deleted.',
+    'empty_banks' => 'No banks have been added yet.',
+    'import_unknown_code' => 'No matching region or sub-region was found for this code.',
+    'import_unknown_bank' => 'No matching bank was found. Import banks first, then use the bank name or code.',
 ];

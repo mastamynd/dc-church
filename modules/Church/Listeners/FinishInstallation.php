@@ -4,7 +4,7 @@ namespace Modules\Church\Listeners;
 
 use App\Events\Module\Installed as Event;
 use App\Traits\Permissions;
-use Artisan;
+use Modules\Church\Utilities\InstallDashboard;
 
 class FinishInstallation
 {
@@ -26,22 +26,19 @@ class FinishInstallation
 
         $this->updatePermissions();
 
-        //$this->callSeeds();
+        try {
+            (new InstallDashboard())->ensure();
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     protected function updatePermissions()
     {
-        // c=create, r=read, u=update, d=delete
         $this->attachPermissionsToAdminRoles([
             $this->alias . '-main' => 'c,r,u,d',
         ]);
-    }
 
-    protected function callSeeds()
-    {
-        Artisan::call('company:seed', [
-            'company' => company_id(),
-            '--class' => 'Modules\Church\Database\Seeds\ChurchDatabaseSeeder',
-        ]);
+        $this->attachModuleWidgetPermissions($this->alias);
     }
 }

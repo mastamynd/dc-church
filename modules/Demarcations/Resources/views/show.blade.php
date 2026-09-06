@@ -62,6 +62,33 @@
 				</li>
 				@stack('demarcations_code_end')
 
+				@stack('demarcations_bank_start')
+				<li class="list-group-item border-0 border-top-1">
+					<div class="font-weight-600">{{ trans_choice('demarcations::general.bank', 1) }}</div>
+					<div>
+						@if($demarcation->bank)
+							<small class="long-texts" title="{{ $demarcation->bank->name }}">{{ $demarcation->bank->name }} ({{ $demarcation->bank->code }})</small>
+						@else
+							<span class="badge badge-warning badge-sm">{{ trans('general.na') }}</span>
+						@endif
+					</div>
+				</li>
+				@stack('demarcations_bank_end')
+
+				@stack('demarcations_paybill_start')
+				<li class="list-group-item border-0 border-top-1">
+					<div class="font-weight-600">{{ trans('demarcations::general.paybill') }}</div>
+					<div><small class="long-texts" title="{{ $demarcation->paybill }}">{{ $demarcation->paybill ?: trans('general.na') }}</small></div>
+				</li>
+				@stack('demarcations_paybill_end')
+
+				@stack('demarcations_account_number_start')
+				<li class="list-group-item border-0 border-top-1">
+					<div class="font-weight-600">{{ trans('demarcations::general.account_number') }}</div>
+					<div><small class="long-texts" title="{{ $demarcation->account_number }}">{{ $demarcation->account_number ?: trans('general.na') }}</small></div>
+				</li>
+				@stack('demarcations_account_number_end')
+
 				@if($isSubRegion)
 					@stack('demarcations_region_start')
 					<li class="list-group-item border-0 border-top-1">

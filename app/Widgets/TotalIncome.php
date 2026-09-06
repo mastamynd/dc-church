@@ -4,7 +4,6 @@ namespace App\Widgets;
 
 use App\Abstracts\Widget;
 use App\Models\Banking\Transaction;
-use App\Models\Document\Document;
 
 class TotalIncome extends Widget
 {
@@ -16,37 +15,29 @@ class TotalIncome extends Widget
 
     public function show()
     {
-        $current = $open = $overdue = 0;
+        $data = $this->remember('totals', function () {
+            $current = $this->sumConvertedToDefault($this->applyFilters(Transaction::income()->isNotTransfer()));
+            [$open, $overdue] = $this->documentOpenAndOverdue('invoice');
 
-        $this->applyFilters(Transaction::income()->isNotTransfer())->each(function ($transaction) use (&$current) {
-            $current += $transaction->getAmountConvertedToDefault();
+            $progress = 100;
+
+            if (!empty($open) && !empty($overdue)) {
+                $progress = (int) ($open * 100) / ($open + $overdue);
+            }
+
+            return [
+                'grand' => $current + $open + $overdue,
+                'open' => $open,
+                'overdue' => $overdue,
+                'progress' => $progress,
+            ];
         });
 
-        $this->applyFilters(
-            Document::invoice()->with('transactions')->accrued()->notPaid(),
-            ['date_field' => 'created_at']
-        )->each(
-            function ($invoice) use (&$open, &$overdue) {
-                list($open_tmp, $overdue_tmp) = $this->calculateDocumentTotals($invoice);
-
-                $open += $open_tmp;
-                $overdue += $overdue_tmp;
-            }
-        );
-
-        $grand = $current + $open + $overdue;
-
-        $progress = 100;
-
-        if (!empty($open) && !empty($overdue)) {
-            $progress = (int) ($open * 100) / ($open + $overdue);
-        }
-
         $totals = [
-            'grand'         => money($grand, setting('default.currency'), true),
-            'open'          => money($open, setting('default.currency'), true),
-            'overdue'       => money($overdue, setting('default.currency'), true),
-            'progress'      => $progress,
+            'grand'         => money($data['grand'], setting('default.currency'), true),
+            'open'          => money($data['open'], setting('default.currency'), true),
+            'overdue'       => money($data['overdue'], setting('default.currency'), true),
+            'progress'      => $data['progress'],
         ];
 
         return $this->view('widgets.total_income', [

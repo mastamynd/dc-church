@@ -60,13 +60,11 @@
 						<a href="{{ route('demarcations.payment-made-show', [$item->demarcation->type ?? '0', $item->demarcation->id ?? 0]) }}">
 							{{ $item->demarcation->name ?? 'N/A' }}</a>
 					</td>
+					<td>{{ $item->demarcation->overseer?->pastor?->contact?->name ?? 'N/A' }}</td>
 					@else
-					<td>{{ $item->church->name }}</td>
+					<td>{{ $item->church->name ?? 'N/A' }}</td>
+					<td>{{ $item->church->senior_pastor?->pastor?->contact?->name ?? 'N/A' }}</td>
 					@endif
-					<td>
-						{{ isset($item->overseer) ? (isset($item->overseer->pastor) ? $item->overseer->pastor->contact->name :
-						'N/A' ) : 'N/A' }}
-					</td>
 				</tr>
 				@endforeach
 			</tbody>

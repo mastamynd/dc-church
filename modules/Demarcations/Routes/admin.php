@@ -9,6 +9,16 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::admin('demarcations', function () {
+    Route::post('banks/import', 'Banks@import')->name('banks.import');
+    Route::get('banks/export', 'Banks@export')->name('banks.export');
+    Route::get('banks/{bank}/enable', 'Banks@enable')->name('banks.enable');
+    Route::get('banks/{bank}/disable', 'Banks@disable')->name('banks.disable');
+    Route::resource('banks', 'Banks');
+
+    Route::post('region-banks/import', 'Main@importBanks')->name('region-banks.import');
+    Route::post('subregion-banks/import', 'Main@importBanks')->name('subregion-banks.import');
+    Route::get('banking/export', 'Main@exportBanks')->name('banking.export');
+
     Route::get('region', 'Main@region_index')->name('region.index');
     Route::get('subregion', 'Main@subregion_index')->name('subregion.index');
     

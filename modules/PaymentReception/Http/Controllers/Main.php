@@ -24,16 +24,25 @@ use Modules\PaymentReception\Models\PaymentReceptionItems;
 class Main extends Controller
 {
 	public function paymentIndex(){
-		$tableRefix = DB::getTablePrefix();
 		if(request()->has('remove_duplicates')){
 			return $this->remove_duplicates();
 		}
-		$payments = PaymentReception::with('church')
-				->join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
-				->selectRaw($tableRefix.'payment_receptions.id, church_id, week, month, payment_mode, SUM(amount) as amount, payer_name, status, '.$tableRefix.'payment_receptions.created_at')
-				->groupBy('church_id','week','month','year')->orderBy('created_at', 'desc')->orderBy('status', 'asc')->collect();
 
-		// return response()->json($payments, 200);
+		$prefix = DB::getTablePrefix();
+		$items = $prefix . 'payment_reception_items';
+		$receptions = $prefix . 'payment_receptions';
+
+		$payments = PaymentReception::query()
+			->with('church:id,name,code')
+			->select('payment_receptions.*')
+			->selectRaw('(SELECT COALESCE(SUM(amount), 0) FROM '.$items.' WHERE payment_reception_id = '.$receptions.'.id AND deleted_at IS NULL) as amount')
+			->selectRaw('(SELECT month FROM '.$items.' WHERE payment_reception_id = '.$receptions.'.id AND deleted_at IS NULL ORDER BY id ASC LIMIT 1) as month')
+			->selectRaw('(SELECT week FROM '.$items.' WHERE payment_reception_id = '.$receptions.'.id AND deleted_at IS NULL ORDER BY id ASC LIMIT 1) as week')
+			->orderByDesc('payment_receptions.created_at')
+			->collect('created_at');
+
+		$collection = method_exists($payments, 'getCollection') ? $payments->getCollection() : $payments;
+		$collection->each->setAppends([]);
 
 		return $this->response('payment-reception::index', compact('payments'));
 	}
@@ -44,42 +53,50 @@ class Main extends Controller
 	 */
 	public function paymentShow($id='create')
 	{
-		$tablePrefix = DB::getTablePrefix();
-		$churches = Church::leftJoin('church_histories as ch', function($join){
-			$join->on('ch.church_id', 'churches.id');
-			$join->whereNull('ch.deleted_at');
-		})
-		->leftJoin('demarcations as d', function($join){
-			$join->on('d.id', 'ch.demarcation_id');
-			$join->whereNull('d.deleted_at');
-		})
-		->select('churches.id', 'churches.name', 'churches.code', DB::raw('CONCAT('.$tablePrefix.'churches.code, " - ", '.$tablePrefix.'churches.name, ", ", '.$tablePrefix.'d.name) as codename'));
-
 		$payment_modes = ['mpesa'=>'M-Pesa', 'cash'=>'Cash', 'bank deposit'=>'Bank Deposit', 'ussd'=>'USSD', 'portal'=>'Portal'];
 		$start_year = 2018;
 		$paymentYear = date('Y');
 		$paymentMonth = date('M');
 		$paymentWeek = \Carbon\Carbon::now()->weekOfMonth;
-		$paymentTopup = 0;
 		$weeks = [1,2,3,4,5];
 		$months = [
 			'long' => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 			'short' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
 		];
 
-		$paymentReception = PaymentReception::find($id);
+		$paymentReception = is_numeric($id) ? PaymentReception::with('items')->find($id) : null;
+
+		$churches = Church::query()->forPicker();
 
 		if(isset($paymentReception->id)){
 			$churches = $churches->where('churches.id', $paymentReception->church_id);
 		}
 
-		$churches = $churches->orderBy('churches.name', 'asc')->limit(10)->get();
+		$churches = $churches->limit(10)->get();
 
-		$missing = [$id];
+		$recentIds = PaymentReception::query()
+			->when(isset($paymentReception->id), function ($query) use ($paymentReception) {
+				$query->where('id', '!=', $paymentReception->id);
+			})
+			->orderByDesc('id')
+			->limit(10)
+			->pluck('id');
 
-		$lastReceiptions = PaymentReception::join('churches as c', 'c.id', 'payment_receptions.church_id')->join('payment_reception_items as pri', 'pri.payment_reception_id', 'payment_receptions.id')
-			->whereNotIn('payment_receptions.id', $missing)->select('c.name', 'c.code', 'payment_receptions.id', 'pri.month', 'pri.year', 'payer_name', 'pri.amount')
-			->orderBy('pri.created_at', 'desc')->limit(10)->get();
+		$prefix = DB::getTablePrefix();
+
+		$lastReceiptions = $recentIds->isEmpty()
+			? collect()
+			: PaymentReception::query()
+				->join('churches as c', 'c.id', 'payment_receptions.church_id')
+				->leftJoin('payment_reception_items as pri', function ($join) {
+					$join->on('pri.payment_reception_id', 'payment_receptions.id')
+						->whereNull('pri.deleted_at');
+				})
+				->whereIn('payment_receptions.id', $recentIds)
+				->selectRaw($prefix.'c.name, '.$prefix.'c.code, '.$prefix.'payment_receptions.id, MAX('.$prefix.'pri.month) as month, MAX('.$prefix.'pri.year) as year, payer_name, COALESCE(SUM('.$prefix.'pri.amount), 0) as amount')
+				->groupBy('payment_receptions.id', 'c.name', 'c.code', 'payment_receptions.payer_name')
+				->orderByDesc('payment_receptions.id')
+				->get();
 
 		return $this->response('payment-reception::edit', compact('lastReceiptions', 'paymentReception', 'start_year', 'churches', 'payment_modes', 'months', 'weeks', 'paymentYear', 'paymentMonth', 'paymentWeek'));
 	}
@@ -98,31 +115,33 @@ class Main extends Controller
 		unset($dataArr['_token']);
 		unset($dataArr['data']);
 
-		$existsBefore = [];
-
-
 		$payment = intval($id) > 0 ? PaymentReception::find($id) : PaymentReception::create($dataArr);
 
-		foreach($rows as $k=>$row){
-			$previousReceptionsIDs = PaymentReception::where('church_id', $dataArr['church_id'])->select('id')->get()->pluck('id')->toArray();
-			$idsTocheck = array_diff($previousReceptionsIDs, [$payment->id]);
-			$before = PaymentReceptionItems::where('month', $row['month']);
-			
-			if(isset($row['week']) && trim($row['week']) != ""){
-				$before = $before->where('week', $row['week']);
+		$previousIds = PaymentReception::query()
+			->where('church_id', $dataArr['church_id'])
+			->where('id', '!=', $payment->id)
+			->pluck('id');
+
+		if ($previousIds->isNotEmpty() && !empty($rows)) {
+			$existsBefore = PaymentReceptionItems::query()
+				->whereIn('payment_reception_id', $previousIds)
+				->where(function ($query) use ($rows) {
+					foreach ($rows as $row) {
+						$query->orWhere(function ($period) use ($row) {
+							$period->where('month', $row['month'])->where('year', $row['year']);
+
+							if (isset($row['week']) && trim((string) $row['week']) !== '') {
+								$period->where('week', $row['week']);
+							}
+						});
+					}
+				})
+				->exists();
+
+			if ($existsBefore) {
+				flash('Payment for similar period exists')->important()->error();
+				return redirect()->route('payment-reception.index');
 			}
-
-			$before = $before->where('year', $row['year'])->whereIn('payment_reception_id', $idsTocheck)->get();
-			if($before->count() > 0){
-				$existsBefore[] = $before;
-			}
-		}
-
-		// return json_encode($existsBefore);
-
-		if(count($existsBefore) > 0){
-			flash('Payment for similar period exists')->important()->error();
-			return redirect()->route('payment-reception.index');
 		}
 
 		foreach($rows as $k=>$row){

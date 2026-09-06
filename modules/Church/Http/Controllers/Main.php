@@ -23,7 +23,7 @@ class Main extends Controller
      */
     public function index()
     {
-        $churches = ChurchView::withTrashed()->collect();
+        $churches = ChurchView::collect('name');
         return $this->response('church::churches.index', compact('churches'));
     }
 

@@ -10,12 +10,20 @@ use Illuminate\Support\Facades\DB;
 use Modules\Church\Models\PaymentDivision;
 use Modules\Demarcations\Models\Demarcation;
 use Modules\Demarcations\Models\DemarcationHistory;
+use Modules\PaymentSchedules\Utilities\UnpaidDistributions;
 
 class Payments extends Controller
 {
 	public function remove_underscore($type)
 	{
 		return ucwords(implode(" ", explode("_", $type)));
+	}
+
+	protected function unpaidDivisions()
+	{
+		return UnpaidDistributions::excludeLocked(
+			PaymentDivision::query()->whereNull('payment_date')
+		);
 	}
 
 	public function getTypes($request)
@@ -25,7 +33,7 @@ class Payments extends Controller
 
 		$theList = [];
 
-		$paymentsList = PaymentDivision::selectRaw('SUM(amount+topup) as total, type')->whereNull('payment_date');
+		$paymentsList = $this->unpaidDivisions()->selectRaw('SUM(amount+topup) as total, type');
 
 		if ($request->region) {
 			$paymentsList = $paymentsList->where('regional_id', $request->region);
@@ -91,25 +99,25 @@ class Payments extends Controller
 
 		if ($request->has('region') && trim($request->region) != "" && !$request->has('sub_region')) {
 			$subs = json_decode($this->sub_region_list($request->region));
-			$RegionData = PaymentDivision::join('demarcations as d', 'regional_id', 'd.id')
+			$RegionData = $this->unpaidDivisions()->join('demarcations as d', 'regional_id', 'd.id')
 				->where('payment_divisions.type', $type)->where('regional_id', $request->region)
 				->selectRaw('DISTINCTROW SUM(amount) as total, SUM(topup) as topup, name, regional_id as id')
-				->whereNull('payment_date')->first();
+				->first();
 
-			$paymentDivision = PaymentDivision::join('demarcations as d', 'sub_regional_id', 'd.id')
+			$paymentDivision = $this->unpaidDivisions()->join('demarcations as d', 'sub_regional_id', 'd.id')
 				->where('payment_divisions.type', $type)->where('regional_id', $request->region)
 				->selectRaw('DISTINCTROW SUM(amount) as total, SUM(topup) as topup, name, sub_regional_id as id')
-				->whereNull('payment_date')->orderBy('name')->groupBy('sub_regional_id')->get();
+				->orderBy('name')->groupBy('sub_regional_id')->get();
 			// echo 1.2;
 		}
 		if ($request->has('region') && $request->has('sub_region') && trim($request->sub_region) != "") {
 			$dbPrefix = DB::getTablePrefix();
-			$RegionData = PaymentDivision::join('demarcations as d', 'sub_regional_id', 'd.id')
+			$RegionData = $this->unpaidDivisions()->join('demarcations as d', 'sub_regional_id', 'd.id')
 				->where('payment_divisions.type', $type)->where('sub_regional_id', $request->sub_region)
 				->selectRaw('DISTINCTROW SUM(amount) as total, SUM(topup) as topup, name, sub_regional_id as id')
-				->whereNull('payment_date')->first();
+				->first();
 
-			$paymentDivision = PaymentDivision::with('church', 'pastor')
+			$paymentDivision = $this->unpaidDivisions()->with('church', 'pastor')
 				->leftJoin('pastor_histories as ph', function ($join) {
 					$join->on('ph.church_id', 'payment_divisions.church_id');
 					$join->where('ph.rank', 'Senior');
@@ -123,8 +131,7 @@ class Payments extends Controller
 				})
 				->join('demarcations as d', 'sub_regional_id', 'd.id')
 				->where('payment_divisions.type', $type)->where('sub_regional_id', $request->sub_region)
-				->selectRaw('DISTINCTROW SUM(amount) as total, SUM(topup) as topup, month, year, ' . $dbPrefix . 'c.name as senior, ' . $dbPrefix . 'd.name, sub_regional_id as id, ' . $dbPrefix . 'payment_divisions.church_id, ' . $dbPrefix . 'payment_divisions.contact_id')
-				->whereNull('payment_date');
+				->selectRaw('DISTINCTROW SUM(amount) as total, SUM(topup) as topup, month, year, ' . $dbPrefix . 'c.name as senior, ' . $dbPrefix . 'd.name, sub_regional_id as id, ' . $dbPrefix . 'payment_divisions.church_id, ' . $dbPrefix . 'payment_divisions.contact_id');
 
 			if ($type == "pastors_fund") {
 				$paymentDivision = $paymentDivision->groupBy('contact_id');
@@ -136,10 +143,10 @@ class Payments extends Controller
 		}
 
 		if (!$request->has('region') && !$request->has('sub_region')) {
-			$paymentDivision = PaymentDivision::join('demarcations as d', 'regional_id', 'd.id')
+			$paymentDivision = $this->unpaidDivisions()->join('demarcations as d', 'regional_id', 'd.id')
 				->where('payment_divisions.type', $type)
 				->selectRaw('DISTINCTROW SUM(amount) as total, SUM(topup) as topup, name, regional_id as id')
-				->whereNull('payment_date')->orderBy('name')->groupBy('regional_id')->get();
+				->orderBy('name')->groupBy('regional_id')->get();
 				// echo 1;
 		}
 
@@ -166,7 +173,7 @@ class Payments extends Controller
 				foreach ($data as $reg => $data2) {
 					if (gettype($data2)  == "array") {
 						foreach ($data2 as $sub => $chn) {
-							$divisions = PaymentDivision::whereNull('payment_date');
+						$divisions = $this->unpaidDivisions();
 							$divisions = $divisions->where('type', $type);
 							$divisions = $divisions->where('regional_id', $reg);
 							$divisions = $divisions->where('sub_regional_id', $sub);
@@ -176,7 +183,7 @@ class Payments extends Controller
 							]);
 						}
 					} else {
-						$divisions = PaymentDivision::whereNull('payment_date');
+						$divisions = $this->unpaidDivisions();
 						$divisions = $divisions->where('type', $type);
 						$divisions = $divisions->where('regional_id', $reg);
 						$divisions = $divisions->update([
@@ -186,7 +193,7 @@ class Payments extends Controller
 					}
 				}
 			} else {
-				$divisions = PaymentDivision::whereNull('payment_date');
+				$divisions = $this->unpaidDivisions();
 				$divisions = $divisions->where('type', $type);
 				$divisions = $divisions->update([
 					"payment_date" => $request->pay_date,

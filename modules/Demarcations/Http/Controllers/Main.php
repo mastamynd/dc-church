@@ -13,20 +13,29 @@ use Modules\Demarcations\Models\Demarcation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Modules\Church\Models\PaymentDivision;
-use Modules\Church\Models\PaymentDivisionView;
 use Modules\Demarcations\Models\DemarcationHistory;
 use Modules\Demarcations\Models\DemarcationOverseer;
 use App\Http\Requests\Banking\Transaction as TransRequest;
+use App\Http\Requests\Common\Import as ImportRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\ChurchHistory;
-use Modules\Church\Models\PaymentMadeView;
+use Modules\Demarcations\Exports\DemarcationBanksExport;
 use Modules\Demarcations\Exports\DemarcationExport;
-use Modules\Demarcations\Exports\PaymentsMadeExport;
+use Modules\Demarcations\Imports\DemarcationBanks;
+use Modules\Demarcations\Models\Bank;
 
 class Main extends Controller
 {
+	public function __construct()
+	{
+		parent::__construct();
+
+		$this->middleware('permission:read-demarcations-main')->only('exportBanks');
+		$this->middleware('permission:update-demarcations-main')->only('importBanks');
+	}
 	/**
 	 * Display a listing of the resource.
 	 *
@@ -95,7 +104,9 @@ class Main extends Controller
 		// return $possible_next_code;
 
 		$regions = Demarcation::region()->orderBy('name', 'asc')->get();
-		return view('demarcations::create', compact('type', 'regions', 'possible_next_code'));
+		$banks = $this->banksForSelect();
+
+		return view('demarcations::create', compact('type', 'regions', 'possible_next_code', 'banks'));
 	}
 
 	/**
@@ -108,6 +119,7 @@ class Main extends Controller
 	{
 		$possible_next_code = $this->getNextDemarcationCode($type, true);
 		$request->merge(['code' => $possible_next_code]);
+		$this->normalizeBankingInput($request);
 
 		// return json_encode($request->all());
 
@@ -131,7 +143,7 @@ class Main extends Controller
 	 */
 	public function show($type, $id)
 	{
-		$demarcation = Demarcation::find($id);
+		$demarcation = Demarcation::with('bank')->find($id);
 
 		// return response()->json($demarcation->pastors_fund('paid'), 200);
 
@@ -154,10 +166,11 @@ class Main extends Controller
 		$regions = Demarcation::region()->orderBy('name', 'asc')->get();
 		$demarcation = Demarcation::find($id);
 		$type = $demarcation->type;
+		$banks = $this->banksForSelect();
 
 		// return response()->json($demarcation, 200);
 
-		return view('demarcations::edit', compact('demarcation', 'regions', 'type', 'possible_next_code'));
+		return view('demarcations::edit', compact('demarcation', 'regions', 'type', 'possible_next_code', 'banks'));
 	}
 
 	/**
@@ -170,6 +183,7 @@ class Main extends Controller
 	public function update(Request $request, $type, $id)
 	{
 		$demarcation = Demarcation::find($id);
+		$this->normalizeBankingInput($request);
 		$demarcation->update($request->all());
 
 		// return response()->json($demarcation, 200);
@@ -240,9 +254,38 @@ class Main extends Controller
 			$query->on('p.id', 'do.pastor_id');
 		})->leftJoin('contacts as c', function ($query) {
 			$query->on('c.id', 'p.contact_id');
-		})->where('demarcations.type',  $type)->select(['demarcations.*', 'c.name as dname', 'c.phone'])->collect();
+		})->leftJoin('banks as b', function ($query) {
+			$query->on('b.id', 'demarcations.bank_id');
+			$query->whereNull('b.deleted_at');
+		})->where('demarcations.type',  $type)->select(['demarcations.*', 'c.name as dname', 'c.phone', 'b.name as bank_name'])->orderBy('demarcations.name')->get();
 
 		return Excel::download(new DemarcationExport($demarcations, $type), $request->type . '-list.xlsx');
+	}
+
+	public function exportBanks()
+	{
+		return Excel::download(new DemarcationBanksExport, 'region-subregion-banking-details.xlsx');
+	}
+
+	public function importBanks(ImportRequest $request)
+	{
+		$type = Str::contains($request->route()->getName(), 'subregion') ? 'Sub Region' : 'Region';
+		$importType = $type === 'Sub Region' ? 'subregion-banks' : 'region-banks';
+		$indexRoute = $type === 'Sub Region' ? 'demarcations.subregion.index' : 'demarcations.region.index';
+
+		$response = $this->importExcel(new DemarcationBanks($type), $request, trans_choice('demarcations::general.' . str_replace('-', '_', $importType), 2));
+
+		if ($response['success']) {
+			$response['redirect'] = route($indexRoute);
+
+			flash($response['message'])->success();
+		} else {
+			$response['redirect'] = route('import.create', ['demarcations', $importType]);
+
+			flash($response['message'])->error()->important();
+		}
+
+		return response()->json($response);
 	}
 
 	public function make_payments(Request $request, $region)
@@ -461,51 +504,61 @@ class Main extends Controller
 
 	public function payments_made(Request $request)
 	{
-		$dbprefix = DB::getTablePrefix();
-		// $payments = PaymentMadeView::withTrashed()
-		// ->orderBy('regional_id', 'asc')->orderBy('sub_regional_id', 'asc')->orderByRaw("FIELD(type, 'region') DESC")
-		// ->orderBy("type","asc")->collect();
+		$regions = Demarcation::with('overseer.pastor.contact')
+			->region()
+			->orderBy('name', 'asc')
+			->get();
 
-		// if($request->has('export')){
-		// 	return Excel::download(new PaymentsMadeExport($payments), 'payments-list.xlsx');
-		// }
+		$regions->each->setAppends([]);
+		Demarcation::hydratePaymentTotals($regions);
 
-
-		$regions = Demarcation::with('overseer.pastor.contact')->region()->orderBy('name', 'asc')->get();
-		// return json_encode($regions);
 		return $this->response('demarcations::reports.payments-made', compact('regions'));
 	}
 
 	public function payment_distribution(Request $request, $type, $type_id)
 	{
 		$type = strtolower($type);
-		$demarcation = Demarcation::with('children')->where('id', $type_id)->first();
+		$demarcation = Demarcation::with('overseer.pastor.contact')->where('id', $type_id)->first();
 
-		if ($type == "region") {
-			$children = DemarcationHistory::with('demarcation.overseer.pastor')->where('parent_id', $type_id)->get();
-		} else {
-			$children = ChurchHistory::with('church.senior_pastor.pastor')->where('demarcation_id', $type_id)->get();
+		if ($demarcation) {
+			$demarcation->setAppends([]);
 		}
 
-		$paymentList = PaymentDivision::with('region', 'subregion')->selectRaw('SUM(COALESCE(amount, 0)) as amount, type, cheque_number, payment_date')
-			->whereNotNull('payment_date')->where($type == 'region' ? 'regional_id' : 'sub_regional_id',  $type_id)->groupBy('type', 'cheque_number')->get();
+		if ($type == "region") {
+			$children = DemarcationHistory::with('demarcation.overseer.pastor.contact')->where('parent_id', $type_id)->get();
+		} else {
+			$children = ChurchHistory::with('church.senior_pastor.pastor.contact')->where('demarcation_id', $type_id)->get();
+		}
+
+		$column = $type == 'region' ? 'regional_id' : 'sub_regional_id';
+
+		$paymentList = PaymentDivision::query()
+			->selectRaw('SUM(COALESCE(amount, 0)) as amount, type, cheque_number, MAX(payment_date) as payment_date')
+			->whereNotNull('payment_date')
+			->where($column, $type_id)
+			->groupBy('type', 'cheque_number')
+			->orderByDesc(DB::raw('MAX(payment_date)'))
+			->get();
 
 		return $this->response('demarcations::reports.payments-made-show', compact('type', 'demarcation', 'children', 'paymentList'));
 	}
 
 	public function view_cheque_number_list(Request $request, $cheque_number, $type)
 	{
-		$paymentList = PaymentDivision::leftJoin('pastor_histories as ph', function($join){
-			$join->on('ph.church_id', 'payment_divisions.church_id');
-			$join->where('ph.rank', 'Senior');
-			$join->whereNull('ph.deleted_at');
-		})
-		->leftJoin('pastors as p', 'p.id', 'ph.pastor_id')
-		->leftJoin('contacts as c', 'c.id', 'p.contact_id')
-		->with('church.senior_pastor.pastor.contact', 'pastor.contact', 'region', 'subregion')
-		->select(['payment_divisions.*', 'c.name'])
-		->where('payment_divisions.type', $type)->where('cheque_number', $cheque_number)->get();
-		
+		$paymentList = PaymentDivision::query()
+			->leftJoin('pastor_histories as ph', function ($join) {
+				$join->on('ph.church_id', 'payment_divisions.church_id');
+				$join->where('ph.rank', 'Senior');
+				$join->whereNull('ph.deleted_at');
+			})
+			->leftJoin('pastors as p', 'p.id', 'ph.pastor_id')
+			->leftJoin('contacts as c', 'c.id', 'p.contact_id')
+			->with('church.senior_pastor.pastor.contact', 'pastor.contact', 'region', 'subregion')
+			->select(['payment_divisions.*', 'c.name'])
+			->where('payment_divisions.type', $type)
+			->where('cheque_number', $cheque_number)
+			->get();
+
 		return $this->response('demarcations::reports.payment-made-division-list', compact('paymentList', 'cheque_number'));
 	}
 
@@ -545,5 +598,25 @@ class Main extends Controller
 		}
 
 		return response()->json(["data" => $dataConfiged], 200,);
+	}
+
+	protected function banksForSelect()
+	{
+		return Bank::enabled()->orderBy('name')->get(['id', 'name', 'code']);
+	}
+
+	protected function normalizeBankingInput(Request $request): void
+	{
+		$request->merge([
+			'bank_id' => $request->filled('bank_id') ? $request->bank_id : null,
+			'paybill' => $request->filled('paybill') ? trim($request->paybill) : null,
+			'account_number' => $request->filled('account_number') ? trim($request->account_number) : null,
+		]);
+
+		$request->validate([
+			'bank_id' => 'nullable|integer|exists:banks,id,company_id,' . company_id() . ',deleted_at,NULL',
+			'paybill' => 'nullable|string|max:50',
+			'account_number' => 'nullable|string|max:50',
+		]);
 	}
 }

@@ -8,6 +8,10 @@
 	@can('create-demarcations-main')
 		<a href="{{ route('demarcations.create', $type) }}" class="btn btn-success btn-sm">{{ trans('general.add_new') }}</a>
 	@endcan
+	@can('update-demarcations-main')
+		<a href="{{ route('import.create', ['demarcations', $type == 'region' ? 'region-banks' : 'subregion-banks']) }}" class="btn btn-white btn-sm">{{ trans('demarcations::general.import_banking') }}</a>
+		<a href="{{ route('demarcations.banking.export') }}" class="btn btn-white btn-sm">{{ trans('demarcations::general.export_banking') }}</a>
+	@endcan
 	<?php
 		$inputs = request()->input();
 		$others = ["type" => !$isSubRegion ? 'region' : 'sub_region'];
@@ -28,7 +32,7 @@
 					'class' => 'mb-0'
 				]) !!}
 					<div class="align-items-center" v-if="!bulk_action.show">
-						<x-search-string model="Modules\Church\Models\Demarcation" />
+						<x-search-string model="Modules\Demarcations\Models\Demarcation" />
 					</div>
 					{{-- {{ Form::bulkActionRowGroup('demarcations::general.name', $bulk_actions, ['group' => $type, 'type' => 'demarcations']) }} --}}
 				{!! Form::close() !!}

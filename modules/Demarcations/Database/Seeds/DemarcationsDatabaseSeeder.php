@@ -16,7 +16,7 @@ class DemarcationsDatabaseSeeder extends Seeder
     {
         Model::unguard();
 
-        // $this->call("OthersTableSeeder");
+        $this->call(Permissions::class);
 
         Model::reguard();
     }

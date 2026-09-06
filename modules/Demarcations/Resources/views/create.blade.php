@@ -42,6 +42,27 @@
 					</div>
 				</div>
 				@endif
+
+				<div class="form-group form-group-lg col-md-6">
+					<label class="control-label">{{ trans_choice('demarcations::general.bank', 1) }}</label>
+					<div class="input-group input-group-merge w-100">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fa fa-university"></i>
+							</span>
+						</div>
+						<select name="bank_id" placeholder="Select {{ trans_choice('demarcations::general.bank', 1) }}..."
+							class="form-control selectize-field">
+							<option value="">{{ trans('general.na') }}</option>
+							@foreach ($banks as $bank)
+								<option value="{{ $bank->id }}">{{ $bank->name }} ({{ $bank->code }})</option>
+							@endforeach
+						</select>
+					</div>
+				</div>
+
+				{{ Form::textGroup('paybill', trans('demarcations::general.paybill'), 'mobile-alt') }}
+				{{ Form::textGroup('account_number', trans('demarcations::general.account_number'), 'credit-card') }}
 			</div>
 		</div>
 

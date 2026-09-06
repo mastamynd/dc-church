@@ -138,34 +138,24 @@ class CashFlow extends Widget
             }
         }
 
-        $items = $this->applyFilters(Transaction::$type()->whereBetween('paid_at', [$start, $end])->isNotTransfer())->get();
+        $periodExpression = $period == 'month'
+            ? "DATE_FORMAT(paid_at, '%Y-%m')"
+            : 'QUARTER(paid_at)';
 
-        $this->setTotals($totals, $items, $date_format, $period);
-
-        return $totals;
-    }
-
-    private function setTotals(&$totals, $items, $date_format, $period)
-    {
-        foreach ($items as $item) {
-            if ($period == 'month') {
-                $i = Date::parse($item->paid_at)->format($date_format);
-            } else {
-                $i = Date::parse($item->paid_at)->quarter;
-            }
-
-            if (!isset($totals[$i])) {
-                continue;
-            }
-
-            $totals[$i] += $item->getAmountConvertedToDefault();
-        }
+        $rows = $this->applyFilters(
+            Transaction::$type()->isNotTransfer()->whereBetween('paid_at', [$start, $end])
+        )
+            ->selectRaw($periodExpression . ' as period, SUM(amount / NULLIF(currency_rate, 0)) as total')
+            ->groupByRaw($periodExpression)
+            ->pluck('total', 'period');
 
         $precision = config('money.' . setting('default.currency') . '.precision');
 
         foreach ($totals as $key => $value) {
-            $totals[$key] = round($value, $precision);
+            $totals[$key] = round((float) ($rows[$key] ?? $rows[(string) $key] ?? 0), $precision);
         }
+
+        return $totals;
     }
 
     private function calculateProfit($incomes, $expenses)

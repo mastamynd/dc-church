@@ -13,7 +13,10 @@ class DemarcationHistory extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('demarcation_histories');
+        if (Schema::hasTable('demarcation_histories')) {
+            return;
+        }
+
         Schema::create('demarcation_histories', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('demarcation_id');

@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'pastor_totals' => 'Pastors',
+    'pastor_fund' => 'Pastor Fund',
+    'latest_pastor_fund' => 'Latest Pastor Fund',
+    'payments_overview' => 'Payments',
+    'payments_by_type' => 'Payments By Type',
+    'monthly_payments' => 'Monthly Payments',
+    'region_snapshot' => 'Regions',
+    'payments_by_region' => 'Payments By Region',
+    'sub_region_snapshot' => 'Sub-Regions',
+    'payments_by_sub_region' => 'Payments By Sub-Region',
+    'assigned' => 'Assigned',
+    'unassigned' => 'Unassigned',
+    'paid' => 'Paid',
+    'pending' => 'Pending',
+    'received' => 'Received',
+    'outstanding' => 'Outstanding',
+    'churches' => 'Churches',
+    'pastor' => 'Pastor',
+    'church' => 'Church',
+    'period' => 'Period',
+    'view_all' => 'View all',
+];

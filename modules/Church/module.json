@@ -13,7 +13,18 @@
     "reports": [
         "Modules\\Church\\Reports"
     ],
-    "widgets": [],
+    "widgets": [
+        "Modules\\Church\\Widgets\\PastorTotals",
+        "Modules\\Church\\Widgets\\PastorFund",
+        "Modules\\Church\\Widgets\\LatestPastorFund",
+        "Modules\\Church\\Widgets\\PaymentsOverview",
+        "Modules\\Church\\Widgets\\PaymentsByType",
+        "Modules\\Church\\Widgets\\MonthlyPayments",
+        "Modules\\Church\\Widgets\\RegionSnapshot",
+        "Modules\\Church\\Widgets\\PaymentsByRegion",
+        "Modules\\Church\\Widgets\\SubRegionSnapshot",
+        "Modules\\Church\\Widgets\\PaymentsBySubRegion"
+    ],
     "settings": [
         {
             "type": "textGroup",

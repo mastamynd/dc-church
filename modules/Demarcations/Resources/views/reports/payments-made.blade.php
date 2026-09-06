@@ -10,6 +10,7 @@
 	<a href="{{ $fullURL.($hasQ ? '&' : '?') }}export" class="btn btn-white btn-sm">{{ trans('general.export') }}</a>
 	<a href="{{ route('demarcations.payments.pending') }}" class="btn btn-success btn-sm">Make Payments</a>
 	<a href="{{ route('demarcations.make-payments-new') }}" class="btn btn-primary btn-sm">Make Payments <small>NEW</small></a>
+	<a href="{{ route('payment-schedules.cycles.index') }}" class="btn btn-info btn-sm">{{ trans('payment-schedules::general.mpesa_payouts') }}</a>
 @endsection
 
 @section('content')
@@ -28,12 +29,17 @@
 					</thead>
 					<tbody>
 						@foreach ($regions as $item)
+							@php
+								$received = $item->amounts('received');
+								$paid = $item->amounts('paid');
+								$overseer = $item->overseer?->pastor?->contact?->name ?? 'N/A';
+							@endphp
 							<tr class="align-items-center border-top-1">
 								<td><a href="{{ route('demarcations.payment-made-show', [$item->type, $item->id]) }}">{{ $item->name }}</a></td>
-								<td>{{ isset($item->overseer) ? (isset($item->overseer->pastor) ? $item->overseer->pastor->contact->name : 'N/A' ) : 'N/A' }}</td>
-								<td>@money($item->amounts('received'), setting('default.currency'), true)</td>
-								<td>@money($item->amounts('paid'), setting('default.currency'), true)</td>
-								<td>@money(($item->amounts('received')-$item->amounts('paid')), setting('default.currency'), true)</td>
+								<td>{{ $overseer }}</td>
+								<td>@money($received, setting('default.currency'), true)</td>
+								<td>@money($paid, setting('default.currency'), true)</td>
+								<td>@money(($received - $paid), setting('default.currency'), true)</td>
 							</tr>
 						@endforeach
 					</tbody>

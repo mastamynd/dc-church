@@ -1,8 +1,6 @@
 <?php
 namespace Modules\Church\Export;
 
-use Illuminate\Support\Facades\DB;
-use Modules\Church\Models\Church;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Modules\Church\Models\ChurchView;
@@ -14,8 +12,17 @@ class ChurchesExport implements FromCollection, WithHeadings
     */
     public function collection()
     {
-        $db_prefix = DB::getTablePrefix();
-        return ChurchView::select('name', 'code', 'sub_region', 'region', 'pastor', 'id_or_passport', 'phone')->collect();
+        return ChurchView::orderBy('churches.name')->get()->map(function ($row) {
+            return [
+                $row->name,
+                $row->code,
+                $row->sub_region,
+                $row->region,
+                $row->pastor,
+                $row->id_or_passport,
+                $row->phone,
+            ];
+        });
     }
 
     public function headings(): array

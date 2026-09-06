@@ -6,6 +6,7 @@ use App\Abstracts\Model;
 use App\Models\Document\Document;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Modules\Church\Models\ChurchHistory;
 use Modules\Church\Models\PastorHistory;
@@ -15,9 +16,11 @@ class Demarcation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'type','enabled'];
+    protected $fillable = ['name', 'code', 'type', 'enabled', 'bank_id', 'paybill', 'account_number'];
 
 	protected $appends = ['churches_count', 'demarcation_count', 'received', 'paid'];
+
+    protected $paymentAmountCache = [];
 
     public function history(): HasMany
     {
@@ -47,20 +50,82 @@ class Demarcation extends Model
     }
 
     public function amounts($type, $other=false){
-        if($type == "paid"){
-            $amounts = $other == false ? $this->paid_rows() : $this->pastors_fund($type);
-        }
-        else{
-            $amounts = $other == false ? $this->received_amount_rows() : $this->pastors_fund($type);
-        }
+        $cacheKey = $type . ':' . (int) (bool) $other;
 
-        $TOTAL = 0;
-
-        foreach($amounts as $amnt){
-            $TOTAL += $amnt->amount;
+        if (array_key_exists($cacheKey, $this->paymentAmountCache)) {
+            return $this->paymentAmountCache[$cacheKey];
         }
 
-        return $TOTAL;
+        if ($other) {
+            $total = 0;
+
+            foreach ($this->pastors_fund($type) as $amnt) {
+                $total += $amnt->amount;
+            }
+
+            return $this->paymentAmountCache[$cacheKey] = $total;
+        }
+
+        $query = PaymentDivision::query()
+            ->where($this->paymentColumn(), $this->id)
+            ->where('type', $this->paymentType());
+
+        if ($type == 'paid') {
+            $query->whereNotNull('payment_date');
+        } else {
+            $query->whereNull('payment_date');
+        }
+
+        return $this->paymentAmountCache[$cacheKey] = (float) $query->sum('amount');
+    }
+
+    public static function hydratePaymentTotals(Collection $demarcations): void
+    {
+        if ($demarcations->isEmpty()) {
+            return;
+        }
+
+        $demarcations->groupBy(function ($demarcation) {
+            return strtolower((string) $demarcation->type);
+        })->each(function (Collection $items, $type) {
+            $column = $type === 'region' ? 'regional_id' : 'sub_regional_id';
+            $paymentType = $type === 'region' ? 'region' : 'sub_region';
+            $ids = $items->pluck('id')->filter()->all();
+
+            if ($ids === []) {
+                return;
+            }
+
+            $totals = PaymentDivision::query()
+                ->where('type', $paymentType)
+                ->whereIn($column, $ids)
+                ->selectRaw($column . ' as demarcation_id, SUM(CASE WHEN payment_date IS NULL THEN amount ELSE 0 END) as received, SUM(CASE WHEN payment_date IS NOT NULL THEN amount ELSE 0 END) as paid')
+                ->groupBy($column)
+                ->get()
+                ->keyBy('demarcation_id');
+
+            foreach ($items as $item) {
+                $row = $totals->get($item->id);
+
+                $item->setPaymentAmountCache('received', (float) ($row->received ?? 0));
+                $item->setPaymentAmountCache('paid', (float) ($row->paid ?? 0));
+            }
+        });
+    }
+
+    public function setPaymentAmountCache($type, $value, $other=false): void
+    {
+        $this->paymentAmountCache[$type . ':' . (int) (bool) $other] = $value;
+    }
+
+    protected function paymentColumn(): string
+    {
+        return strtolower((string) $this->type) === 'region' ? 'regional_id' : 'sub_regional_id';
+    }
+
+    protected function paymentType(): string
+    {
+        return strtolower((string) $this->type) === 'region' ? 'region' : 'sub_region';
     }
 
     public function pastors_fund($type="paid"){
@@ -183,6 +248,11 @@ class Demarcation extends Model
 	public function getDemarcationCountAttribute(){
 		return $this->children->count() ?? 0;
 	}
+
+    public function bank()
+    {
+        return $this->belongsTo(Bank::class);
+    }
 
     public function overseer(){
         return $this->hasOne(DemarcationOverseer::class);

@@ -34,6 +34,13 @@ class FinishInstallation
         // c=create, r=read, u=update, d=delete
         $this->attachPermissionsToAdminRoles([
             $this->alias . '-main' => 'c,r,u,d',
+            $this->alias . '-banks' => 'c,r,u,d',
+        ]);
+
+        $this->attachPermissionsByRoleNames([
+            'manage-demarcations' => [
+                $this->alias . '-banks' => 'c,r,u,d',
+            ],
         ]);
     }
 

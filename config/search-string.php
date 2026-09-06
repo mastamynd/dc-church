@@ -453,12 +453,12 @@ return [
 
     Modules\Church\Models\ChurchView::class => [
         'columns' => [
-            'id',
-            'name' => ['searchable' => true],
-            'code' => ['searchable' => true],
-            'pastor' => ['searchable' => true],
-            'region' => ['searchable' => true],
-            'sub_region' => ['searchable' => true],
+            'churches.id' => ['key' => 'id'],
+            'churches.name' => ['searchable' => true, 'key' => 'name'],
+            'churches.code' => ['searchable' => true, 'key' => 'code'],
+            'co.name' => ['searchable' => true, 'key' => 'pastor'],
+            'r.name' => ['searchable' => true, 'key' => 'region'],
+            'sr.name' => ['searchable' => true, 'key' => 'sub_region'],
         ]
     ],
 
@@ -468,6 +468,45 @@ return [
             'name' => ['searchable' => true],
             'code' => ['searchable' => true],
             'enabled' => ['boolean' => true],
+        ]
+    ],
+    Modules\Demarcations\Models\Demarcation::class => [
+        'columns' => [
+            'id',
+            'name' => ['searchable' => true],
+            'code' => ['searchable' => true],
+            'paybill' => ['searchable' => true],
+            'account_number' => ['searchable' => true],
+            'enabled' => ['boolean' => true],
+        ]
+    ],
+    Modules\Demarcations\Models\Bank::class => [
+        'columns' => [
+            'id',
+            'name' => ['searchable' => true],
+            'code' => ['searchable' => true],
+            'enabled' => ['boolean' => true],
+        ]
+    ],
+    Modules\PaymentSchedules\Models\BillingCycle::class => [
+        'columns' => [
+            'id',
+            'name' => ['searchable' => true],
+            'scheduled_date' => ['date' => true],
+            'status' => [
+                'values' => [
+                    'open' => 'payment-schedules::general.status_labels.open',
+                    'closed' => 'payment-schedules::general.status_labels.closed',
+                ],
+            ],
+        ]
+    ],
+    Modules\PaymentSchedules\Models\PaymentSchedule::class => [
+        'columns' => [
+            'id',
+            'type' => ['searchable' => true],
+            'scheduled_date' => ['date' => true],
+            'status' => ['searchable' => true],
         ]
     ],
     Modules\Church\Models\PaymentDivision::class => [

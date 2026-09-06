@@ -144,7 +144,15 @@ class Category extends Model
      */
     public function scopeTransfer($query)
     {
-        return (int) $query->other()->pluck('id')->first();
+        static $ids = [];
+
+        $company = company_id();
+
+        if (!array_key_exists($company, $ids)) {
+            $ids[$company] = (int) $query->other()->pluck('id')->first();
+        }
+
+        return $ids[$company];
     }
 
     /**

@@ -81,16 +81,27 @@ class Account extends Model
      */
     public function getBalanceAttribute()
     {
-        // Opening Balance
-        $total = $this->opening_balance;
+        return $this->opening_balance
+            + $this->relationAmount('income_transactions')
+            - $this->relationAmount('expense_transactions');
+    }
 
-        // Sum Incomes
-        $total += $this->income_transactions->sum('amount');
+    /**
+     * Prefer withSum attributes, then loaded relations, then a SQL sum.
+     */
+    protected function relationAmount(string $relation): float
+    {
+        $sumAttribute = $relation . '_sum_amount';
 
-        // Subtract Expenses
-        $total -= $this->expense_transactions->sum('amount');
+        if (array_key_exists($sumAttribute, $this->attributes)) {
+            return (float) $this->attributes[$sumAttribute];
+        }
 
-        return $total;
+        if ($this->relationLoaded($relation)) {
+            return (float) $this->$relation->sum('amount');
+        }
+
+        return (float) $this->$relation()->sum('amount');
     }
 
     /**

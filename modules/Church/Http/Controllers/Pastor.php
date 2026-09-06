@@ -180,24 +180,18 @@ class Pastor extends Controller
 	
 	public function get_church(Request $request, $search = '')
 	{
-		$tablePrefix = DB::getTablePrefix();
-		$churches = Church::leftJoin('church_histories as ch', function($join){
-			$join->on('ch.church_id', 'churches.id');
-			$join->whereNull('ch.deleted_at');
-		})
-		->leftJoin('demarcations as d', function($join){
-			$join->on('d.id', 'ch.demarcation_id');
-			$join->whereNull('d.deleted_at');
-		})
-		->select('churches.id', 'churches.name', 'churches.code', DB::raw('CONCAT('.$tablePrefix.'churches.code, " - ", '.$tablePrefix.'churches.name, ", ", '.$tablePrefix.'d.name) as codename'));
+		$search = trim((string) $search);
 
-		if (trim($search) != '') {
-			$churches = $churches->where(function ($orW) use ($search) {
-				$orW->where('churches.name', 'like', '%' . $search . '%')->orWhere('churches.code', 'like', '%' . $search . '%');
-			});
+		if ($search === '') {
+			return response()->json([]);
 		}
 
-		return json_decode($churches->get());
+		$churches = Church::query()
+			->forPicker($search)
+			->limit(20)
+			->get();
+
+		return response()->json($churches);
 	}
 
 	public function add_pastor_history(Request $request)

@@ -3,7 +3,7 @@
 namespace App\Widgets;
 
 use App\Abstracts\Widget;
-use App\Models\Setting\Category;
+use App\Models\Banking\Transaction;
 
 class ExpensesByCategory extends Widget
 {
@@ -15,15 +15,33 @@ class ExpensesByCategory extends Widget
 
     public function show()
     {
-        Category::with('expense_transactions')->expense()->each(function ($category) {
-            $amount = 0;
+        $rows = $this->remember('categories', function () {
+            $categories = $this->rawTable('categories');
+            $transactions = $this->rawTable('transactions');
 
-            $this->applyFilters($category->expense_transactions)->each(function ($transaction) use (&$amount) {
-                $amount += $transaction->getAmountConvertedToDefault();
-            });
-
-            $this->addMoneyToDonut($category->color, $amount, $category->name);
+            return $this->applyFilters(Transaction::expense()->isNotTransfer())
+                ->join('categories', function ($join) {
+                    $join->on('categories.id', '=', 'transactions.category_id')
+                        ->whereNull('categories.deleted_at');
+                })
+                ->selectRaw($categories . '.id, ' . $categories . '.name, ' . $categories . '.color, SUM(' . $transactions . '.amount / NULLIF(' . $transactions . '.currency_rate, 0)) as total')
+                ->groupBy('categories.id', 'categories.name', 'categories.color')
+                ->orderByDesc('total')
+                ->limit(6)
+                ->get()
+                ->map(function ($row) {
+                    return [
+                        'color' => $row->color,
+                        'total' => (float) $row->total,
+                        'name' => $row->name,
+                    ];
+                })
+                ->all();
         });
+
+        foreach ($rows as $row) {
+            $this->addMoneyToDonut($row['color'], $row['total'], $row['name']);
+        }
 
         $chart = $this->getDonutChart(trans_choice('general.expenses', 2), 0, 160, 6);
 
