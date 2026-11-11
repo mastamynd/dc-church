@@ -25,7 +25,10 @@ class DemarcationBanks extends Import
             return null;
         }
 
-        $hasBankingDetails = !empty($row['bank_id']) || $row['paybill'] !== '' || $row['account_number'] !== '';
+        $hasBankingDetails = !empty($row['bank_id'])
+            || $row['paybill'] !== ''
+            || $row['account_number'] !== ''
+            || $row['branch_code'] !== '';
 
         if (!$hasBankingDetails) {
             return null;
@@ -34,6 +37,7 @@ class DemarcationBanks extends Import
         $data = [
             'paybill' => $row['paybill'] !== '' ? $row['paybill'] : null,
             'account_number' => $row['account_number'] !== '' ? $row['account_number'] : null,
+            'branch_code' => $row['branch_code'] !== '' ? $row['branch_code'] : null,
         ];
 
         if (!empty($row['bank_id'])) {
@@ -68,6 +72,7 @@ class DemarcationBanks extends Import
         $row['bank_id'] = $bank->id ?? ($bankName === '' ? null : 0);
         $row['paybill'] = trim((string) ($row['paybill'] ?? $row['paybill_number'] ?? ''));
         $row['account_number'] = trim((string) ($row['account_number'] ?? $row['account'] ?? ''));
+        $row['branch_code'] = trim((string) ($row['branch_code'] ?? $row['branch'] ?? ''));
 
         return $row;
     }
@@ -81,6 +86,7 @@ class DemarcationBanks extends Import
             'bank_id' => 'nullable|integer|not_in:0',
             'paybill' => 'nullable|string|max:50',
             'account_number' => 'nullable|string|max:50',
+            'branch_code' => 'nullable|string|max:20',
         ]);
     }
 

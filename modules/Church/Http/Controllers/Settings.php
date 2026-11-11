@@ -60,6 +60,8 @@ class Settings extends Controller
 		}
 
 		setting()->set('church.payment_divisions', json_encode($request->payment_divisions));
+		setting()->set('demarcations.eft_debit_account', trim((string) $request->input('eft_debit_account', '')));
+		setting()->set('demarcations.eft_purpose_code', trim((string) $request->input('eft_purpose_code', '')));
 
 		setting()->save();
 

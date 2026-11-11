@@ -26,6 +26,7 @@ class CreatePastorsTable extends Migration
 			$table->string('ukumbozi_number')->nullable();
 			$table->boolean('enabled')->default(1);
 			$table->timestamps();
+			$table->softDeletes();
 
 			$table->index(['contact_id'], 'pa_in_indx');
 		});

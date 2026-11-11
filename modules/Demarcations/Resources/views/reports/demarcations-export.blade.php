@@ -9,6 +9,7 @@
 			<th>{{ trans_choice('demarcations::general.bank', 1) }}</th>
 			<th>{{ trans('demarcations::general.paybill') }}</th>
 			<th>{{ trans('demarcations::general.account_number') }}</th>
+			<th>{{ trans('demarcations::general.branch_code') }}</th>
 			<th>{{ trans('Overseer') }}</th>
 			<th>{{ trans('Contact') }}</th>
 		</tr>
@@ -35,6 +36,7 @@
 				<td class="">{{ $item->bank_name ?? '-' }}</td>
 				<td class="">{{ $item->paybill ?? '-' }}</td>
 				<td class="">{{ $item->account_number ?? '-' }}</td>
+				<td class="">{{ $item->branch_code ?? '-' }}</td>
 				<td class="">{{ $item->dname ?? '-' }}</td>
 				<td class="">{{ $item->phone ?? '-' }}</td>
 			</tr>

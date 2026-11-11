@@ -14,6 +14,12 @@ class OptimizeChurchListingIndexesAndView extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('pastors') && !Schema::hasColumn('pastors', 'deleted_at')) {
+            Schema::table('pastors', function (Blueprint $table) {
+                $table->softDeletes();
+            });
+        }
+
         $this->addIndex('churches', ['company_id', 'deleted_at'], 'churches_company_deleted_idx');
         $this->addIndex('churches', ['company_id', 'deleted_at', 'name'], 'churches_company_deleted_name_idx');
         $this->addIndex('church_histories', ['church_id', 'deleted_at', 'id'], 'church_histories_church_deleted_id_idx');

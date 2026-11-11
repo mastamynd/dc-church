@@ -22,6 +22,13 @@
 					{{ Form::textGroup($typ, trans($names[$typ]), 'cog', ['required'=>'required' ], setting($keys[$typ])) }}
 				@endforeach
 			</div>
+			<div class="row mt-3">
+				<div class="col-md-12">
+					<h4 class="border-bottom pb-2"><i class="fas fa-university"></i> Bank EFT Export Defaults</h4>
+				</div>
+				{{ Form::textGroup('eft_debit_account', trans('demarcations::general.eft_debit_account'), 'credit-card', [], setting('demarcations.eft_debit_account') ?: '0102092519200') }}
+				{{ Form::textGroup('eft_purpose_code', trans('demarcations::general.eft_purpose_code'), 'hashtag', [], setting('demarcations.eft_purpose_code') ?: '051') }}
+			</div>
 			<div class="row mt-2 mx-1">
 				<div class="w-100 border-bottom">
 					<h4 class="float-left">

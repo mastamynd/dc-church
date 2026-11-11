@@ -14,7 +14,8 @@ return [
 
     'name' => env('APP_NAME', 'Akaunting'),
 
-    'installed' => (bool) env('APP_INSTALLED', false),
+    // Use filter_var so APP_INSTALLED=false is actually false (plain (bool)"false" is true).
+    'installed' => filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN),
 
     'schedule_time' => env('APP_SCHEDULE_TIME', '09:00'),
 

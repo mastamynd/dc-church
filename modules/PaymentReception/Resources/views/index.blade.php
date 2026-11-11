@@ -44,17 +44,11 @@
 					</thead>
 					<tbody>
 						@foreach ($payments as $item)
-							@php
-								$tithePayload = [
-									'id' => $item->id,
-									'amount' => (float) $item->amount,
-									'church' => [
-										'name' => $item->church->name ?? '',
-										'code' => $item->church->code ?? '',
-									],
-								];
-							@endphp
-							<tr class="align-items-center border-top-1 hoverable-row" data-tithe="{{ e(json_encode($tithePayload)) }}">
+							<tr class="align-items-center border-top-1 hoverable-row"
+								data-id="{{ $item->id }}"
+								data-amount="{{ (float) $item->amount }}"
+								data-church-name="{{ $item->church->name ?? '' }}"
+								data-church-code="{{ $item->church->code ?? '' }}">
 								<td>
 									{{ Form::bulkActionGroup($item->id, $item->name) }}
 								</td>
@@ -129,17 +123,17 @@
 	<script>
 		$(function(){
 			$('#trigger-payment-modal').on('shown.bs.modal', function (e){
-				var ids = [];
 				var postingFor = $(this).find('.ids-for-posting');
 				postingFor.empty();
 				var strReceipt = $(`<div class="row"></div>`);
 				$('.hoverable-row').find('.custom-control-input:checked').each(function(){
-					var tithe = $(this).parents('.hoverable-row').data('tithe') || {};
-					var church = tithe.church || {};
-					var amount = Number(tithe.amount || 0);
+					var $row = $(this).closest('.hoverable-row');
+					var amount = Number($row.attr('data-amount') || 0);
+					var churchName = $row.attr('data-church-name') || '';
+					var churchCode = $row.attr('data-church-code') || '';
+					var val = $row.attr('data-id') || $(this).val();
 
-					var val = $(this).val();
-					strReceipt.append(`<div class="m-1 p-2 float-right" style="font-size: 12px"><input type="checkbox" name="ids[]" checked value="${val}" /> ${ church.name || '' } ${ church.code || '' } - Ksh${amount.toFixed(2)}</div>`)
+					strReceipt.append(`<div class="m-1 p-2 float-right" style="font-size: 12px"><input type="checkbox" name="ids[]" checked value="${val}" /> ${ $('<div>').text(churchName + ' ' + churchCode).html() } - Ksh${amount.toFixed(2)}</div>`)
 				});
 
 				postingFor.append(strReceipt);

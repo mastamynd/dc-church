@@ -32,6 +32,7 @@ class DemarcationBanksExport implements FromCollection, ShouldAutoSize, WithHead
             'bank_name',
             'paybill',
             'account_number',
+            'branch_code',
         ];
     }
 
@@ -45,6 +46,7 @@ class DemarcationBanksExport implements FromCollection, ShouldAutoSize, WithHead
             optional($demarcation->bank)->name,
             $demarcation->paybill,
             $demarcation->account_number,
+            $demarcation->branch_code,
         ];
     }
 

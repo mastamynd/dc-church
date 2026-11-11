@@ -63,6 +63,7 @@
 
 				{{ Form::textGroup('paybill', trans('demarcations::general.paybill'), 'mobile-alt') }}
 				{{ Form::textGroup('account_number', trans('demarcations::general.account_number'), 'credit-card') }}
+				{{ Form::textGroup('branch_code', trans('demarcations::general.branch_code'), 'code-branch') }}
 			</div>
 		</div>
 

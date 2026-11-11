@@ -14,10 +14,19 @@
 				<ul class="list-group list-group-flush">
 					@foreach ($lists as $k => $v)
 						<li class="list-group-item d-flex justify-content-between align-items-center"
-							style="cursor: pointer" wire:click="showType('{{ $v['code'] }}')">
+							style="cursor: pointer" wire:click="showType('{{ $v['code'] }}')" wire:key="list-{{ $v['code'] }}">
 							<h5>{{ $v['name'] }}</h5>
-							<span class="righer">
-								<span class="badge badge-dark badge-pill">@money($v['amount'] ?? 0, setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
+							<span class="righer d-flex align-items-center">
+								<span class="badge badge-dark badge-pill">@money($v['amount'] ?? 0, setting('default.currency'), true)</span>
+								@if (in_array($v['code'], ['region', 'sub_region'], true))
+									<button type="button"
+										class="btn btn-sm btn-outline-success ml-2"
+										title="{{ trans('demarcations::general.export_bank_payments') }}"
+										wire:click.stop="openBankExport('{{ $v['code'] }}')">
+										<i class="fas fa-file-excel"></i> Export
+									</button>
+								@endif
+								&nbsp;&nbsp;
 								<i class="fas fa-angle-right text-muted"></i>
 							</span>
 						</li>
@@ -37,7 +46,7 @@
 						</h2>
 					</div>
 					@if ($hasPayAll)
-						<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.lazy='chequeNumbers.All' style="width: 250px" />		
+						<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.blur='chequeNumbers.All' style="width: 250px" />
 					@endif
 					<div class="pt-1">
 						<span class="badge badge-dark badge-pill">@money($grandTotal, setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -49,8 +58,8 @@
 
 			@if ($showErrors)
 				<div class="card-body">
-					<div class="text-danger p-1 {{ isset($errors_there['pay_date']) && $errors_there['pay_date'] ? '' : 'd-none' }}">*Missing date details.</div> 
-					<div class="text-danger p-1 {{ isset($errors_there['cheques']) && $errors_there['cheques'] ? '' : 'd-none' }}">*Missing Cheque details.</div> 
+					<div class="text-danger p-1 {{ isset($errors_there['pay_date']) && $errors_there['pay_date'] ? '' : 'd-none' }}">*Missing date details.</div>
+					<div class="text-danger p-1 {{ isset($errors_there['cheques']) && $errors_there['cheques'] ? '' : 'd-none' }}">*Missing Cheque details.</div>
 				</div>
 			@endif
 
@@ -58,93 +67,132 @@
 				<ul class="list-group list-group-flush p-2 mb-1" style="background-color: #fdfdfd; border-radius: 1px">
 					@foreach ($breakdown as $reg=>$items)
 						@php($regName = $reg.'-region')
-						<div class="region mv-1 accord">
+						<div class="region mv-1 accord" wire:key="region-{{ md5($reg) }}">
 							<div class="title p-2 border-bottom d-flex justify-content-between" style="cursor: pointer" wire:click="toggleAccordion('{{ $regName }}')">
 								<div style="width: 300px"><h4>{{ $reg }}</h4></div>
 								@if ($hasPayReg)
-									<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.lazy='chequeNumbers.{{ $reg }}' style="width: 250px" />								
+									<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.blur='chequeNumbers.{{ $reg }}' style="width: 250px" />
 								@endif
 								<div class="pt-1">
 									<span class="badge badge-dark badge-pill">@money($items['total'], setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
-									<i class="fas fa-angle-{{ $accordion[$regName] ? 'down' : 'right' }} text-muted"></i>
+									<i class="fas fa-angle-{{ !empty($accordion[$regName]) ? 'down' : 'right' }} text-muted"></i>
 								</div>
 							</div>
-							<div class="body border-top" style="display: {{ $accordion[$regName] ? 'block' : 'none' }}">
-								@foreach ($items['items'] as $sub=>$mms)
-									@php($subRegName = $sub.'-subregion')
-									<div class="mv-1 sub-region accord">
-										<div class="title p-2 border-bottom d-flex justify-content-between" style="cursor: pointer" wire:click="toggleAccordion('{{ $subRegName }}')">
-											<div style="width: 300px"><h5>{{ $sub }}</h5></div>
-											@if ($hasPaySub)
-												<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.lazy='chequeNumbers.{{ $reg.$sub }}' style="width: 250px" />
-											@endif
-											<div class="pt-1">
-												<span class="badge badge-default badge-pill">@money($mms['total'], setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
-												<i class="fas fa-angle-{{ $accordion[$subRegName] ? 'down' : 'right' }} text-muted"></i>
+							@if (!empty($accordion[$regName]))
+								<div class="body border-top">
+									@foreach ($items['items'] as $sub=>$mms)
+										@php($groupKey = $reg.'|'.$sub)
+										@php($subRegName = $groupKey.'-subregion')
+										<div class="mv-1 sub-region accord" wire:key="sub-{{ md5($groupKey) }}">
+											<div class="title p-2 border-bottom d-flex justify-content-between" style="cursor: pointer" wire:click="toggleAccordion('{{ $subRegName }}')">
+												<div style="width: 300px"><h5>{{ $sub }}</h5></div>
+												@if ($hasPaySub)
+													<input type="text" class="form-control form-control-sm" wire:click.stop='' placeholder="Cheque Number..." wire:model.blur='chequeNumbers.{{ $groupKey }}' style="width: 250px" />
+												@endif
+												<div class="pt-1">
+													<span class="badge badge-default badge-pill">@money($mms['total'], setting('default.currency'), true)</span>&nbsp;&nbsp;&nbsp;&nbsp;
+													<i class="fas fa-angle-{{ !empty($accordion[$subRegName]) ? 'down' : 'right' }} text-muted"></i>
+												</div>
 											</div>
+											@if (!empty($accordion[$subRegName]))
+												<div class="body table-responsived">
+													<table class="table table-flush table-hover">
+														<thead class="thead-light">
+															<tr class="table-head-line">
+																<th>
+																	<input type="checkbox" wire:click='toggleSelected(@js($groupKey), false, "{{ !empty($toggleAll[$groupKey]) ? "true" : "false" }}")' {{ !empty($toggleAll[$groupKey]) ? 'checked' : '' }} />
+																</th>
+																@if (strtolower($pageTitle) == "pastors_fund")
+																	<th>Pastor</th>
+																@endif
+																<th>Church</th>
+																<th>Sub Region</th>
+																@if ($region == null)
+																	<th>Region</th>
+																@endif
+																<th>Amount</th>
+																<th>Month</th>
+																<th>Year</th>
+															</tr>
+														</thead>
+														<tbody>
+															@php($TOTALS = 0)
+															@foreach (($loadedGroups[$groupKey] ?? []) as $v)
+																@php($TOTALS += floatval($v['amount']) + floatval($v['topup'] ?? 0))
+																<tr wire:key="row-{{ $v['id'] }}">
+																	<td>
+																		<input type="checkbox" name="breakdown" wire:click='toggleSelected(@js($groupKey), {{ (int) $v['id'] }})'
+																			value="{{ $v['id'] }}" {{ empty($uncheckedAll[$groupKey]) && empty($unchecked[$groupKey][$v['id']]) ? 'checked' : '' }} />
+																	</td>
+																	@if (strtolower($pageTitle) == "pastors_fund")
+																		<td>{{ $v['pastor'] ?? 'n/a' }}</td>
+																	@endif
+																	<td>{{ $v['church'] ?? 'n/a' }}</td>
+																	<td>{{ $v['subregion'] ?? 'n/a' }}</td>
+																	@if ($region == null)
+																		<td>{{ $v['region'] ?? 'n/a' }}</td>
+																	@endif
+																	<td>@money(floatval($v['amount']) + floatval($v['topup'] ?? 0), setting('default.currency'), true)</td>
+																	<td>{{ $v['month'] }}</td>
+																	<td>{{ $v['year'] }}</td>
+																</tr>
+															@endforeach
+														</tbody>
+														<tfoot>
+															<tr class="table-head-line">
+																<th colspan="{{ strtolower($pageTitle) == 'pastors_fund' ? ($region == null ? 5 : 4) : ($region == null ? 4 : 3) }}" class="float-right">TOTAL</th>
+																<th>@money($TOTALS, setting('default.currency'), true)</th>
+																<th colspan="2"></th>
+															</tr>
+														</tfoot>
+													</table>
+												</div>
+											@endif
 										</div>
-										<div class="body table-responsived" style="display:  {{ $accordion[$subRegName] ? 'block' : 'none' }}">
-											<table class="table table-flush table-hover">
-												<thead class="thead-light">
-													<tr class="table-head-line">
-														<th>
-															<input type="checkbox" id="toggle-all" wire:click='toggleSelected("{{ $reg.$sub }}", false, "{{ $toggleAll[$reg.$sub] ? "true" : "false" }}")' {{ $toggleAll[$reg.$sub] ? 'checked' : '' }} />
-														</th>
-														@if (strtolower($pageTitle) == "pastors_fund")
-															<th>Pastor</th>																
-														@endif
-														<th>Church</th>
-														<th>Sub Region</th>
-														@if ($region == null)
-															<th>Region</th>
-														@endif
-														<th>Amount</th>
-														<th>Month</th>
-														<th>Year</th>
-													</tr>
-												</thead>
-												<tbody>
-													@php($TOTALS = 0)
-													@foreach ($mms['items'] as $k => $v)
-														@php($TOTALS += floatval($v["amount"])+(floatval($v["topup"] ?? 0)))
-														<tr>
-															<td>
-																<input type="checkbox" wire:key="{{ $v["id"] }}" name="breakdown" wire:click='toggleSelected("{{ $reg.$sub }}", "{{ $v['id'] }}")' 
-																	value="{{ $v["id"] }}" {{ isset($selectedList[$reg.$sub][$v['id']]) && $selectedList[$reg.$sub][$v['id']] ? 'checked' : '' }} />
-															</td>
-															@if (strtolower($pageTitle) == "pastors_fund")
-																<td>{{ isset($v["pastor"]) ? $v["pastor"]['contact']["name"] : 'n/a' }}</td>
-															@endif
-															<td>{{ isset($v["church"]) ? $v["church"]["name"] : 'n/a' }}</td>
-															@if ($region == null)
-																<td>{{ $v["region"] ? $v["region"]["name"] : 'n/a' }}</td>
-															@endif
-															<td>{{ $v["subregion"] ? $v["subregion"]["name"] : 'n/a' }}</td>
-															<td>@money(floatval($v["amount"])+(floatval($v["topup"] ?? 0)), setting('default.currency'), true)</td>
-															<td>{{ $v["month"] }}</td>
-															<td>{{ $v["year"] }}</td>
-														</tr>
-													@endforeach
-												</tbody>
-												<tfoot>
-													<tr class="table-head-line">
-														<th colspan="4" class="float-right">TOTAL</th>
-														<th>@money($TOTALS, setting('default.currency'), true)</th>
-														<th colspan="2"></th>
-													</tr>
-												</tfoot>
-											</table>
-										</div>
-									</div>	
-								@endforeach
-							</div>
+									@endforeach
+								</div>
+							@endif
 						</div>
 					@endforeach
 				</ul>
 			</div>
 		</div>
 	@endif
-	
+
+	@if ($showBankExportModal)
+		<div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,.45);">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">{{ trans('demarcations::general.export_bank_payments') }}</h5>
+						<button type="button" class="close" wire:click="closeBankExport" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p class="mb-2 text-muted">
+							Exporting <strong>{{ $bankExportType === 'region' ? 'Region' : 'Sub Region' }}</strong> unpaid amounts
+							in the bank payments template format.
+						</p>
+						<div class="form-group">
+							<label for="bankExportPaymentDetails">{{ trans('demarcations::general.payment_details') }}</label>
+							<input type="text" id="bankExportPaymentDetails" class="form-control"
+								wire:model.defer="bankExportPaymentDetails"
+								placeholder="{{ now()->format('F Y') }} EFT" />
+							<small class="form-text text-muted">Defaults to current month and year. You can change it before download.</small>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" wire:click="closeBankExport">Cancel</button>
+						<button type="button" class="btn btn-success" wire:click="downloadBankExport">
+							<i class="fas fa-file-excel"></i> Download
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	@endif
+
 	<!-- Modal -->
 	<div class="modal fade" wire:ignore.self id="addPaymentModal" tabindex="-1" role="dialog" aria-labelledby="addPaymentModalLabel"
 	aria-hidden="true">
@@ -184,7 +232,3 @@
 		</div>
 	</div>
 </div>
-
-{{-- <div class="alert alert-info">
-	<i class="fas fa-information-circle"></i> Module under maintenance 
-</div> --}}

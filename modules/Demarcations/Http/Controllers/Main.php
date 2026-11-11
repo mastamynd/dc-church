@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\Church\Models\Church;
 use Modules\Church\Models\ChurchHistory;
+use Modules\Demarcations\Exports\BankPaymentsExport;
 use Modules\Demarcations\Exports\DemarcationBanksExport;
 use Modules\Demarcations\Exports\DemarcationExport;
 use Modules\Demarcations\Imports\DemarcationBanks;
@@ -33,7 +34,7 @@ class Main extends Controller
 	{
 		parent::__construct();
 
-		$this->middleware('permission:read-demarcations-main')->only('exportBanks');
+		$this->middleware('permission:read-demarcations-main')->only(['exportBanks', 'exportBankPayments']);
 		$this->middleware('permission:update-demarcations-main')->only('importBanks');
 	}
 	/**
@@ -582,6 +583,26 @@ class Main extends Controller
 		return $this->response('demarcations::payments', compact('divisions', 'regions', 'allregs'));
 	}
 
+	public function exportBankPayments(Request $request)
+	{
+		$type = $request->input('type');
+		$allowed = ['region', 'sub_region'];
+
+		if (!in_array($type, $allowed, true)) {
+			abort(422, 'Invalid payment type for bank export.');
+		}
+
+		$regionId = $request->filled('region') ? (int) $request->input('region') : null;
+		$paymentDetails = $request->input('payment_details');
+		$label = $type === 'region' ? 'region' : 'sub-region';
+		$filename = 'bank-payments-' . $label . '-' . now()->format('Y-m-d-His') . '.xlsx';
+
+		return Excel::download(
+			new BankPaymentsExport($type, $regionId, $paymentDetails),
+			$filename
+		);
+	}
+
 	public function get_pending_items_by_dem($div, $id)
 	{
 		$payments = PaymentDivision::with(['church.senior_pastor.pastor.contact', 'subregion', 'pastor'])->whereNull('payment_date')->where('regional_id', $id)->where('type', $div)
@@ -611,12 +632,14 @@ class Main extends Controller
 			'bank_id' => $request->filled('bank_id') ? $request->bank_id : null,
 			'paybill' => $request->filled('paybill') ? trim($request->paybill) : null,
 			'account_number' => $request->filled('account_number') ? trim($request->account_number) : null,
+			'branch_code' => $request->filled('branch_code') ? trim($request->branch_code) : null,
 		]);
 
 		$request->validate([
 			'bank_id' => 'nullable|integer|exists:banks,id,company_id,' . company_id() . ',deleted_at,NULL',
 			'paybill' => 'nullable|string|max:50',
 			'account_number' => 'nullable|string|max:50',
+			'branch_code' => 'nullable|string|max:20',
 		]);
 	}
 }

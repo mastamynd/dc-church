@@ -16,7 +16,7 @@ class Demarcation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'type', 'enabled', 'bank_id', 'paybill', 'account_number'];
+    protected $fillable = ['name', 'code', 'type', 'enabled', 'bank_id', 'paybill', 'account_number', 'branch_code'];
 
 	protected $appends = ['churches_count', 'demarcation_count', 'received', 'paid'];
 

@@ -89,6 +89,13 @@
 				</li>
 				@stack('demarcations_account_number_end')
 
+				@stack('demarcations_branch_code_start')
+				<li class="list-group-item border-0 border-top-1">
+					<div class="font-weight-600">{{ trans('demarcations::general.branch_code') }}</div>
+					<div><small class="long-texts" title="{{ $demarcation->branch_code }}">{{ $demarcation->branch_code ?: trans('general.na') }}</small></div>
+				</li>
+				@stack('demarcations_branch_code_end')
+
 				@if($isSubRegion)
 					@stack('demarcations_region_start')
 					<li class="list-group-item border-0 border-top-1">
